@@ -961,12 +961,14 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
   <div style="position:fixed;inset:0;z-index:0;background:radial-gradient(circle at 20% 20%,#5A1E6E 0%,#38003C 45%,#12001c 100%);pointer-events:none;"></div>
   <!-- Dark overlay (no pointer-events) -->
   <div style="position:fixed;inset:0;z-index:1;background:linear-gradient(to bottom,rgba(0,0,0,0.35),rgba(0,0,0,0.6));pointer-events:none;user-select:none;"></div>
-  <div class="auth-wrap" style="position:relative;z-index:100;pointer-events:auto;">
-    <img src="gwa-logo-purple.png" alt="GEMS World Academy Dubai" style="display:block;margin:0 auto 18px;width:220px;height:auto;filter:drop-shadow(0 12px 30px rgba(233,0,82,0.35));">
+  <div class="auth-wrap" style="position:relative;z-index:100;pointer-events:auto;flex-direction:column;gap:0;">
+    <img src="pl-banner.jpg" alt="Premier League 2026/27" style="display:block;margin:0 auto 24px;width:100%;max-width:420px;border-radius:18px;box-shadow:0 20px 50px rgba(0,0,0,0.5);">
     <div class="auth-card">
       <div class="auth-logo">
-        <img src="pl-logo.png" alt="Premier League" style="width:64px;height:64px;object-fit:contain;margin-bottom:8px;">
-        <img src="pl-banner.jpg" alt="Premier League 2026/27" style="width:100%;max-width:280px;border-radius:14px;margin:4px auto 14px;display:block;box-shadow:0 8px 24px rgba(0,0,0,0.35);">
+        <div style="background:#fff;display:inline-block;border-radius:12px;padding:8px 16px;margin-bottom:14px;">
+          <img src="gwa-logo.png" alt="GEMS World Academy Dubai" style="height:44px;width:auto;display:block;">
+        </div>
+        <img src="pl-logo.png" alt="Premier League" style="width:56px;height:56px;object-fit:contain;margin-bottom:8px;display:block;margin-left:auto;margin-right:auto;">
         <h1>PREMIER LEAGUE 2026/27</h1>
         <p>GWA Wellbeing Prediction League</p>
       </div>
@@ -1065,6 +1067,7 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
             <div class="calendar-grid" id="calendarGrid"></div>
             <button class="cal-clear-btn" id="calClearBtn" onclick="clearCalendarFilter()" style="display:none">✕ Clear date filter</button>
           </div>
+          <div id="seasonPicksCard" style="margin-top:16px"></div>
         </div>
 
         <!-- MATCHES COLUMN -->
@@ -1100,7 +1103,6 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
   <!-- GROUPS TAB -->
   <div id="tabGroups" class="tab-content" style="display:none">
     <div class="main-wrap">
-      <div id="seasonPicksCard"></div>
       <div class="page-title">📊 Premier League Table</div>
       <div class="page-sub">Your predicted table side-by-side with the actual table.</div>
       <div id="groupsGrid" class="groups-grid"></div>
@@ -1314,11 +1316,7 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
   <div class="modal-box" style="max-width:360px">
     <button class="modal-close" onclick="document.getElementById('teamSettingsModal').style.display='none'">✕</button>
     <div class="page-title" style="font-size:22px">❤️ Favourite Team</div>
-    <p class="page-sub" style="margin-bottom:16px">Pick your team — get <strong>+1 point</strong> every time they win, and a shout-out when they do.</p>
-    <select id="favTeamSelect" style="width:100%;padding:12px;border-radius:10px;background:var(--input-bg);color:var(--text);border:1px solid var(--border);font-family:'Outfit',sans-serif;font-size:14px;margin-bottom:14px"></select>
-    <button class="btn-primary" id="teamThemeBtn" onclick="togglePLTeamTheme()" style="margin-bottom:10px">🎨 Use My Team's Colors</button>
-    <button class="btn-primary" onclick="saveFavTeam()">Save</button>
-    <div id="favTeamMsg" class="auth-msg"></div>
+    <div id="teamSettingsBody"></div>
   </div>
 </div>
 
@@ -1365,13 +1363,20 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
     'Leeds':'#FFCD00','Liverpool':'#C8102E','Man City':'#6CABDD','Man Utd':'#DA291C',
     'Newcastle':'#241F20','Nott\'m Forest':'#DD0000','Spurs':'#132257','Sunderland':'#EB172B',
   };
+  const TEAM_ABBR = {
+    'Arsenal':'ARS','Aston Villa':'AVL','Bournemouth':'BOU','Brentford':'BRE',
+    'Brighton':'BHA','Chelsea':'CHE','Coventry City':'COV','Crystal Palace':'CRY',
+    'Everton':'EVE','Fulham':'FUL','Hull City':'HUL','Ipswich Town':'IPS',
+    'Leeds':'LEE','Liverpool':'LIV','Man City':'MCI','Man Utd':'MUN',
+    'Newcastle':'NEW','Nott\'m Forest':'NFO','Spurs':'TOT','Sunderland':'SUN',
+  };
   function teamBadge(name){
     const bg=TEAM_COLORS[name]||'#64748b';
-    const initials=name.replace(/[^A-Za-z ]/g,'').split(' ').filter(w=>!['City','Town','United','and','Hove','Albion'].includes(w)).map(w=>w[0]).join('').slice(0,3).toUpperCase()||name.slice(0,3).toUpperCase();
+    const initials=TEAM_ABBR[name]||name.slice(0,3).toUpperCase();
     // pick readable text color
     const rgb=parseInt(bg.slice(1),16);const r=(rgb>>16)&255,g=(rgb>>8)&255,b=rgb&255;
     const textColor=(0.299*r+0.587*g+0.114*b)>150?'#111':'#fff';
-    return `<span style="display:inline-flex;align-items:center;justify-content:center;width:26px;height:20px;border-radius:4px;background:${bg};color:${textColor};font-size:9px;font-weight:800;letter-spacing:0.3px;flex-shrink:0">${initials}</span>`;
+    return `<span style="display:inline-flex;align-items:center;justify-content:center;width:30px;height:20px;border-radius:4px;background:${bg};color:${textColor};font-size:9px;font-weight:800;letter-spacing:0.3px;flex-shrink:0">${initials}</span>`;
   }
 
   const STATIC_MATCHES = [
@@ -1698,59 +1703,100 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
 
   // ── FAVOURITE TEAM & TEAM THEME ──────────────────────────────────────
   const ALL_TEAM_NAMES = Object.keys(TEAM_COLORS);
+  function mixHex(hex, withHex, pct){ // pct = how much of `withHex` to mix in (0-1)
+    const a=parseInt(hex.slice(1),16), b=parseInt(withHex.slice(1),16);
+    const ar=(a>>16)&255, ag=(a>>8)&255, ab=a&255;
+    const br=(b>>16)&255, bg=(b>>8)&255, bb=b&255;
+    const r=Math.round(ar+(br-ar)*pct), g=Math.round(ag+(bg-ag)*pct), bl=Math.round(ab+(bb-ab)*pct);
+    return '#'+[r,g,bl].map(v=>v.toString(16).padStart(2,'0')).join('');
+  }
   window.openTeamSettings=async function(){
-    const sel=document.getElementById('favTeamSelect');
-    sel.innerHTML='<option value="">— Choose a team —</option>'+ALL_TEAM_NAMES.map(t=>`<option value="${t}">${t}</option>`).join('');
     const snap=await getDoc(doc(db,'pl_users',resolveUid(currentUser.uid)));
     const fav=snap.exists()?snap.data().favTeam:'';
-    if(fav) sel.value=fav;
-    document.getElementById('teamThemeBtn').textContent = localStorage.getItem('pl-team-theme')==='1' ? "🎨 Using My Team's Colors (tap to reset)" : "🎨 Use My Team's Colors";
-    document.getElementById('favTeamMsg').textContent='';
+    const box=document.getElementById('teamSettingsBody');
+    if(fav){
+      const mode=localStorage.getItem('pl-team-theme-mode')||'dark';
+      box.innerHTML=`
+        <p class="page-sub" style="margin-bottom:14px">Your favourite team is locked in for the season:</p>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:18px;font-size:16px;font-weight:700">${teamBadge(fav)} ${fav}</div>
+        <button class="btn-primary" onclick="togglePLTeamTheme()">${mode==='dark'?'🌙 Dark Team Theme (tap for Light)':'☀️ Light Team Theme (tap for Dark)'}</button>
+        <button class="btn-primary" style="margin-top:8px;background:transparent;border:1px solid var(--border);color:var(--muted)" onclick="resetTeamTheme();document.getElementById('teamSettingsModal').style.display='none'">Use Default Site Theme</button>
+      `;
+    } else {
+      box.innerHTML=`
+        <p class="page-sub" style="margin-bottom:14px">Pick your team — get <strong>+1 point</strong> every time they win, and a shout-out when they do. <strong>You can only pick once</strong>, so choose carefully!</p>
+        <select id="favTeamSelect" style="width:100%;padding:12px;border-radius:10px;background:var(--input-bg);color:var(--text);border:1px solid var(--border);font-family:'Outfit',sans-serif;font-size:14px;margin-bottom:14px">
+          <option value="">— Choose a team —</option>${ALL_TEAM_NAMES.map(t=>`<option value="${t}">${t}</option>`).join('')}
+        </select>
+        <button class="btn-primary" onclick="saveFavTeam()">Confirm Team 🔒</button>
+        <div id="favTeamMsg" class="auth-msg"></div>
+      `;
+    }
     document.getElementById('teamSettingsModal').style.display='flex';
   };
   window.saveFavTeam=async function(){
     const team=document.getElementById('favTeamSelect').value;
     if(!team){document.getElementById('favTeamMsg').textContent='Pick a team first.';return;}
+    if(!confirm(`Lock in ${team} as your favourite team? This can't be changed later.`)) return;
     await setDoc(doc(db,'pl_users',resolveUid(currentUser.uid)),{favTeam:team},{merge:true});
     userProfile.favTeam=team;
-    document.getElementById('favTeamMsg').textContent='Saved! 🎉';
-    if(localStorage.getItem('pl-team-theme')==='1') applyTeamTheme(team);
-    setTimeout(()=>{document.getElementById('teamSettingsModal').style.display='none';},700);
+    localStorage.setItem('pl-team-theme-mode','dark');
+    applyTeamTheme(team,'dark');
+    openTeamSettings();
   };
-  function applyTeamTheme(teamName){
+  function applyTeamTheme(teamName, mode){
     const color=TEAM_COLORS[teamName];
     if(!color) return;
     document.body.classList.add('team-themed');
+    document.body.classList.toggle('light', mode==='light');
+    if(document.getElementById('theme-btn')) document.getElementById('theme-btn').style.display='none'; // team theme controls light/dark instead
     let styleTag=document.getElementById('teamThemeStyle');
     if(!styleTag){styleTag=document.createElement('style');styleTag.id='teamThemeStyle';document.head.appendChild(styleTag);}
-    styleTag.textContent=`body.team-themed { --accent:${color}; }
-      body.team-themed .btn-primary{background:linear-gradient(135deg,${color},#12001c)!important}
+    if(mode==='light'){
+      const bg=mixHex(color,'#ffffff',0.93), card=mixHex(color,'#ffffff',0.86), card2=mixHex(color,'#ffffff',0.80);
+      styleTag.textContent=`body.team-themed.light {
+        --accent:${color}; --dark:${bg}; --card:${card}; --card2:${card2}; --input-bg:${card2};
+        --modal-bg:${card}; --header-bg:${mixHex(color,'#ffffff',0.90)}; --text:#12001c; --muted:#5b4a63;
+        --border:${mixHex(color,'#000000',0.15)};
+      }
+      body.team-themed.light .btn-primary{background:linear-gradient(135deg,${color},${mixHex(color,'#000000',0.3)})!important;color:#fff!important}
+      body.team-themed.light nav button.active{color:${color}!important;background:${mixHex(color,'#ffffff',0.85)}!important}
+      body.team-themed.light .page-title{color:${color}!important}
+      body.team-themed.light body,body.team-themed.light{color:#12001c}`;
+    } else {
+      const bg=mixHex(color,'#000000',0.88), card=mixHex(color,'#000000',0.78), card2=mixHex(color,'#000000',0.70);
+      styleTag.textContent=`body.team-themed {
+        --accent:${color}; --dark:${bg}; --card:${card}; --card2:${card2}; --input-bg:${card2};
+        --modal-bg:${bg}; --header-bg:${mixHex(bg,'#000000',0.1)}; --text:#f1f5f9; --muted:#b8a8c2;
+        --border:${mixHex(color,'#ffffff',0.25)};
+      }
+      body.team-themed .btn-primary{background:linear-gradient(135deg,${color},#0a0010)!important;color:#fff!important}
       body.team-themed nav button.active{color:${color}!important}
-      body.team-themed .page-title{color:${color}!important}`;
+      body.team-themed .page-title{color:${color}!important}
+      body.team-themed{background:${bg}!important;color:#f1f5f9}`;
+    }
   }
   function resetTeamTheme(){
     document.body.classList.remove('team-themed');
+    document.body.classList.toggle('light', localStorage.getItem('gwa-theme')==='light');
+    if(document.getElementById('theme-btn')) document.getElementById('theme-btn').style.display='';
     const styleTag=document.getElementById('teamThemeStyle');
     if(styleTag) styleTag.textContent='';
+    localStorage.removeItem('pl-team-theme-mode');
   }
-  window.togglePLTeamTheme=async function(){
-    const on=localStorage.getItem('pl-team-theme')==='1';
-    if(on){
-      localStorage.removeItem('pl-team-theme');
-      resetTeamTheme();
-      document.getElementById('teamThemeBtn').textContent="🎨 Use My Team's Colors";
-    } else {
-      const team=document.getElementById('favTeamSelect').value || userProfile.favTeam;
-      if(!team){document.getElementById('favTeamMsg').textContent='Pick a team first, then tap this.';return;}
-      localStorage.setItem('pl-team-theme','1');
-      applyTeamTheme(team);
-      document.getElementById('teamThemeBtn').textContent="🎨 Using My Team's Colors (tap to reset)";
-    }
+  window.togglePLTeamTheme=function(){
+    const team=userProfile && userProfile.favTeam;
+    if(!team) return;
+    const current=localStorage.getItem('pl-team-theme-mode')||'dark';
+    const next=current==='dark'?'light':'dark';
+    localStorage.setItem('pl-team-theme-mode',next);
+    applyTeamTheme(team,next);
+    openTeamSettings();
   };
   // Restore team theme on load once profile is known (called from auth flow below)
   window.restoreTeamThemeIfSet=function(){
-    if(localStorage.getItem('pl-team-theme')==='1' && userProfile && userProfile.favTeam){
-      applyTeamTheme(userProfile.favTeam);
+    if(userProfile && userProfile.favTeam){
+      applyTeamTheme(userProfile.favTeam, localStorage.getItem('pl-team-theme-mode')||'dark');
     }
   };
 
@@ -1925,8 +1971,8 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
   window.showTab=(t)=>{
     document.querySelectorAll('.tab-content').forEach(c=>c.style.display='none');
     document.querySelectorAll('nav button[data-tab]').forEach(b=>b.classList.toggle('active', b.dataset.tab===t));
-    if(t==='predictions'){document.getElementById('tabPredictions').style.display='block';renderMatches();updateStats();updatePlayerCount();renderCalendar();}
-    else if(t==='groups'){document.getElementById('tabGroups').style.display='block';renderGroups();renderSeasonPicks();}
+    if(t==='predictions'){document.getElementById('tabPredictions').style.display='block';renderMatches();updateStats();updatePlayerCount();renderCalendar();renderSeasonPicks();}
+    else if(t==='groups'){document.getElementById('tabGroups').style.display='block';renderGroups();}
     else if(t==='rules'){document.getElementById('tabRules').style.display='block';}
     else{document.getElementById('tabLeaderboard').style.display='block';renderLeaderboard();renderHouseChart();updatePlayerCount();}
   };
@@ -2219,30 +2265,30 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
       const lockedNow = locked || deadlinePassed;
       if(lockedNow){
         const picks = saved && saved.length ? saved : [];
-        return `<div class="group-card" style="margin-bottom:16px">
-          <div class="group-card-title">${label}</div>
-          ${picks.length ? `<ol style="padding-left:20px;line-height:1.8">${picks.map(t=>`<li>${teamBadge(t)} ${t}</li>`).join('')}</ol>` : `<p class="page-sub">No picks were made before the deadline.</p>`}
-          <div class="page-sub" style="margin-top:6px">🔒 Locked for the season.</div>
+        return `<div class="calendar-card" style="margin-bottom:12px;padding:12px">
+          <div style="font-size:12px;font-weight:700;margin-bottom:6px">${label}</div>
+          ${picks.length ? `<ol style="padding-left:16px;line-height:1.6;font-size:11px;margin:0">${picks.map(t=>`<li>${teamBadge(t)} ${t}</li>`).join('')}</ol>` : `<p style="font-size:11px;color:var(--muted);margin:0">No picks made before deadline.</p>`}
+          <div style="font-size:10px;color:var(--muted);margin-top:6px">🔒 Locked for the season</div>
         </div>`;
       }
       const opts=ALL_TEAM_NAMES.map(t=>`<option value="${t}">${t}</option>`).join('');
       const selects=Array.from({length:count},(_,i)=>{
         const v=saved&&saved[i]?saved[i]:'';
-        return `<select id="${kind}Pick${i}" style="width:100%;padding:10px;margin-bottom:8px;border-radius:8px;background:var(--input-bg);color:var(--text);border:1px solid var(--border)">
+        return `<select id="${kind}Pick${i}" style="width:100%;padding:6px;margin-bottom:6px;border-radius:6px;background:var(--input-bg);color:var(--text);border:1px solid var(--border);font-size:11px">
           <option value="">— Pick #${i+1} —</option>${opts}
         </select>`;
       }).join('');
-      return `<div class="group-card" style="margin-bottom:16px">
-        <div class="group-card-title">${label}</div>
-        <div class="predictions-notice" style="margin-bottom:12px">⏰ Pick within <strong>5 days of joining</strong> (by ${deadlineStr} UAE), or once you confirm — whichever comes first. Locks for the whole season.</div>
+      return `<div class="calendar-card" style="margin-bottom:12px;padding:12px">
+        <div style="font-size:12px;font-weight:700;margin-bottom:6px">${label}</div>
+        <div style="font-size:10px;color:var(--muted);margin-bottom:8px">⏰ Pick within 5 days of joining (by ${deadlineStr}) or once confirmed. Locks for the season.</div>
         ${selects}
-        <button class="btn-primary" onclick="confirmSeasonPicks('${kind}',${count})">Confirm Picks 🔒</button>
-        <div id="${kind}Msg" class="auth-msg"></div>
+        <button class="btn-primary" style="padding:8px;font-size:11px" onclick="confirmSeasonPicks('${kind}',${count})">Confirm 🔒</button>
+        <div id="${kind}Msg" class="auth-msg" style="font-size:10px"></div>
       </div>`;
     }
 
-    card.innerHTML = pickerBlock('top4','🏆 Predict the Top 4 (Champions League)',4,u.top4Picks,u.top4Locked)
-                    + pickerBlock('bottom3','⬇️ Predict the Bottom 3 (Relegated)',3,u.bottom3Picks,u.bottom3Locked);
+    card.innerHTML = pickerBlock('top4','🏆 Top 4 (Champions League)',4,u.top4Picks,u.top4Locked)
+                    + pickerBlock('bottom3','⬇️ Bottom 3 (Relegated)',3,u.bottom3Picks,u.bottom3Locked);
 
     // Pre-select saved values now that selects exist
     ['top4','bottom3'].forEach(kind=>{

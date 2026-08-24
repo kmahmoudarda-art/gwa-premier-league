@@ -6,28 +6,29 @@ Firestore collections, so it will never touch or overwrite your World Cup data).
 
 ## What's included
 - `index.html`, `style.css`, `firebase-config.js` — the site
-- `gwa-logo-purple.png` — purple/white transparent GWA logo (fixes the broken-image issue from the original white-background logo)
-- `pl-logo.png`, `pl-banner.jpg` — Premier League crest and 2026/27 banner (yours), shown on the login screen
-- **Team badges**: 3-letter club-color badges (e.g. "ARS" in Arsenal red) replace the ⚽ emoji everywhere — used instead of official club crests, which I can't reproduce due to trademark/copyright, and instead of the Pinterest image you linked, which I can't access or reuse
-- **Premier League color theme**: deep purple/magenta (`#38003C` / `#E90052`)
-- Real fixtures for **Gameweeks 1–9**, UAE kickoff times, real stadium names — all cross-checked against ESPN/Sky Sports/Opta/the official PL fixture-amendments page
-- GW1's pre-launch matches are included with real scores but excluded from prediction scoring (nobody could have predicted them) — still count in the real League Table
-- Knockout-stage system fully removed (no bracket in the Premier League) — Table tab now shows your predicted table and the actual table side by side, with a ✓ when a team sits in the same position in both
-- **Rules tab** — scoring, bonus points, and prediction rules all spelled out
-- **Favourite team system**: pick a team (❤️ My Team button in the header) — get a one-time celebration toast + **+1 point** every time they win; optional "Use My Team's Colors" site-theme toggle
-- **+1 bonus point** for joining before 31 August 2026
-- **Top 4 / Bottom 3 season predictions**: pick your Champions League top 4 and relegated bottom 3, in order — 5 days from joining to lock them in (or lock immediately by confirming); +1 point per correct team, +1 more if the order is exact. Scoring activates once you fill in `ACTUAL_TOP4` / `ACTUAL_RELEGATED` in `index.html` at the end of the season.
-- **Bug fixes this pass**: accuracy % denominator now correctly excludes pre-launch matches; tab-highlighting was broken (matched by stale array position) and is now fixed; colorblind mode had several low-contrast pastel colors on light theme, now fixed; removed a leftover World Cup warning banner
+- `gwa-logo.png` — original GEMS logo (used on the login screen in a white badge)
+- `gwa-logo-purple.png` — transparent purple/white version (used in the compact header)
+- `pl-logo.png`, `pl-banner.jpg` — Premier League crest and 2026/27 banner (yours)
+- **Login screen rebuilt**: the PL banner is now one large centered hero image above the card, the GEMS logo sits in a small white badge at the top of the card — this fixes the side-by-side overlap bug from the previous version (the old layout put a big image and the card as flex siblings, which rendered side-by-side on wide screens)
+- **Card style reverted** to WC26's plain rounded look (dropped the accent-border differentiation from the previous pass)
+- **Team badges fixed**: real 3-letter club codes (ARS, MUN, LIV, etc.) via a proper lookup table — the old version was cutting single-word team names down to 1 letter
+- **Top 4 / Bottom 3 predictions moved**: now sit under the calendar in the Predictions tab sidebar, in a much more compact card design (small text, tight spacing) instead of the previous full-width oversized cards
+- **Favourite team overhaul**:
+  - Can only be picked **once** — confirmed with a warning dialog, then locked permanently
+  - Once locked, picking a team changes the **entire site theme** (backgrounds, cards, inputs, header — not just buttons/labels), derived from the team's color, with text color kept readable in both variants
+  - After locking, a single toggle switches between a **dark** and **light** version of the team theme (replaces the general dark/light button while a team theme is active)
+  - "Use Default Site Theme" button in the same settings modal to go back to plain PL purple/magenta
+- **Colorblind mode contrast fix** for light theme, **Rules tab**, **active-tab highlighting fix**, **merged predictions/actual table view** with ✓ marks, **+1 bonus for joining before 31 Aug**, **+1 bonus per favourite-team win with a celebration toast** — all still in from the previous pass
 - Verified: full JS syntax check clean, HTML tag balance checked
 
 ## Deploy
 
 Your repo already exists at github.com/kmahmoudarda-art/gwa-premier-league —
-just upload these 7 files to it (this will overwrite the older versions):
+just upload these 8 files to it (this will overwrite the older versions):
 
 1. Go to https://github.com/kmahmoudarda-art/gwa-premier-league
 2. Click **Add file → Upload files**
-3. Drag in all 7 files from this folder → **Commit changes**
+3. Drag in all 8 files from this folder → **Commit changes**
 4. Go to https://pages.cloudflare.com → **Create a project** → **Connect to Git**
 5. Select the `gwa-premier-league` repo → Build command: *(leave empty)* →
    Build output directory: `/` → **Save and Deploy**
