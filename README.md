@@ -4,21 +4,25 @@ This is the Premier League version of the WC26 prediction league, sharing your
 existing `gwa-worldcup` Firebase project (data is isolated in `pl_`-prefixed
 Firestore collections, so it will never touch or overwrite your World Cup data).
 
+## Colors
+**Navy blue (`#1D4ED8`) / white** is now the default theme — the pink/crimson
+(`#E90052`) used before was applied to 60+ elements (borders, badges,
+backgrounds, text), which read as "the whole site is red" rather than an
+accent. Swapped it everywhere, including the login gradient and dark-theme
+backgrounds (were purple-tinted, now navy-tinted). Also fixed a side-effect
+where the "Battuta" house color had accidentally been swept into that same
+replace, clashing with "Razi" — restored it to amber/gold.
+
 ## What's included
 - `index.html`, `style.css`, `firebase-config.js` — the site
-- `gwa-logo.png` — original GEMS logo (used on the login screen in a white badge)
-- `gwa-logo-purple.png` — transparent purple/white version (used in the compact header)
-- `pl-logo.png`, `pl-banner.jpg` — Premier League crest and 2026/27 banner (yours)
-- **Login screen rebuilt**: the PL banner is now one large centered hero image above the card, the GEMS logo sits in a small white badge at the top of the card — this fixes the side-by-side overlap bug from the previous version (the old layout put a big image and the card as flex siblings, which rendered side-by-side on wide screens)
-- **Card style reverted** to WC26's plain rounded look (dropped the accent-border differentiation from the previous pass)
-- **Team badges fixed**: real 3-letter club codes (ARS, MUN, LIV, etc.) via a proper lookup table — the old version was cutting single-word team names down to 1 letter
-- **Top 4 / Bottom 3 predictions moved**: now sit under the calendar in the Predictions tab sidebar, in a much more compact card design (small text, tight spacing) instead of the previous full-width oversized cards
-- **Favourite team overhaul**:
-  - Can only be picked **once** — confirmed with a warning dialog, then locked permanently
-  - Once locked, picking a team changes the **entire site theme** (backgrounds, cards, inputs, header — not just buttons/labels), derived from the team's color, with text color kept readable in both variants
-  - After locking, a single toggle switches between a **dark** and **light** version of the team theme (replaces the general dark/light button while a team theme is active)
-  - "Use Default Site Theme" button in the same settings modal to go back to plain PL purple/magenta
-- **Colorblind mode contrast fix** for light theme, **Rules tab**, **active-tab highlighting fix**, **merged predictions/actual table view** with ✓ marks, **+1 bonus for joining before 31 Aug**, **+1 bonus per favourite-team win with a celebration toast** — all still in from the previous pass
+- `gwa-logo.png`, `gwa-logo-purple.png`, `pl-logo.png`, `pl-banner.jpg` — images
+- **Fixed real bugs this pass**:
+  - "Use Default Site Theme" button did nothing — `resetTeamTheme` was never exposed to the page (module-script scoping issue), now fixed
+  - Couldn't scroll past the Predictions tab sidebar without jumping to the bottom of the page — the sidebar was `position: sticky`, which worked fine for the small calendar alone but broke once the Top 4/Bottom 3 picker cards made it taller than the screen; now normal (static) positioning
+  - Calendar day clicks not registering — same sticky-positioning issue was very likely the cause (a trapped sticky container can block clicks on elements near it); should be resolved by the same fix above
+  - Verified the Today/Tomorrow filter's date logic directly against the data — it's correct (today, 24 Aug, does have a match: Fulham vs Chelsea). If you see "no matches" again, it likely means whatever day you're testing on genuinely has no PL fixture (there are real gaps between gameweeks) — worth double-checking the date when it happens
+- **Login page**: PL banner now on the left, login card on the right, side-by-side (wraps to stacked automatically on narrow/mobile screens so nothing overlaps)
+- **Table tab**: removed the instructional note per your request, dropped the MP column and tightened padding/font so both tables fit side-by-side without cutting off columns
 - Verified: full JS syntax check clean, HTML tag balance checked
 
 ## Deploy

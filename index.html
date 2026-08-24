@@ -269,7 +269,7 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
   gap: 24px;
   align-items: start;
 }
-.calendar-sidebar { position: sticky; top: 16px; }
+.calendar-sidebar { position: static; }
 .matches-column { min-width: 0; }
 
 /* ── CALENDAR ── */
@@ -940,7 +940,7 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
 }
 .fav-team-celebration {
   position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
-  background: linear-gradient(135deg,#38003C,#E90052); color: #fff;
+  background: linear-gradient(135deg,#0C2340,#1D4ED8); color: #fff;
   padding: 14px 20px; border-radius: 14px; box-shadow: 0 12px 40px rgba(0,0,0,0.4);
   z-index: 9999; display: flex; align-items: center; gap: 14px;
   font-family: 'Outfit', sans-serif; font-weight: 600; font-size: 14px;
@@ -958,11 +958,11 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
 <!-- AUTH PAGE -->
 <div id="authPage" class="page active" style="position:relative;min-height:100vh;isolation:isolate;">
   <!-- Premier League gradient background -->
-  <div style="position:fixed;inset:0;z-index:0;background:radial-gradient(circle at 20% 20%,#5A1E6E 0%,#38003C 45%,#12001c 100%);pointer-events:none;"></div>
+  <div style="position:fixed;inset:0;z-index:0;background:radial-gradient(circle at 20% 20%,#1E3A6B 0%,#0C2340 45%,#020817 100%);pointer-events:none;"></div>
   <!-- Dark overlay (no pointer-events) -->
   <div style="position:fixed;inset:0;z-index:1;background:linear-gradient(to bottom,rgba(0,0,0,0.35),rgba(0,0,0,0.6));pointer-events:none;user-select:none;"></div>
-  <div class="auth-wrap" style="position:relative;z-index:100;pointer-events:auto;flex-direction:column;gap:0;">
-    <img src="pl-banner.jpg" alt="Premier League 2026/27" style="display:block;margin:0 auto 24px;width:100%;max-width:420px;border-radius:18px;box-shadow:0 20px 50px rgba(0,0,0,0.5);">
+  <div class="auth-wrap" style="position:relative;z-index:100;pointer-events:auto;flex-direction:row;flex-wrap:wrap;gap:40px;">
+    <img src="pl-banner.jpg" alt="Premier League 2026/27" style="display:block;width:100%;max-width:380px;border-radius:18px;box-shadow:0 20px 50px rgba(0,0,0,0.5);align-self:center;">
     <div class="auth-card">
       <div class="auth-logo">
         <div style="background:#fff;display:inline-block;border-radius:12px;padding:8px 16px;margin-bottom:14px;">
@@ -1102,7 +1102,7 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
 
   <!-- GROUPS TAB -->
   <div id="tabGroups" class="tab-content" style="display:none">
-    <div class="main-wrap">
+    <div class="main-wrap" style="max-width:none;width:100%;box-sizing:border-box;">
       <div class="page-title">📊 Premier League Table</div>
       <div class="page-sub">Your predicted table side-by-side with the actual table.</div>
       <div id="groupsGrid" class="groups-grid"></div>
@@ -1776,7 +1776,7 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
       body.team-themed{background:${bg}!important;color:#f1f5f9}`;
     }
   }
-  function resetTeamTheme(){
+  window.resetTeamTheme=function resetTeamTheme(){
     document.body.classList.remove('team-themed');
     document.body.classList.toggle('light', localStorage.getItem('gwa-theme')==='light');
     if(document.getElementById('theme-btn')) document.getElementById('theme-btn').style.display='';
@@ -2336,8 +2336,8 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
     const actualRank={}; actualStandings.forEach((t,i)=>actualRank[t.name]=i);
 
     function tableHtml(standings, otherRank){
-      return `<table class="standings-table">
-          <thead><tr><th>#</th><th>Team</th><th>MP</th><th>W</th><th>D</th><th>L</th><th>GD</th><th>Pts</th></tr></thead>
+      return `<table class="standings-table compact">
+          <thead><tr><th>#</th><th>Team</th><th>W</th><th>D</th><th>L</th><th>GD</th><th>Pts</th></tr></thead>
           <tbody>${standings.map((t,i)=>{
             const ucl=i<4, releg=i>=17;
             const matches=otherRank[t.name]===i;
@@ -2348,7 +2348,7 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
                 ${teamBadge(t.name)} ${t.name}
                 ${matches?'<span title="Same position in both tables" style="color:#4ade80;margin-left:4px">✓</span>':''}
               </td>
-              <td>${t.mp}</td><td>${t.w}</td><td>${t.d}</td><td>${t.l}</td>
+              <td>${t.w}</td><td>${t.d}</td><td>${t.l}</td>
               <td>${t.gf-t.ga>=0?'+':''}${t.gf-t.ga}</td>
               <td class="pts-cell">${t.pts}</td>
             </tr>`;
@@ -2356,17 +2356,16 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
         </table>`;
     }
 
-    let html=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:20px" class="side-by-side-tables">
-      <div class="group-card">
-        <div class="group-card-title">👤 Your Predicted Table</div>
+    let html=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px" class="side-by-side-tables">
+      <div class="group-card" style="padding:12px">
+        <div class="group-card-title" style="font-size:14px">👤 Your Predicted Table</div>
         ${tableHtml(myStandings, actualRank)}
       </div>
-      <div class="group-card">
-        <div class="group-card-title">📡 Actual Table</div>
+      <div class="group-card" style="padding:12px">
+        <div class="group-card-title" style="font-size:14px">📡 Actual Table</div>
         ${tableHtml(actualStandings, myRank)}
       </div>
-    </div>
-    <div class="third-place-note">🟢 Top 4 = Champions League · 🔴 Bottom 3 = Relegation · ✓ = same position in both tables</div>`;
+    </div>`;
     grid.innerHTML=html;
   }
 
@@ -2564,6 +2563,9 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
   // ── PROFILE MODAL ──────────────────────────────────────────────────
   let profileActiveTab='standings';
 
+  function assignHybridRanksLite(arr){
+    arr.forEach((u,i)=>{ u._rank = (i>0 && arr[i-1].pts===u.pts) ? arr[i-1]._rank : i+1; });
+  }
   window.openProfile=async(uid)=>{
     uid = resolveUid(uid); // redirect migrated accounts to old UID
     const modal=document.getElementById('profileModal');
@@ -2589,6 +2591,36 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
     // Apply manual override — only if Firestore returned nothing (quota/migration)
     const ovrP = MANUAL_POINTS_OVERRIDE[uid];
     if (ovrP && pts === 0) { pts = ovrP.pts; exact = ovrP.exact; correct = ovrP.correct; }
+
+    // ── Compute overall rank for this player and the viewer, to show the gap ──
+    const mappedNewUidsProf = new Set(Object.keys(UID_MAP));
+    const allRankRows=[];
+    Object.entries(users).forEach(([auid,au])=>{
+      if(mappedNewUidsProf.has(auid)) return;
+      const ap=predsMap[auid]||{};
+      let apts=0;
+      for(const[id,v]of Object.entries(ap)){if(NO_SCORE_MATCHES.has(id))continue;const r=getResult(id);if(!r||(!r.live&&!r.finished))continue;if(v.home===r.home&&v.away===r.away)apts+=3;else if(Math.sign(v.home-v.away)===Math.sign(r.home-r.away))apts+=1;}
+      const aovr=MANUAL_POINTS_OVERRIDE[auid];
+      if(aovr && apts===0) apts=aovr.pts;
+      if(au.favTeam){apts+=allMatches.filter(m=>{const r=getResult(m.id);if(!r||!r.finished)return false;return (m.home===au.favTeam&&r.home>r.away)||(m.away===au.favTeam&&r.away>r.home);}).length;}
+      const cutoff=new Date('2026-08-31T23:59:59+04:00').getTime();
+      if(au.joined && au.joined<=cutoff) apts+=1;
+      allRankRows.push({uid:auid,pts:apts});
+    });
+    allRankRows.sort((a,b)=>b.pts-a.pts);
+    assignHybridRanksLite(allRankRows);
+    const viewedRank = allRankRows.find(r=>r.uid===uid)?._rank;
+    const myUid = resolveUid(currentUser.uid);
+    const myRank = allRankRows.find(r=>r.uid===myUid)?._rank;
+    let rankDiffHtml='';
+    if(uid!==myUid && viewedRank!=null && myRank!=null){
+      const diff=myRank-viewedRank; // positive = they're ahead of you
+      rankDiffHtml = diff===0
+        ? `<div class="profile-rank-diff">🤝 You're tied in overall rank (both #${myRank})</div>`
+        : diff>0
+          ? `<div class="profile-rank-diff">📈 ${u.name} is <strong>${diff} place${diff>1?'s':''}</strong> ahead of you (#${viewedRank} vs your #${myRank})</div>`
+          : `<div class="profile-rank-diff">📉 ${u.name} is <strong>${-diff} place${-diff>1?'s':''}</strong> behind you (#${viewedRank} vs your #${myRank})</div>`;
+    }
 
     // Predicted table from this user's own predictions
     const userResults={};
@@ -2755,6 +2787,7 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
           <div class="profile-house" style="color:${h.color}">${h.emoji} ${u.house} House</div>
         </div>
       </div>
+      ${rankDiffHtml}
       <div class="profile-stats">
         <div class="ps-card"><div class="ps-num yellow">${pts}</div><div class="ps-lbl">Points</div></div>
         <div class="ps-card"><div class="ps-num green">${exact}</div><div class="ps-lbl">Exact</div></div>
