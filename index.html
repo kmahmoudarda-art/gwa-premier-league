@@ -1648,7 +1648,9 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
 
   let currentUser=null, userProfile=null, pendingGUser=null;
   let currentFilter='all', selectedHouse='', liveResults={}, allMatches=STATIC_MATCHES, hideFinished=true;
-  let selectedCalendarDate=null, calendarViewMonth=5, calendarViewYear=2026; // June 2026 (0-indexed month=5)
+  let selectedCalendarDate=null;
+  const _nowForCal=new Date();
+  let calendarViewMonth=_nowForCal.getMonth(), calendarViewYear=_nowForCal.getFullYear(); // defaults to the real current month
   // (groupView toggle removed — table now shows predicted & actual side by side)
 
   // ── CACHE ──────────────────────────────────────────────────────────
