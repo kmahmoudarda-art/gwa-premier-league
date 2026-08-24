@@ -957,12 +957,14 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
 
 <!-- AUTH PAGE -->
 <div id="authPage" class="page active" style="position:relative;min-height:100vh;isolation:isolate;">
-  <!-- Premier League gradient background -->
-  <div style="position:fixed;inset:0;z-index:0;background:radial-gradient(circle at 20% 20%,#1E3A6B 0%,#0C2340 45%,#020817 100%);pointer-events:none;"></div>
+  <!-- Video Background -->
+  <video id="authVideo" autoplay muted loop playsinline
+    style="position:fixed;top:0;left:0;right:0;bottom:0;width:100vw;height:100vh;min-width:100%;min-height:100%;object-fit:cover;z-index:0;pointer-events:none;">
+    <source src="bg-video.mp4" type="video/mp4">
+  </video>
   <!-- Dark overlay (no pointer-events) -->
-  <div style="position:fixed;inset:0;z-index:1;background:linear-gradient(to bottom,rgba(0,0,0,0.35),rgba(0,0,0,0.6));pointer-events:none;user-select:none;"></div>
-  <div class="auth-wrap" style="position:relative;z-index:100;pointer-events:auto;flex-direction:row;flex-wrap:wrap;gap:40px;">
-    <img src="pl-banner.jpg" alt="Premier League 2026/27" style="display:block;width:100%;max-width:380px;border-radius:18px;box-shadow:0 20px 50px rgba(0,0,0,0.5);align-self:center;">
+  <div style="position:fixed;top:0;left:0;right:0;bottom:0;z-index:1;background:linear-gradient(to bottom,rgba(0,0,0,0.45),rgba(0,0,0,0.65));pointer-events:none;user-select:none;"></div>
+  <div class="auth-wrap" style="position:relative;z-index:100;pointer-events:auto;">
     <div class="auth-card">
       <div class="auth-logo">
         <div style="background:#fff;display:inline-block;border-radius:12px;padding:8px 16px;margin-bottom:14px;">
@@ -2238,16 +2240,26 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
 
   function calcStandings(matches,results){
     const teams={};
-    matches.forEach(m=>{
-      [m.home,m.away].forEach(t=>{if(!teams[t])teams[t]={name:t,mp:0,w:0,d:0,l:0,gf:0,ga:0,pts:0};});
+    // Sort matches chronologically (by group/gameweek, then id) so Form reflects real order
+    const sortedMatches=[...matches].sort((a,b)=>(a.group-b.group)||a.id.localeCompare(b.id));
+    sortedMatches.forEach(m=>{
+      [m.home,m.away].forEach(t=>{if(!teams[t])teams[t]={name:t,mp:0,w:0,d:0,l:0,gf:0,ga:0,pts:0,form:[]};});
       const r=results[m.id];if(!r)return;
       const ht=teams[m.home],at=teams[m.away];
       ht.mp++;at.mp++;ht.gf+=r.home;ht.ga+=r.away;at.gf+=r.away;at.ga+=r.home;
-      if(r.home>r.away){ht.w++;ht.pts+=3;at.l++;}
-      else if(r.home===r.away){ht.d++;ht.pts++;at.d++;at.pts++;}
-      else{at.w++;at.pts+=3;ht.l++;}
+      if(r.home>r.away){ht.w++;ht.pts+=3;at.l++;ht.form.push('W');at.form.push('L');}
+      else if(r.home===r.away){ht.d++;ht.pts++;at.d++;at.pts++;ht.form.push('D');at.form.push('D');}
+      else{at.w++;at.pts+=3;ht.l++;ht.form.push('L');at.form.push('W');}
     });
+    Object.values(teams).forEach(t=>{t.form=t.form.slice(-5);});
     return Object.values(teams).sort((a,b)=>b.pts-a.pts||(b.gf-b.ga)-(a.gf-a.ga)||b.gf-a.gf);
+  }
+  function formDots(form){
+    if(!form || !form.length) return '<span style="color:var(--muted);font-size:10px">—</span>';
+    return form.map(r=>{
+      const bg = r==='W' ? '#22c55e' : r==='D' ? '#94a3b8' : '#ef4444';
+      return `<span title="${r==='W'?'Win':r==='D'?'Draw':'Loss'}" style="display:inline-block;width:16px;height:16px;border-radius:50%;background:${bg};color:#fff;font-size:9px;font-weight:800;text-align:center;line-height:16px;margin-right:2px">${r}</span>`;
+    }).join('');
   }
 
   // ── SEASON PREDICTIONS: TOP 4 & RELEGATION ──────────────────────────
@@ -2335,36 +2347,62 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
     const myRank={}; myStandings.forEach((t,i)=>myRank[t.name]=i);
     const actualRank={}; actualStandings.forEach((t,i)=>actualRank[t.name]=i);
 
+    function zoneClass(rank){ // rank is 1-indexed
+      if(rank<=4) return 'zone-ucl';
+      if(rank<=6) return 'zone-uel';
+      if(rank>=18) return 'zone-releg';
+      return '';
+    }
+    function zoneDot(rank){
+      if(rank<=4) return '<span class="qualify-dot" style="background:#3b82f6"></span>';
+      if(rank<=6) return '<span class="qualify-dot" style="background:#f59e0b"></span>';
+      if(rank>=18) return '<span class="qualify-dot out"></span>';
+      return '<span style="display:inline-block;width:8px"></span>';
+    }
     function tableHtml(standings, otherRank){
       return `<table class="standings-table compact">
-          <thead><tr><th>#</th><th>Team</th><th>W</th><th>D</th><th>L</th><th>GD</th><th>Pts</th></tr></thead>
+          <thead><tr><th>#</th><th>Team</th><th>PL</th><th>W</th><th>D</th><th>L</th><th>GD</th><th>PTS</th><th>Form</th><th>Δ</th></tr></thead>
           <tbody>${standings.map((t,i)=>{
-            const ucl=i<4, releg=i>=17;
-            const matches=otherRank[t.name]===i;
-            return `<tr class="${ucl?'qualify':''} ${releg?'third-gold':''}">
-              <td>${i+1}</td>
+            const rank=i+1;
+            const otherIdx=otherRank[t.name];
+            let diffHtml='<span style="color:var(--muted)">—</span>';
+            if(otherIdx!=null){
+              const diff=otherIdx-i; // positive = moved up vs other table
+              if(diff===0) diffHtml='<span style="color:#4ade80;font-weight:700">✓</span>';
+              else if(diff>0) diffHtml=`<span style="color:#4ade80;font-weight:700">▲${diff}</span>`;
+              else diffHtml=`<span style="color:#ef4444;font-weight:700">▼${-diff}</span>`;
+            }
+            return `<tr class="${zoneClass(rank)}">
+              <td>${rank}</td>
               <td class="team-cell">
-                ${ucl?'<span class="qualify-dot"></span>':releg?'<span class="qualify-dot out"></span>':''}
+                ${zoneDot(rank)}
                 ${teamBadge(t.name)} ${t.name}
-                ${matches?'<span title="Same position in both tables" style="color:#4ade80;margin-left:4px">✓</span>':''}
               </td>
-              <td>${t.w}</td><td>${t.d}</td><td>${t.l}</td>
+              <td>${t.mp}</td><td>${t.w}</td><td>${t.d}</td><td>${t.l}</td>
               <td>${t.gf-t.ga>=0?'+':''}${t.gf-t.ga}</td>
               <td class="pts-cell">${t.pts}</td>
+              <td>${formDots(t.form)}</td>
+              <td>${diffHtml}</td>
             </tr>`;
           }).join('')}</tbody>
         </table>`;
     }
 
-    let html=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px" class="side-by-side-tables">
-      <div class="group-card" style="padding:12px">
+    let html=`<div class="side-by-side-tables">
+      <div class="group-card table-card">
         <div class="group-card-title" style="font-size:14px">👤 Your Predicted Table</div>
         ${tableHtml(myStandings, actualRank)}
       </div>
-      <div class="group-card" style="padding:12px">
+      <div class="group-card table-card">
         <div class="group-card-title" style="font-size:14px">📡 Actual Table</div>
         ${tableHtml(actualStandings, myRank)}
       </div>
+    </div>
+    <div style="font-size:11px;color:var(--muted);margin-top:10px">
+      <span style="color:#3b82f6">●</span> Champions League (1-4) ·
+      <span style="color:#f59e0b">●</span> Europa League (5-6) ·
+      <span style="color:#ef4444">●</span> Relegation (18-20) ·
+      Δ = movement vs. the other table
     </div>`;
     grid.innerHTML=html;
   }
@@ -2776,6 +2814,31 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
       if(tab==='standings') return `<div class="profile-groups-grid">${standingsHtml||'<div style="color:var(--muted);font-size:13px;padding:12px 0">No group predictions yet.</div>'}</div>`;
       if(tab==='preds') return `<div class="profile-preds">${predsHtml||'<div style="color:var(--muted);font-size:13px;padding:12px 0">No predictions yet.</div>'}</div>`;
       if(tab==='knockout') return koTabHtml;
+      if(tab==='picks') {
+        const favHtml = u.favTeam
+          ? `<div style="display:flex;align-items:center;gap:8px;font-size:14px;font-weight:700;margin-bottom:6px">${teamBadge(u.favTeam)} ${u.favTeam}</div>`
+          : `<div style="color:var(--muted);font-size:13px">No favourite team picked yet.</div>`;
+        const top4Html = (u.top4Picks && u.top4Picks.length)
+          ? `<ol style="padding-left:18px;line-height:1.7;font-size:13px;margin:0">${u.top4Picks.map(t=>`<li>${teamBadge(t)} ${t}</li>`).join('')}</ol>`
+          : `<div style="color:var(--muted);font-size:13px">${u.top4Locked?'No picks were made before the deadline.':'Not picked yet (still open).'}</div>`;
+        const bottom3Html = (u.bottom3Picks && u.bottom3Picks.length)
+          ? `<ol style="padding-left:18px;line-height:1.7;font-size:13px;margin:0">${u.bottom3Picks.map(t=>`<li>${teamBadge(t)} ${t}</li>`).join('')}</ol>`
+          : `<div style="color:var(--muted);font-size:13px">${u.bottom3Locked?'No picks were made before the deadline.':'Not picked yet (still open).'}</div>`;
+        return `<div class="profile-groups-grid">
+          <div class="profile-group">
+            <div class="profile-group-title">❤️ Favourite Team</div>
+            ${favHtml}
+          </div>
+          <div class="profile-group">
+            <div class="profile-group-title">🏆 Top 4 Pick</div>
+            ${top4Html}
+          </div>
+          <div class="profile-group">
+            <div class="profile-group-title">⬇️ Bottom 3 Pick</div>
+            ${bottom3Html}
+          </div>
+        </div>`;
+      }
       return '';
     };
 
@@ -2797,11 +2860,12 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
       <div class="profile-tab-bar">
         <button class="profile-tab-btn active" id="ptab-standings" onclick="switchProfileTab('standings')">📊 Predicted Table</button>
         <button class="profile-tab-btn" id="ptab-preds" onclick="switchProfileTab('preds')">⚽ Predictions (${Object.keys(p).length})</button>
+        <button class="profile-tab-btn" id="ptab-picks" onclick="switchProfileTab('picks')">🔮 Season Picks</button>
       </div>
       <div id="profile-tab-content">${tabContent('standings')}</div>
     `;
 
-    window._profileTabs={standings:tabContent('standings'),preds:tabContent('preds'),knockout:tabContent('knockout')};
+    window._profileTabs={standings:tabContent('standings'),preds:tabContent('preds'),knockout:tabContent('knockout'),picks:tabContent('picks')};
   };
 
   window.switchProfileTab=function(tab){
