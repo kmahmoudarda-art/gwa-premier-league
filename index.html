@@ -43,6 +43,7 @@
   font-family:'Bebas Neue',sans-serif; font-size:32px; color:white;
   display:flex; align-items:center; gap:8px;
 }
+body.light .final-score { color:#0a0a0a; }
 .final-label { font-size:10px; font-weight:700; color:var(--muted); letter-spacing:1px; }
 .your-pred   { font-size:11px; color:var(--muted); }
 .your-pred.no-pred { font-style:italic; }
@@ -957,14 +958,10 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
 
 <!-- AUTH PAGE -->
 <div id="authPage" class="page active" style="position:relative;min-height:100vh;isolation:isolate;">
-  <!-- Video Background -->
-  <video id="authVideo" autoplay muted loop playsinline
-    style="position:fixed;top:0;left:0;right:0;bottom:0;width:100vw;height:100vh;min-width:100%;min-height:100%;object-fit:cover;z-index:0;pointer-events:none;">
-    <source src="bg-video.mp4" type="video/mp4">
-  </video>
-  <!-- Dark overlay (no pointer-events) -->
-  <div style="position:fixed;top:0;left:0;right:0;bottom:0;z-index:1;background:linear-gradient(to bottom,rgba(0,0,0,0.45),rgba(0,0,0,0.65));pointer-events:none;user-select:none;"></div>
-  <div class="auth-wrap" style="position:relative;z-index:100;pointer-events:auto;">
+  <!-- Background -->
+  <div style="position:fixed;top:0;left:0;right:0;bottom:0;z-index:0;background:radial-gradient(circle at 30% 50%,#0c1c3a 0%,#050d1f 60%,#020817 100%);"></div>
+  <div class="auth-wrap" style="position:relative;z-index:100;pointer-events:auto;align-items:flex-end;justify-content:space-between;gap:24px;">
+    <img src="pl-lion-bg.png" alt="Premier League" style="max-width:70vw;max-height:80vh;width:auto;height:auto;object-fit:contain;flex-shrink:1;">
     <div class="auth-card">
       <div class="auth-logo">
         <div style="background:#fff;display:inline-block;border-radius:12px;padding:8px 16px;margin-bottom:14px;">
