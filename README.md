@@ -26,24 +26,33 @@ collections — untouched from the PL version, so nothing is lost).
   January 2027, since who finishes 9th-24th isn't known yet. Once that draw
   happens, ask me and I'll wire up the bracket the same way this fixture
   list was built.
-- Logos/branding images (`pl-logo.png`, `pl-banner.jpg`, `pl-trophy.png`)
-  were **left as-is** — I can't generate or source UEFA's official
-  trademarked Champions League branding. Swap those files for your own if
-  you'd like different artwork; everything else references them by the same
-  filenames.
+## Follow-up fixes (this pass)
+The first conversion pass left a few Premier League leftovers that this pass
+cleaned up:
+- The login screen headline still literally read "PREMIER LEAGUE 2026/27" —
+  fixed to "CHAMPIONS LEAGUE 2026/27".
+- The match filter bar showed **GW1–GW32** (leftover from the old
+  38-gameweek PL season) even though the League Phase only has 8
+  matchdays — replaced with **MD1–MD8**, matching the `MD${n}` label
+  already used on each match card.
+- Replaced `pl-logo.png` (the old Premier League crest) everywhere with a
+  new `cl-logo.svg` — an original navy/gold star-badge icon designed for
+  this site (not UEFA's official trademarked mark, which can't be sourced
+  or reproduced here), used as both the in-app logo and the browser-tab
+  favicon. The unused old branding files (`pl-logo.png`, `pl-banner.jpg`,
+  `pl-trophy.png`) were deleted.
+- Team crests are shown as color-coded badges (each club's real color +
+  3-letter code, e.g. Real Madrid in navy/`RMA`) rather than image logos —
+  this avoids relying on trademarked club badge artwork and matches every
+  team correctly across all 36 clubs.
+- Verified all 144 fixtures, kickoff times (UAE), and venue/stadium names
+  against the official League Phase schedule.
 
 ## Deploy
-Your repo already exists at github.com/kmahmoudarda-art/gwa-premier-league —
-upload these files to it (this will overwrite the older versions). You may
-want to rename the repo (e.g. to `gwa-champions-league`) for clarity, but
-that's optional — nothing in the code depends on the repo name.
-
-1. Go to https://github.com/kmahmoudarda-art/gwa-premier-league
-2. Click **Add file → Upload files**
-3. Drag in `index.html`, `style.css`, `firebase-config.js` → **Commit
-   changes**
-4. Your existing Cloudflare Pages project will redeploy automatically on
-   push (or trigger a manual deploy from the Cloudflare dashboard)
+This repo deploys via Cloudflare (connected directly to
+github.com/kmahmoudarda-art/gwa-premier-league) — pushing to `main`
+triggers a new deploy automatically. A `wrangler.jsonc` in the repo root
+tells Cloudflare to serve the site as static assets.
 
 ## Keeping it updated
 - **Add results**: edit `MANUAL_RESULTS` in `index.html` — add

@@ -330,7 +330,7 @@ body.light .auth-logo h1 { color:#0a0a0a; }
 .standings-table.compact td.team-cell { gap:5px; font-size:12px; }
 .standings-table.compact td.team-cell span[style*="inline-flex"] { width:28px !important; font-size:9px !important; }
 
-/* ── PREMIER LEAGUE TABLE ZONES ── */
+/* ── CHAMPIONS LEAGUE TABLE ZONES ── */
 .standings-table tr.zone-ucl td { background:rgba(59,130,246,0.06); }
 .standings-table tr.zone-uel td { background:rgba(245,158,11,0.06); }
 .standings-table tr.zone-releg td { background:rgba(239,68,68,0.06); }
