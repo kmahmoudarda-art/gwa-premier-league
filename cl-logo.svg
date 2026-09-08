@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" role="img" aria-label="Champions League">
+  <defs>
+    <linearGradient id="clBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3B5FE0"/>
+      <stop offset="100%" stop-color="#1D4ED8"/>
+    </linearGradient>
+  </defs>
+  <circle cx="50" cy="50" r="48" fill="url(#clBg)"/>
+  <circle cx="50" cy="50" r="48" fill="none" stroke="#ffffff" stroke-opacity="0.25" stroke-width="2"/>
+  <g fill="none" stroke="#E9C46A" stroke-width="2.6" stroke-linejoin="round">
+    <path transform="rotate(0 50 50)"   d="M50 14 L54 22 L50 30 L46 22 Z"/>
+    <path transform="rotate(45 50 50)"  d="M50 14 L54 22 L50 30 L46 22 Z"/>
+    <path transform="rotate(90 50 50)"  d="M50 14 L54 22 L50 30 L46 22 Z"/>
+    <path transform="rotate(135 50 50)" d="M50 14 L54 22 L50 30 L46 22 Z"/>
+    <path transform="rotate(180 50 50)" d="M50 14 L54 22 L50 30 L46 22 Z"/>
+    <path transform="rotate(225 50 50)" d="M50 14 L54 22 L50 30 L46 22 Z"/>
+    <path transform="rotate(270 50 50)" d="M50 14 L54 22 L50 30 L46 22 Z"/>
+    <path transform="rotate(315 50 50)" d="M50 14 L54 22 L50 30 L46 22 Z"/>
+  </g>
+  <circle cx="50" cy="58" r="17" fill="#ffffff"/>
+  <g fill="#1D4ED8">
+    <path d="M50 47 L57 52 L54 60 L46 60 L43 52 Z"/>
+  </g>
+  <g fill="none" stroke="#1D4ED8" stroke-width="1.6" stroke-linecap="round">
+    <path d="M50 47 L50 41"/>
+    <path d="M57 52 L63 49"/>
+    <path d="M54 60 L57 66"/>
+    <path d="M46 60 L43 66"/>
+    <path d="M43 52 L37 49"/>
+  </g>
+</svg>
