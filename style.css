@@ -109,6 +109,10 @@ body.light .logo img, body.light .auth-logo img { filter:none; }
 
 /* ── LIVE TICKER ── */
 .live-ticker { display:flex; align-items:center; gap:8px; background:rgba(239,68,68,0.08); border:1px solid rgba(239,68,68,0.2); border-radius:100px; padding:6px 14px; font-size:12px; font-weight:500; max-width:380px; overflow:hidden; white-space:nowrap; }
+.ticker-viewport { flex:1; min-width:0; overflow:hidden; }
+.ticker-content { display:inline-block; white-space:nowrap; padding-left:100%; will-change:transform; animation:ticker-scroll linear infinite; animation-duration:var(--ticker-duration, 16s); }
+.ticker-viewport:hover .ticker-content { animation-play-state:paused; }
+@keyframes ticker-scroll { from { transform:translateX(0); } to { transform:translateX(-100%); } }
 .live-dot { width:8px; height:8px; border-radius:50%; background:#ef4444; flex-shrink:0; }
 .live-dot.pulsing { animation:pulse 1.2s infinite; }
 @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(1.3)} }

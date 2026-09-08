@@ -963,7 +963,7 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
   <div id="authBg" style="position:fixed;top:0;left:0;right:0;bottom:0;width:100vw;height:100vh;z-index:0;pointer-events:none;
     background-image:url('login-bg.jpg');
     background-size:cover;
-    background-position:center top;"></div>
+    background-position:center 50%;"></div>
   <!-- Dark overlay for readability -->
   <div style="position:fixed;top:0;left:0;right:0;bottom:0;z-index:1;background:linear-gradient(to bottom,rgba(0,0,0,0.25),rgba(0,0,0,0.55));pointer-events:none;user-select:none;"></div>
   <div class="auth-wrap" style="position:relative;z-index:100;pointer-events:auto;">
@@ -1012,7 +1012,7 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
           </div>
         </div>
       </div>
-      <div class="live-ticker" id="liveTicker"><span class="live-dot"></span><span id="tickerText">Loading live scores...</span></div>
+      <div class="live-ticker" id="liveTicker"><span class="live-dot"></span><div class="ticker-viewport"><span id="tickerText" class="ticker-content">Loading live scores...</span></div></div>
       <nav>
         <button class="active" data-tab="predictions" onclick="showTab('predictions')">⚽ Predictions</button>
         <button data-tab="leaderboard" onclick="showTab('leaderboard')">🏅 Leaderboard</button>
@@ -1120,7 +1120,6 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
         </ul>
         <div class="group-card-title" style="margin-top:20px">Bonus Points</div>
         <ul style="line-height:1.9;padding-left:20px">
-          <li>Join the league before <strong>31 August 2026</strong> — <strong>+1 point</strong></li>
           <li>Pick a favourite team — every time they win, you get <strong>+1 point</strong></li>
         </ul>
         <div class="group-card-title" style="margin-top:20px">Top 8 &amp; Early Exit Predictions</div>
@@ -2056,8 +2055,11 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
       el.textContent = `⏱ Next: ${upcoming.home} vs ${upcoming.away} in ${timeStr}`;
     } else {
       dot?.classList.remove('pulsing');
-      el.textContent = 'Group stage complete';
+      el.textContent = 'League Phase complete';
     }
+    // Scroll speed scales with text length so long multi-match tickers
+    // don't fly past and short ones don't crawl.
+    el.style.setProperty('--ticker-duration', `${Math.max(10, Math.min(40, el.textContent.length * 0.16))}s`);
   }
 
   // ── AUTH ───────────────────────────────────────────────────────────
@@ -2588,11 +2590,6 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
         }).length;
         pts += favBonus;
       }
-      // Bonus: +1 for joining before 31 August 2026 (UAE time)
-      const earlyJoinCutoff = new Date('2026-08-31T23:59:59+04:00').getTime();
-      let earlyBonus = 0;
-      if (u.joined && u.joined <= earlyJoinCutoff) { earlyBonus = 1; pts += 1; }
-
       // Season predictions: Top 8 & Early Exit (only scored once admin fills in ACTUAL_TOP4/ACTUAL_RELEGATED)
       let seasonPicksPts = 0;
       // +1 point per correct club named in either list. No exact-position
@@ -2606,7 +2603,7 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
       }
       pts += seasonPicksPts;
 
-      rows.push({...u,uid,pts,exact,correct,predicted:pred,accuracy,playedCount,favBonus,earlyBonus,seasonPicksPts});
+      rows.push({...u,uid,pts,exact,correct,predicted:pred,accuracy,playedCount,favBonus,seasonPicksPts});
     });
     rows.sort((a,b)=>b.pts-a.pts||b.predicted-a.predicted);
     // Hybrid Podium Ranking: ranks 1, 2, 3 are DENSE (always fill the podium,
@@ -2792,8 +2789,6 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
       const aovr=MANUAL_POINTS_OVERRIDE[auid];
       if(aovr && apts===0) apts=aovr.pts;
       if(au.favTeam){apts+=allMatches.filter(m=>{const r=getResult(m.id);if(!r||!r.finished)return false;return (m.home===au.favTeam&&r.home>r.away)||(m.away===au.favTeam&&r.away>r.home);}).length;}
-      const cutoff=new Date('2026-08-31T23:59:59+04:00').getTime();
-      if(au.joined && au.joined<=cutoff) apts+=1;
       allRankRows.push({uid:auid,pts:apts});
     });
     allRankRows.sort((a,b)=>b.pts-a.pts);
