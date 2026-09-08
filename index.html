@@ -7,7 +7,7 @@
 <meta http-equiv="Expires" content="0">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Champions League Predictions</title>
-<link rel="icon" type="image/svg+xml" href="cl-logo.svg">
+<link rel="icon" type="image/svg+xml" href="cl-ball.svg">
 <link rel="stylesheet" href="style.css?v=9">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -959,19 +959,21 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
 
 <!-- AUTH PAGE -->
 <div id="authPage" class="page active" style="position:relative;min-height:100vh;isolation:isolate;">
-  <!-- Video Background -->
-  <video id="authVideo" autoplay muted loop playsinline
-    style="position:fixed;top:0;left:0;right:0;bottom:0;width:100vw;height:100vh;min-width:100%;min-height:100%;object-fit:cover;z-index:0;pointer-events:none;">
-    <source src="login-bg-video.mp4" type="video/mp4">
-  </video>
+  <!-- Champions League-style background: dark navy with diagonal light-beam accents -->
+  <div id="authBg" style="position:fixed;top:0;left:0;right:0;bottom:0;width:100vw;height:100vh;z-index:0;pointer-events:none;
+    background:
+      radial-gradient(ellipse at 50% 15%, rgba(88,60,180,0.35), transparent 55%),
+      repeating-linear-gradient(115deg, rgba(80,140,255,0.14) 0px, rgba(80,140,255,0.14) 2px, transparent 2px, transparent 90px),
+      repeating-linear-gradient(65deg, rgba(150,90,255,0.10) 0px, rgba(150,90,255,0.10) 2px, transparent 2px, transparent 130px),
+      linear-gradient(180deg, #05060f 0%, #0a1240 55%, #131b52 100%);
+    background-size:cover;"></div>
   <!-- Dark overlay for readability -->
-  <div style="position:fixed;top:0;left:0;right:0;bottom:0;z-index:1;background:linear-gradient(to bottom,rgba(0,0,0,0.35),rgba(0,0,0,0.6));pointer-events:none;user-select:none;"></div>
+  <div style="position:fixed;top:0;left:0;right:0;bottom:0;z-index:1;background:linear-gradient(to bottom,rgba(0,0,0,0.25),rgba(0,0,0,0.55));pointer-events:none;user-select:none;"></div>
   <div class="auth-wrap" style="position:relative;z-index:100;pointer-events:auto;">
     <div class="auth-card">
       <div class="auth-logo">
-        <img src="cl-logo.svg" alt="Champions League" style="width:56px;height:56px;object-fit:contain;margin-bottom:8px;display:block;margin-left:auto;margin-right:auto;">
-        <h1>CHAMPIONS LEAGUE 2026/27</h1>
-        <p>Wellbeing Prediction League</p>
+        <img src="cl-logo.svg" alt="UEFA Champions League" style="width:150px;height:auto;object-fit:contain;margin-bottom:4px;display:block;margin-left:auto;margin-right:auto;">
+        <p>2026/27 · Wellbeing Prediction League</p>
       </div>
       <div id="housePicker" style="display:none">
         <p class="house-prompt">Welcome! Choose your House to continue:</p>
@@ -1002,7 +1004,7 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
   <header>
     <div class="header-inner">
       <div class="logo">
-        <img src="cl-logo.svg" alt="Champions League" style="width:32px;height:32px;object-fit:contain;margin-right:2px;">
+        <img src="cl-ball.svg" alt="Champions League" style="width:32px;height:32px;object-fit:contain;margin-right:2px;">
         <div>
           <div class="logo-text">Champions League Predictions</div>
           <div class="logo-sub">Wellbeing League</div>
@@ -1126,8 +1128,8 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
         </ul>
         <div class="group-card-title" style="margin-top:20px">Top 8 &amp; Early Exit Predictions</div>
         <ul style="line-height:1.9;padding-left:20px">
-          <li>Predict the top 8 League Phase finishers (direct to the Round of 16) and the bottom 4 (eliminated after the League Phase) teams</li>
-          <li>+1 point for each correct team named, +1 extra if it's in the exact correct order</li>
+          <li><strong>Top 8:</strong> predict the exact 8 clubs that finish 1st-8th (direct to the Round of 16) — +1 point for each correct club named, +1 extra if it's in the exact correct finishing position</li>
+          <li><strong>Eliminated:</strong> pick 4 clubs you think will finish in the 25th-36th elimination zone (12 clubs finish there in total — there's no set order within it) — +1 point for each pick that ends up anywhere in that zone</li>
           <li>You have <strong>5 days from joining</strong> to lock in your picks — after that, or once you confirm, they're locked for the whole season</li>
         </ul>
         <div class="group-card-title" style="margin-top:20px">League Table</div>
@@ -1600,12 +1602,15 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
   // right at the start of Matchday 1, before any ball is kicked.
   const NO_SCORE_MATCHES = new Set([]);
 
-  // Fill these in once the League Phase ends (after Matchday 8, 27 Jan 2027)
-  // with the real final Top 8 (direct to Round of 16) and Bottom 4 (finished
-  // last, eliminated) clubs, in exact final order, to activate scoring for
-  // the season predictions. Leave empty until then.
+  // Fill these in once the League Phase ends (after Matchday 8, 27 Jan 2027).
+  // ACTUAL_TOP4: the real top 8 (direct to Round of 16), in exact final
+  // order — scoring rewards exact position within this list.
+  // ACTUAL_RELEGATED: ALL 12 teams that finished 25th-36th (eliminated —
+  // there's no ranking within this zone, so list them in any order; a pick
+  // scores just by being anywhere in this list, no position bonus).
+  // Leave both empty until the League Phase ends.
   const ACTUAL_TOP4 = [];       // e.g. ['Real Madrid','Arsenal','Bayern München','Inter','Liverpool','Barcelona','Manchester City','Paris Saint-Germain']
-  const ACTUAL_RELEGATED = [];  // e.g. ['LASK','AEK Athens','Sabah','Slovan Bratislava']
+  const ACTUAL_RELEGATED = [];  // e.g. ['LASK','AEK Athens','Sabah','Slovan Bratislava', ...all 12 teams that finish 25th-36th]
 
   // ══════════════════════════════════════════════════════════════
   //  KICKOFF TIMES — UAE time (GST = UTC+4)
@@ -2447,7 +2452,7 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
     }
 
     card.innerHTML = pickerBlock('top4','🏆 Top 8 (Direct to Round of 16)',8,u.top4Picks,u.top4Locked)
-                    + pickerBlock('bottom3','⬇️ Bottom 4 (Eliminated)',4,u.bottom3Picks,u.bottom3Locked);
+                    + pickerBlock('bottom3','⬇️ Pick 4 Teams to Be Eliminated (25th-36th)',4,u.bottom3Picks,u.bottom3Locked);
 
     // Pre-select saved values now that selects exist
     ['top4','bottom3'].forEach(kind=>{
@@ -2597,7 +2602,9 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
         u.top4Picks.forEach((t,i)=>{ if(ACTUAL_TOP4.includes(t)){ seasonPicksPts+=1; if(ACTUAL_TOP4[i]===t) seasonPicksPts+=1; } });
       }
       if (ACTUAL_RELEGATED.length && u.bottom3Picks) {
-        u.bottom3Picks.forEach((t,i)=>{ if(ACTUAL_RELEGATED.includes(t)){ seasonPicksPts+=1; if(ACTUAL_RELEGATED[i]===t) seasonPicksPts+=1; } });
+        // No position bonus here: 25th-36th is a 12-team elimination zone
+        // with no meaningful order, unlike the exact top-8 ranking above.
+        u.bottom3Picks.forEach(t=>{ if(ACTUAL_RELEGATED.includes(t)) seasonPicksPts+=1; });
       }
       pts += seasonPicksPts;
 
@@ -2980,7 +2987,7 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
             ${top4Html}
           </div>
           <div class="profile-group">
-            <div class="profile-group-title">⬇️ Bottom 4 Pick</div>
+            <div class="profile-group-title">⬇️ Predicted Eliminated (25th-36th)</div>
             ${bottom3Html}
           </div>
         </div>`;

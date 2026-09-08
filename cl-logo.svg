@@ -1,31 +1,22 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" role="img" aria-label="Champions League">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 132" role="img" aria-label="UEFA Champions League">
   <defs>
-    <linearGradient id="clBg" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#3B5FE0"/>
-      <stop offset="100%" stop-color="#1D4ED8"/>
-    </linearGradient>
+    <path id="clArc" d="M45,79 Q80,63 115,79" fill="none"/>
   </defs>
-  <circle cx="50" cy="50" r="48" fill="url(#clBg)"/>
-  <circle cx="50" cy="50" r="48" fill="none" stroke="#ffffff" stroke-opacity="0.25" stroke-width="2"/>
-  <g fill="none" stroke="#E9C46A" stroke-width="2.6" stroke-linejoin="round">
-    <path transform="rotate(0 50 50)"   d="M50 14 L54 22 L50 30 L46 22 Z"/>
-    <path transform="rotate(45 50 50)"  d="M50 14 L54 22 L50 30 L46 22 Z"/>
-    <path transform="rotate(90 50 50)"  d="M50 14 L54 22 L50 30 L46 22 Z"/>
-    <path transform="rotate(135 50 50)" d="M50 14 L54 22 L50 30 L46 22 Z"/>
-    <path transform="rotate(180 50 50)" d="M50 14 L54 22 L50 30 L46 22 Z"/>
-    <path transform="rotate(225 50 50)" d="M50 14 L54 22 L50 30 L46 22 Z"/>
-    <path transform="rotate(270 50 50)" d="M50 14 L54 22 L50 30 L46 22 Z"/>
-    <path transform="rotate(315 50 50)" d="M50 14 L54 22 L50 30 L46 22 Z"/>
+  <g fill="#0B1657" transform="translate(0,-8)">
+    <polygon points="80.00,23.00 82.94,33.95 94.27,33.36 84.76,39.55 88.82,50.14 80.00,43.00 71.18,50.14 75.24,39.55 65.73,33.36 77.06,33.95"/>
+    <polygon points="99.09,30.91 93.42,40.73 101.85,48.32 90.76,45.97 86.14,56.33 84.95,45.05 73.67,43.86 84.03,39.24 81.68,28.15 89.27,36.58"/>
+    <polygon points="107.00,50.00 96.05,52.94 96.64,64.27 90.45,54.76 79.86,58.82 87.00,50.00 79.86,41.18 90.45,45.24 96.64,35.73 96.05,47.06"/>
+    <polygon points="99.09,69.09 89.27,63.42 81.68,71.85 84.03,60.76 73.67,56.14 84.95,54.95 86.14,43.67 90.76,54.03 101.85,51.68 93.42,59.27"/>
+    <polygon points="80.00,77.00 77.06,66.05 65.73,66.64 75.24,60.45 71.18,49.86 80.00,57.00 88.82,49.86 84.76,60.45 94.27,66.64 82.94,66.05"/>
+    <polygon points="60.91,69.09 66.58,59.27 58.15,51.68 69.24,54.03 73.86,43.67 75.05,54.95 86.33,56.14 75.97,60.76 78.32,71.85 70.73,63.42"/>
+    <polygon points="53.00,50.00 63.95,47.06 63.36,35.73 69.55,45.24 80.14,41.18 73.00,50.00 80.14,58.82 69.55,54.76 63.36,64.27 63.95,52.94"/>
+    <polygon points="60.91,30.91 70.73,36.58 78.32,28.15 75.97,39.24 86.33,43.86 75.05,45.05 73.86,56.33 69.24,45.97 58.15,48.32 66.58,40.73"/>
+    <polygon points="80.00,41.00 81.76,47.57 88.56,47.22 82.85,50.93 85.29,57.28 80.00,53.00 74.71,57.28 77.15,50.93 71.44,47.22 78.24,47.57"/>
   </g>
-  <circle cx="50" cy="58" r="17" fill="#ffffff"/>
-  <g fill="#1D4ED8">
-    <path d="M50 47 L57 52 L54 60 L46 60 L43 52 Z"/>
-  </g>
-  <g fill="none" stroke="#1D4ED8" stroke-width="1.6" stroke-linecap="round">
-    <path d="M50 47 L50 41"/>
-    <path d="M57 52 L63 49"/>
-    <path d="M54 60 L57 66"/>
-    <path d="M46 60 L43 66"/>
-    <path d="M43 52 L37 49"/>
-  </g>
+  <text font-family="Georgia, 'Times New Roman', serif" font-weight="700" font-size="11" letter-spacing="2" fill="#0B1657" text-anchor="middle">
+    <textPath href="#clArc" startOffset="50%">UEFA</textPath>
+  </text>
+  <text x="80" y="103" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-weight="700" font-size="16" letter-spacing="0" fill="#0B1657">CHAMPIONS</text>
+  <text x="80" y="122" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-weight="700" font-size="16" letter-spacing="1" fill="#0B1657">LEAGUE</text>
+  <text x="126" y="112" font-family="Arial, sans-serif" font-size="6" fill="#0B1657">&#174;</text>
 </svg>
