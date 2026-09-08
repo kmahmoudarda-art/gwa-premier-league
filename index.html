@@ -1128,9 +1128,10 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
         </ul>
         <div class="group-card-title" style="margin-top:20px">Top 8 &amp; Early Exit Predictions</div>
         <ul style="line-height:1.9;padding-left:20px">
-          <li><strong>Top 8:</strong> predict the exact 8 clubs that finish 1st-8th (direct to the Round of 16) — +1 point for each correct club named, +1 extra if it's in the exact correct finishing position</li>
-          <li><strong>Eliminated:</strong> pick 4 clubs you think will finish in the 25th-36th elimination zone (12 clubs finish there in total — there's no set order within it) — +1 point for each pick that ends up anywhere in that zone</li>
-          <li>You have <strong>5 days from joining</strong> to lock in your picks — after that, or once you confirm, they're locked for the whole season</li>
+          <li><strong>Top 8:</strong> predict the 8 clubs that finish 1st-8th (direct to the Round of 16) — +1 point for each correct club named</li>
+          <li><strong>Eliminated:</strong> predict all 12 clubs that will finish in the 25th-36th elimination zone — +1 point for each correct club named</li>
+          <li>No bonus for exact finishing order in either list — just +1 per club you get right</li>
+          <li>You have <strong>3 days from joining</strong> to lock in your picks — after that, or once you confirm, they're locked for the whole season</li>
         </ul>
         <div class="group-card-title" style="margin-top:20px">League Table</div>
         <ul style="line-height:1.9;padding-left:20px">
@@ -1603,11 +1604,10 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
   const NO_SCORE_MATCHES = new Set([]);
 
   // Fill these in once the League Phase ends (after Matchday 8, 27 Jan 2027).
-  // ACTUAL_TOP4: the real top 8 (direct to Round of 16), in exact final
-  // order — scoring rewards exact position within this list.
-  // ACTUAL_RELEGATED: ALL 12 teams that finished 25th-36th (eliminated —
-  // there's no ranking within this zone, so list them in any order; a pick
-  // scores just by being anywhere in this list, no position bonus).
+  // ACTUAL_TOP4: the real top 8 (direct to Round of 16), any order.
+  // ACTUAL_RELEGATED: ALL 12 teams that finished 25th-36th (eliminated),
+  // any order. Both score simply: +1 point per pick that's anywhere in
+  // the matching list — no position bonus for either.
   // Leave both empty until the League Phase ends.
   const ACTUAL_TOP4 = [];       // e.g. ['Real Madrid','Arsenal','Bayern München','Inter','Liverpool','Barcelona','Manchester City','Paris Saint-Germain']
   const ACTUAL_RELEGATED = [];  // e.g. ['LASK','AEK Athens','Sabah','Slovan Bratislava', ...all 12 teams that finish 25th-36th]
@@ -2420,7 +2420,7 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
     const snap=await getDoc(doc(db,'pl_users',resolveUid(currentUser.uid)));
     const u=snap.exists()?snap.data():{};
     const joined=u.joined||Date.now();
-    const deadline=joined+5*24*60*60*1000;
+    const deadline=joined+3*24*60*60*1000;
     const now=Date.now();
     const deadlinePassed = now>deadline;
     const deadlineStr = new Date(deadline).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});
@@ -2444,7 +2444,7 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
       }).join('');
       return `<div class="calendar-card" style="margin-bottom:12px;padding:12px">
         <div style="font-size:12px;font-weight:700;margin-bottom:6px">${label}</div>
-        <div style="font-size:10px;color:var(--muted);margin-bottom:8px">⏰ Pick within 5 days of joining (by ${deadlineStr}) or once confirmed. Locks for the season.</div>
+        <div style="font-size:10px;color:var(--muted);margin-bottom:8px">⏰ Pick within 3 days of joining (by ${deadlineStr}) or once confirmed. Locks for the season.</div>
         ${selects}
         <button class="btn-primary" style="padding:8px;font-size:11px" onclick="confirmSeasonPicks('${kind}',${count})">Confirm 🔒</button>
         <div id="${kind}Msg" class="auth-msg" style="font-size:10px"></div>
@@ -2452,7 +2452,7 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
     }
 
     card.innerHTML = pickerBlock('top4','🏆 Top 8 (Direct to Round of 16)',8,u.top4Picks,u.top4Locked)
-                    + pickerBlock('bottom3','⬇️ Pick 4 Teams to Be Eliminated (25th-36th)',4,u.bottom3Picks,u.bottom3Locked);
+                    + pickerBlock('bottom3','⬇️ Eliminated (25th-36th) — pick all 12',12,u.bottom3Picks,u.bottom3Locked);
 
     // Pre-select saved values now that selects exist
     ['top4','bottom3'].forEach(kind=>{
@@ -2598,12 +2598,13 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
 
       // Season predictions: Top 8 & Early Exit (only scored once admin fills in ACTUAL_TOP4/ACTUAL_RELEGATED)
       let seasonPicksPts = 0;
+      // +1 point per correct club named in either list. No exact-position
+      // bonus: finishing order isn't guessable enough to reward separately,
+      // for the top 8 or the 12-club elimination zone.
       if (ACTUAL_TOP4.length && u.top4Picks) {
-        u.top4Picks.forEach((t,i)=>{ if(ACTUAL_TOP4.includes(t)){ seasonPicksPts+=1; if(ACTUAL_TOP4[i]===t) seasonPicksPts+=1; } });
+        u.top4Picks.forEach(t=>{ if(ACTUAL_TOP4.includes(t)) seasonPicksPts+=1; });
       }
       if (ACTUAL_RELEGATED.length && u.bottom3Picks) {
-        // No position bonus here: 25th-36th is a 12-team elimination zone
-        // with no meaningful order, unlike the exact top-8 ranking above.
         u.bottom3Picks.forEach(t=>{ if(ACTUAL_RELEGATED.includes(t)) seasonPicksPts+=1; });
       }
       pts += seasonPicksPts;
