@@ -1,54 +1,59 @@
-# GWA Premier League 2026-27 — Setup
+# GWA Champions League 2026-27 — Setup
 
-This is the Premier League version of the WC26 prediction league, sharing your
-existing `gwa-worldcup` Firebase project (data is isolated in `pl_`-prefixed
-Firestore collections, so it will never touch or overwrite your World Cup data).
+This site has been converted from the Premier League prediction league to the
+**2026-27 UEFA Champions League League Phase**, sharing your existing
+`gwa-worldcup` Firebase project (data is isolated in `pl_`-prefixed Firestore
+collections — untouched from the PL version, so nothing is lost).
 
-## Colors
-**Navy blue (`#1D4ED8`) / white** is now the default theme — the pink/crimson
-(`#E90052`) used before was applied to 60+ elements (borders, badges,
-backgrounds, text), which read as "the whole site is red" rather than an
-accent. Swapped it everywhere, including the login gradient and dark-theme
-backgrounds (were purple-tinted, now navy-tinted). Also fixed a side-effect
-where the "Battuta" house color had accidentally been swept into that same
-replace, clashing with "Razi" — restored it to amber/gold.
-
-## What's included
-- `index.html`, `style.css`, `firebase-config.js` — the site
-- `gwa-logo.png`, `gwa-logo-purple.png`, `pl-logo.png`, `pl-banner.jpg` — images
-- **Fixed real bugs this pass**:
-  - "Use Default Site Theme" button did nothing — `resetTeamTheme` was never exposed to the page (module-script scoping issue), now fixed
-  - Couldn't scroll past the Predictions tab sidebar without jumping to the bottom of the page — the sidebar was `position: sticky`, which worked fine for the small calendar alone but broke once the Top 4/Bottom 3 picker cards made it taller than the screen; now normal (static) positioning
-  - Calendar day clicks not registering — same sticky-positioning issue was very likely the cause (a trapped sticky container can block clicks on elements near it); should be resolved by the same fix above
-  - Verified the Today/Tomorrow filter's date logic directly against the data — it's correct (today, 24 Aug, does have a match: Fulham vs Chelsea). If you see "no matches" again, it likely means whatever day you're testing on genuinely has no PL fixture (there are real gaps between gameweeks) — worth double-checking the date when it happens
-- **Login page**: PL banner now on the left, login card on the right, side-by-side (wraps to stacked automatically on narrow/mobile screens so nothing overlaps)
-- **Table tab**: removed the instructional note per your request, dropped the MP column and tightened padding/font so both tables fit side-by-side without cutting off columns
-- Verified: full JS syntax check clean, HTML tag balance checked
+## What changed in this conversion
+- **All 36 League Phase clubs** replace the 20 Premier League clubs (colors +
+  3-letter badge abbreviations for each).
+- **All 144 League Phase fixtures** (Matchday 1 – 8, 8 Sept 2026 to 27 Jan
+  2027) replace the old 38-gameweek PL fixture list, pulled from UEFA's
+  official fixture list.
+- **Kickoff times converted to UAE (GST, UTC+4)**, correctly accounting for
+  the European daylight-saving change on 25 Oct 2026 (Matchdays 1-3 are
+  CEST → UAE +2h; Matchdays 4-8 are CET → UAE +3h).
+- **Table/standings zones** now reflect the League Phase: 1st-8th (direct to
+  Round of 16, blue), 9th-24th (Knockout Play-offs, amber), 25th-36th
+  (eliminated, red) — replacing the PL's top-4/relegation zones.
+- **Season picks** now ask for the Top 8 (direct qualifiers) and Bottom 4
+  (early exits) instead of Top 4/Bottom 3.
+- `MANUAL_RESULTS` and `NO_SCORE_MATCHES` reset to empty — this league
+  launches right at Matchday 1, before a ball is kicked.
+- The knockout bracket (Round of 16 onward) is **not yet built** — the real
+  Play-off Round draw doesn't happen until the League Phase finishes in
+  January 2027, since who finishes 9th-24th isn't known yet. Once that draw
+  happens, ask me and I'll wire up the bracket the same way this fixture
+  list was built.
+- Logos/branding images (`pl-logo.png`, `pl-banner.jpg`, `pl-trophy.png`)
+  were **left as-is** — I can't generate or source UEFA's official
+  trademarked Champions League branding. Swap those files for your own if
+  you'd like different artwork; everything else references them by the same
+  filenames.
 
 ## Deploy
-
 Your repo already exists at github.com/kmahmoudarda-art/gwa-premier-league —
-just upload these 8 files to it (this will overwrite the older versions):
+upload these files to it (this will overwrite the older versions). You may
+want to rename the repo (e.g. to `gwa-champions-league`) for clarity, but
+that's optional — nothing in the code depends on the repo name.
 
 1. Go to https://github.com/kmahmoudarda-art/gwa-premier-league
 2. Click **Add file → Upload files**
-3. Drag in all 8 files from this folder → **Commit changes**
-4. Go to https://pages.cloudflare.com → **Create a project** → **Connect to Git**
-5. Select the `gwa-premier-league` repo → Build command: *(leave empty)* →
-   Build output directory: `/` → **Save and Deploy**
-6. Once live, go to Firebase console → Authentication → Settings →
-   **Authorized domains** → add your new `*.pages.dev` URL (skip this if
-   your WC26 domain pattern already covers it — same Firebase project)
+3. Drag in `index.html`, `style.css`, `firebase-config.js` → **Commit
+   changes**
+4. Your existing Cloudflare Pages project will redeploy automatically on
+   push (or trigger a manual deploy from the Cloudflare dashboard)
 
 ## Keeping it updated
-- **Add results**: edit `MANUAL_RESULTS` in `index.html` the same way you do
-  for WC26 — add `'Mxx': { home: X, away: Y }` after each match.
-- **Add future gameweeks (GW10-38)**: append more entries to `STATIC_MATCHES`
-  and `KICKOFF_TIMES` in the same format. I only generated GW1-9 because
-  broadcaster scheduling means later Premier League kickoff times shift as
-  the season goes on — I'd recommend pulling the next few gameweeks in every
-  few weeks rather than all 38 at once (this avoids re-doing times that
-  change).
+- **Add results**: edit `MANUAL_RESULTS` in `index.html` — add
+  `'Mxx': { home: X, away: Y }` after each match.
+- **Once the League Phase ends** (after Matchday 8, 27 Jan 2027): fill in
+  `ACTUAL_TOP4` (the real top 8, in order) and `ACTUAL_RELEGATED` (the real
+  bottom 4) to activate scoring for the season picks.
+- **Knockout stage**: once the Play-off Round draw happens (Jan 2027), send
+  me the draw and I'll add the bracket, matches, and kickoff times the same
+  way.
 
-## Points system (unchanged from WC26)
+## Points system (unchanged)
 Exact score = 3 pts · Correct result = 1 pt · Wrong = 0 pts
