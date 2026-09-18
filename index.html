@@ -2449,7 +2449,40 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
       else{at.w++;at.pts+=3;ht.l++;ht.form.push('L');at.form.push('W');}
     });
     Object.values(teams).forEach(t=>{t.form=t.form.slice(-5);});
-    return Object.values(teams).sort((a,b)=>b.pts-a.pts||(b.gf-b.ga)-(a.gf-a.ga)||b.gf-a.gf);
+
+    // ── UEFA League Phase tiebreak order ──────────────────────────
+    // 1. Points  2-4. Head-to-head pts/GD/GF among tied clubs (mini-league)
+    // 5-6. Overall GD, then overall GF  7. Wins — matches the official
+    // ranking regs, minus fair-play points and club coefficient (not tracked here).
+    function h2hStats(teamNames){
+      const stats={};
+      teamNames.forEach(n=>{stats[n]={pts:0,gf:0,ga:0};});
+      matches.forEach(m=>{
+        if(!teamNames.includes(m.home)||!teamNames.includes(m.away))return;
+        const r=results[m.id];if(!r)return;
+        stats[m.home].gf+=r.home;stats[m.home].ga+=r.away;
+        stats[m.away].gf+=r.away;stats[m.away].ga+=r.home;
+        if(r.home>r.away)stats[m.home].pts+=3;
+        else if(r.home===r.away){stats[m.home].pts++;stats[m.away].pts++;}
+        else stats[m.away].pts+=3;
+      });
+      return stats;
+    }
+    const byPoints={};
+    Object.values(teams).forEach(t=>{(byPoints[t.pts]=byPoints[t.pts]||[]).push(t);});
+    Object.values(byPoints).forEach(group=>{
+      if(group.length<2)return;
+      const h2h=h2hStats(group.map(t=>t.name));
+      group.sort((a,b)=>
+        h2h[b.name].pts-h2h[a.name].pts
+        ||(h2h[b.name].gf-h2h[b.name].ga)-(h2h[a.name].gf-h2h[a.name].ga)
+        ||h2h[b.name].gf-h2h[a.name].gf
+        ||(b.gf-b.ga)-(a.gf-a.ga)
+        ||b.gf-a.gf
+        ||b.w-a.w
+      );
+    });
+    return Object.keys(byPoints).map(Number).sort((a,b)=>b-a).flatMap(p=>byPoints[p]);
   }
   function formDots(form){
     if(!form || !form.length) return '<span style="color:var(--muted);font-size:10px">—</span>';
