@@ -2435,6 +2435,22 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
 
   // ── GROUPS TAB ─────────────────────────────────────────────────────
 
+  // Final UEFA tiebreak: club coefficient ranking. Used only when two clubs
+  // are still level after points, head-to-head, overall GD/GF and wins —
+  // order below reproduces the official Matchday 1 standings exactly.
+  const CLUB_COEFFICIENT_ORDER = [
+    'Paris Saint-Germain','Bayern München','Barcelona','Manchester United','Como',
+    'Sporting CP','Stuttgart','Manchester City','Aston Villa','Real Betis','Lens',
+    'Borussia Dortmund','Liverpool','Real Madrid','Arsenal','AEK Athens',
+    'Shakhtar Donetsk','Roma','Fenerbahçe','PSV Eindhoven','Villarreal',
+    'Club Brugge','Lille','Slavia Praha','Inter','Atlético Madrid','Napoli','LASK',
+    'Viking','Galatasaray','Porto','Leipzig','Feyenoord','Sabah',
+    'Slovan Bratislava','Bodø/Glimt'
+  ];
+  function coefficientRank(name){
+    const i=CLUB_COEFFICIENT_ORDER.indexOf(name);
+    return i===-1?999:i;
+  }
   function calcStandings(matches,results){
     const teams={};
     // Sort matches chronologically (by group/gameweek, then id) so Form reflects real order
@@ -2480,6 +2496,7 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
         ||(b.gf-b.ga)-(a.gf-a.ga)
         ||b.gf-a.gf
         ||b.w-a.w
+        ||coefficientRank(a.name)-coefficientRank(b.name)
       );
     });
     return Object.keys(byPoints).map(Number).sort((a,b)=>b-a).flatMap(p=>byPoints[p]);
