@@ -63,6 +63,22 @@ body.light .final-score { color:#0a0a0a; }
 .result-bar.wrong   { background:rgba(239,68,68,0.08);  color:#f87171; border:1px solid rgba(239,68,68,0.2); }
 .result-bar.live-pending { background:rgba(239,68,68,0.08); color:#f87171; border:1px solid rgba(239,68,68,0.2); justify-content:center; }
 
+/* ── COMMUNITY PREDICTION % BAR (win/draw/lose split for group matches) ── */
+.pred-pct-bar { margin:0 16px 14px; }
+.pred-pct-labels {
+  display:flex; justify-content:space-between; font-size:11px;
+  font-weight:700; margin-bottom:4px;
+}
+.pred-pct-track {
+  display:flex; height:6px; border-radius:4px; overflow:hidden; gap:1px;
+  background:var(--border);
+}
+.pred-seg { height:100%; transition:width .4s; }
+.pred-seg.home { background:#4ade80; border-radius:4px 0 0 4px; }
+.pred-seg.draw { background:#94a3b8; }
+.pred-seg.away { background:#f87171; border-radius:0 4px 4px 0; }
+.pred-pct-count { font-size:10px; color:var(--muted); text-align:center; margin-top:3px; }
+
 /* ── COLORBLIND MODE ── */
 body.colorblind .outcome-tag.win  { background:#005BBB; color:#fff; border-color:#005BBB; }
 body.colorblind .outcome-tag.loss { background:#888;    color:#fff; border-color:#888; }
@@ -110,6 +126,11 @@ body.colorblind .ko-round-badge.done   { background: rgba(255,211,0,0.15) !impor
 body.colorblind .ko-stats-seg.win-a   { background: #005BBB !important; }
 body.colorblind .ko-stats-seg.draw-seg { background: #888888 !important; }
 body.colorblind .ko-stats-seg.win-b   { background: #FFD300 !important; }
+
+/* Group-stage prediction % bar: same blue/grey/yellow scheme */
+body.colorblind .pred-seg.home { background: #005BBB !important; }
+body.colorblind .pred-seg.draw { background: #888888 !important; }
+body.colorblind .pred-seg.away { background: #FFD300 !important; }
 
 /* Real result display */
 body.colorblind .ko-real-winner       { color: #60a5fa !important; }
