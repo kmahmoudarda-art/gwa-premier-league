@@ -2874,6 +2874,21 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
     // Apply manual override — only if Firestore returned nothing (quota/migration)
     const ovrP = MANUAL_POINTS_OVERRIDE[uid];
     if (ovrP && pts === 0) { pts = ovrP.pts; exact = ovrP.exact; correct = ovrP.correct; }
+    // Bonus: +1 for every finished match the user's favourite team won
+    if (u.favTeam) {
+      pts += allMatches.filter(m=>{
+        const r=getResult(m.id);
+        if(!r||!r.finished) return false;
+        return (m.home===u.favTeam && r.home>r.away) || (m.away===u.favTeam && r.away>r.home);
+      }).length;
+    }
+    // Season predictions: Top 8 & Early Exit (only scored once admin fills in ACTUAL_TOP4/ACTUAL_RELEGATED)
+    if (ACTUAL_TOP4.length && u.top4Picks) {
+      u.top4Picks.forEach(t=>{ if(ACTUAL_TOP4.includes(t)) pts+=1; });
+    }
+    if (ACTUAL_RELEGATED.length && u.bottom3Picks) {
+      u.bottom3Picks.forEach(t=>{ if(ACTUAL_RELEGATED.includes(t)) pts+=1; });
+    }
     pts += loginBonusPts(u);
 
     // ── Compute overall rank for this player and the viewer, to show the gap ──
