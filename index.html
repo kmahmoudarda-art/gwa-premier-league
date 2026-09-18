@@ -1613,7 +1613,26 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
   // ══════════════════════════════════════════════════════════════
   // Points reset (18 Sep 2026): cleared for a full league-wide points
   // restart. Re-add scores here as matches are confirmed going forward.
-  const MANUAL_RESULTS = {};
+  const MANUAL_RESULTS = {
+    'M1':  { home: 1, away: 0 }, // AEK Athens 1-0 LASK
+    'M2':  { home: 2, away: 3 }, // Club Brugge 2-3 Aston Villa
+    'M3':  { home: 3, away: 2 }, // Borussia Dortmund 3-2 Villarreal
+    'M4':  { home: 0, away: 2 }, // Porto 0-2 Manchester City
+    'M5':  { home: 2, away: 3 }, // Lille 2-3 Real Betis
+    'M6':  { home: 2, away: 1 }, // Real Madrid 2-1 Inter
+    'M7':  { home: 5, away: 1 }, // Barcelona 5-1 Feyenoord
+    'M8':  { home: 3, away: 1 }, // Stuttgart 3-1 Viking
+    'M9':  { home: 2, away: 1 }, // Liverpool 2-1 Atlético Madrid
+    'M10': { home: 6, away: 1 }, // Paris Saint-Germain 6-1 Slovan Bratislava
+    'M11': { home: 3, away: 1 }, // Sporting CP 3-1 Galatasaray
+    'M12': { home: 0, away: 1 }, // Napoli 0-1 Arsenal
+    'M13': { home: 1, away: 1 }, // Fenerbahçe 1-1 Roma
+    'M14': { home: 1, away: 1 }, // PSV Eindhoven 1-1 Shakhtar Donetsk
+    'M15': { home: 4, away: 1 }, // Como 4-1 Leipzig
+    'M16': { home: 5, away: 0 }, // Bayern München 5-0 Bodø/Glimt
+    'M17': { home: 4, away: 0 }, // Manchester United 4-0 Sabah
+    'M18': { home: 2, away: 3 }, // Slavia Praha 2-3 Lens
+  };
 
   // Matches that were already played before predictions opened for this
   // league — results are shown (real table reflects them) but no player
