@@ -1984,10 +1984,12 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
     const styleTag=document.getElementById('teamThemeStyle');
     if(styleTag) styleTag.textContent='';
     localStorage.removeItem('pl-team-theme-mode');
+    localStorage.setItem('pl-team-theme-off','1'); // remember the choice so a refresh doesn't bring the team theme back
   }
   window.togglePLTeamTheme=function(){
     const team=userProfile && userProfile.favTeam;
     if(!team) return;
+    localStorage.removeItem('pl-team-theme-off'); // switching modes means opting back into the team theme
     const current=localStorage.getItem('pl-team-theme-mode')||'dark';
     const next=current==='dark'?'light':'dark';
     localStorage.setItem('pl-team-theme-mode',next);
@@ -1996,7 +1998,7 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
   };
   // Restore team theme on load once profile is known (called from auth flow below)
   window.restoreTeamThemeIfSet=function(){
-    if(userProfile && userProfile.favTeam){
+    if(userProfile && userProfile.favTeam && localStorage.getItem('pl-team-theme-off')!=='1'){
       applyTeamTheme(userProfile.favTeam, localStorage.getItem('pl-team-theme-mode')||'dark');
     }
   };
