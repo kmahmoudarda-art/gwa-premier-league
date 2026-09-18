@@ -2090,9 +2090,10 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
       dot?.classList.remove('pulsing');
       const kick = new Date(KICKOFF_TIMES[upcoming.id] + ':00+04:00');
       const diff = kick - now;
-      const hrs  = Math.floor(diff / 3600000);
+      const days = Math.floor(diff / 86400000);
+      const hrs  = Math.floor((diff % 86400000) / 3600000);
       const mins = Math.floor((diff % 3600000) / 60000);
-      const timeStr = hrs > 0 ? `${hrs}h ${mins}m` : `${mins}m`;
+      const timeStr = days > 0 ? `${days}d ${hrs}h` : hrs > 0 ? `${hrs}h ${mins}m` : `${mins}m`;
       el.textContent = `⏱ Next: ${upcoming.home} vs ${upcoming.away} in ${timeStr}`;
     } else {
       dot?.classList.remove('pulsing');
