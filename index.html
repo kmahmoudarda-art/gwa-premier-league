@@ -1590,14 +1590,9 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
   //  Format: 'matchId': { home: X, away: Y }
   //  Example: 'A1': { home: 2, away: 1 } = Mexico 2-1 South Africa
   // ══════════════════════════════════════════════════════════════
-  const MANUAL_RESULTS = {
-    'M1': { home: 1, away: 0 }, // AEK Athens 1-0 LASK (FT)
-    'M2': { home: 2, away: 3 }, // Club Brugge 2-3 Aston Villa (FT)
-    'M3': { home: 3, away: 1 }, // Borussia Dortmund 3-1 Villarreal (90+2')
-    'M4': { home: 0, away: 2 }, // Porto 0-2 Manchester City (90+3')
-    'M5': { home: 2, away: 3 }, // Lille 2-3 Real Betis (90+4')
-    'M6': { home: 2, away: 1 }, // Real Madrid 2-1 Inter (90+2')
-  };
+  // Points reset (18 Sep 2026): cleared for a full league-wide points
+  // restart. Re-add scores here as matches are confirmed going forward.
+  const MANUAL_RESULTS = {};
 
   // Matches that were already played before predictions opened for this
   // league — results are shown (real table reflects them) but no player
@@ -2084,6 +2079,7 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
         document.getElementById('housePicker').style.display='block';
       } else {
         currentUser=gUser; userProfile=snap.data();
+        await grantLoginBonusIfEligible(gUser.uid, userProfile);
         await fetchLiveScores(); loadApp(); updatePlayerCount();
       }
     }catch(e){
@@ -2101,6 +2097,7 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
     const gUser=pendingGUser;
     await setDoc(doc(db,'pl_users',gUser.uid),{name:gUser.displayName,email:gUser.email,photo:gUser.photoURL,house:selectedHouse,joined:Date.now()});
     pendingGUser=null;currentUser=gUser;userProfile={name:gUser.displayName,email:gUser.email,photo:gUser.photoURL,house:selectedHouse};
+    await grantLoginBonusIfEligible(gUser.uid, userProfile);
     await fetchLiveScores();loadApp();updatePlayerCount();
   };
   window.handleLogout=async()=>{await signOut(auth);showPage('authPage');document.getElementById('googleSignIn').style.display='block';document.getElementById('housePicker').style.display='none';};
@@ -2110,6 +2107,7 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
     const snap=await getDoc(doc(db,'pl_users',resolveUid(gUser.uid)));
     if(!snap.exists())return;
     currentUser=gUser;userProfile=snap.data();
+    await grantLoginBonusIfEligible(gUser.uid, userProfile);
     await fetchLiveScores();loadApp();updatePlayerCount();
     restoreTeamThemeIfSet();
     checkFavTeamCelebration();
@@ -2387,6 +2385,7 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
     const snap=await getDoc(doc(db,'pl_predictions',resolveUid(currentUser.uid)));const p=snap.exists()?snap.data():{};
     let pts=0,exact=0,correct=0;
     for(const[id,v]of Object.entries(p)){if(NO_SCORE_MATCHES.has(id))continue;const r=getResult(id);if(!r||(!r.live&&!r.finished))continue;if(v.home===r.home&&v.away===r.away){pts+=3;exact++;correct++;}else if(Math.sign(v.home-v.away)===Math.sign(r.home-r.away)){pts+=1;correct++;}}
+    pts+=loginBonusPts(userProfile);
     document.getElementById('statPredicted').textContent=Object.keys(p).length;
     document.getElementById('statPoints').textContent=pts;
     document.getElementById('statExact').textContent=exact;
@@ -2608,6 +2607,7 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
         u.bottom3Picks.forEach(t=>{ if(ACTUAL_RELEGATED.includes(t)) seasonPicksPts+=1; });
       }
       pts += seasonPicksPts;
+      pts += loginBonusPts(u);
 
       rows.push({...u,uid,pts,exact,correct,predicted:pred,accuracy,playedCount,favBonus,seasonPicksPts});
     });
@@ -2783,6 +2783,7 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
     // Apply manual override — only if Firestore returned nothing (quota/migration)
     const ovrP = MANUAL_POINTS_OVERRIDE[uid];
     if (ovrP && pts === 0) { pts = ovrP.pts; exact = ovrP.exact; correct = ovrP.correct; }
+    pts += loginBonusPts(u);
 
     // ── Compute overall rank for this player and the viewer, to show the gap ──
     const mappedNewUidsProf = new Set(Object.keys(UID_MAP));
@@ -2795,6 +2796,7 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
       const aovr=MANUAL_POINTS_OVERRIDE[auid];
       if(aovr && apts===0) apts=aovr.pts;
       if(au.favTeam){apts+=allMatches.filter(m=>{const r=getResult(m.id);if(!r||!r.finished)return false;return (m.home===au.favTeam&&r.home>r.away)||(m.away===au.favTeam&&r.away>r.home);}).length;}
+      apts+=loginBonusPts(au);
       allRankRows.push({uid:auid,pts:apts});
     });
     allRankRows.sort((a,b)=>b.pts-a.pts);
@@ -3185,9 +3187,22 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
   // Used when a player's Firestore data is inaccessible (e.g. quota hit, account migration)
   // Points here are added ON TOP of whatever Firestore returns (which may be 0)
   // Remove once Firestore is back and data is confirmed correct
-  const MANUAL_POINTS_OVERRIDE = {
-    'dJNMf7bYMubZX42dXrSK9tAhi3x2': { pts: 66, exact: 13, correct: 40, picks: 88 }, // Farah Mahmoud - temp override
-  };
+  const MANUAL_POINTS_OVERRIDE = {};
+
+  // ── LOGIN BONUS (18-28 Sep 2026) ──────────────────────────────
+  // Every player who logs in during this 10-day window gets a one-time
+  // +1 point bonus, recorded on their pl_users doc so it's never re-granted.
+  const LOGIN_BONUS_START = new Date('2026-09-18T00:00:00Z').getTime();
+  const LOGIN_BONUS_END   = new Date('2026-09-28T00:00:00Z').getTime();
+  function loginBonusPts(u) { return u && u.loginBonusClaimed ? 1 : 0; }
+  async function grantLoginBonusIfEligible(uid, profile) {
+    if (!profile || profile.loginBonusClaimed) return;
+    const now = Date.now();
+    if (now < LOGIN_BONUS_START || now > LOGIN_BONUS_END) return;
+    profile.loginBonusClaimed = true;
+    try { await setDoc(doc(db, 'pl_users', resolveUid(uid)), { loginBonusClaimed: true }, { merge: true }); }
+    catch (e) { console.error('Login bonus write failed:', e); }
+  }
 
   // ── UID MIGRATION MAP ────────────────────────────────────────
   // Maps new UID → old UID for players who changed Google accounts.
