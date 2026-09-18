@@ -1938,8 +1938,9 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
     const team=document.getElementById('favTeamSelect').value;
     if(!team){document.getElementById('favTeamMsg').textContent='Pick a team first.';return;}
     if(!confirm(`Lock in ${team} as your favourite team? This can't be changed later.`)) return;
-    await setDoc(doc(db,'pl_users',resolveUid(currentUser.uid)),{favTeam:team},{merge:true});
+    await setDoc(doc(db,'pl_users',resolveUid(currentUser.uid)),{favTeam:team,favTeamPickedAt:Date.now()},{merge:true});
     userProfile.favTeam=team;
+    userProfile.favTeamPickedAt=Date.now();
     localStorage.setItem('pl-team-theme-mode','dark');
     applyTeamTheme(team,'dark');
     openTeamSettings();
@@ -2676,16 +2677,9 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
       const ovr = MANUAL_POINTS_OVERRIDE[uid];
       if (ovr && pts === 0) { pts = ovr.pts; exact = ovr.exact; correct = ovr.correct; }
 
-      // Bonus: +1 for every finished match the user's favourite team won
-      let favBonus = 0;
-      if (u.favTeam) {
-        favBonus = allMatches.filter(m=>{
-          const r=getResult(m.id);
-          if(!r||!r.finished) return false;
-          return (m.home===u.favTeam && r.home>r.away) || (m.away===u.favTeam && r.away>r.home);
-        }).length;
-        pts += favBonus;
-      }
+      // Bonus: +1 for every finished match (after they picked the team) the user's favourite team won
+      const favBonus = favTeamBonus(u);
+      pts += favBonus;
       // Season predictions: Top 8 & Early Exit (only scored once admin fills in ACTUAL_TOP4/ACTUAL_RELEGATED)
       let seasonPicksPts = 0;
       // +1 point per correct club named in either list. No exact-position
@@ -2874,14 +2868,8 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
     // Apply manual override — only if Firestore returned nothing (quota/migration)
     const ovrP = MANUAL_POINTS_OVERRIDE[uid];
     if (ovrP && pts === 0) { pts = ovrP.pts; exact = ovrP.exact; correct = ovrP.correct; }
-    // Bonus: +1 for every finished match the user's favourite team won
-    if (u.favTeam) {
-      pts += allMatches.filter(m=>{
-        const r=getResult(m.id);
-        if(!r||!r.finished) return false;
-        return (m.home===u.favTeam && r.home>r.away) || (m.away===u.favTeam && r.away>r.home);
-      }).length;
-    }
+    // Bonus: +1 for every finished match (after they picked the team) the user's favourite team won
+    pts += favTeamBonus(u);
     // Season predictions: Top 8 & Early Exit (only scored once admin fills in ACTUAL_TOP4/ACTUAL_RELEGATED)
     if (ACTUAL_TOP4.length && u.top4Picks) {
       u.top4Picks.forEach(t=>{ if(ACTUAL_TOP4.includes(t)) pts+=1; });
@@ -2901,7 +2889,7 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
       for(const[id,v]of Object.entries(ap)){if(NO_SCORE_MATCHES.has(id))continue;const r=getResult(id);if(!r||(!r.live&&!r.finished))continue;if(v.home===r.home&&v.away===r.away)apts+=3;else if(Math.sign(v.home-v.away)===Math.sign(r.home-r.away))apts+=1;}
       const aovr=MANUAL_POINTS_OVERRIDE[auid];
       if(aovr && apts===0) apts=aovr.pts;
-      if(au.favTeam){apts+=allMatches.filter(m=>{const r=getResult(m.id);if(!r||!r.finished)return false;return (m.home===au.favTeam&&r.home>r.away)||(m.away===au.favTeam&&r.away>r.home);}).length;}
+      apts+=favTeamBonus(au);
       apts+=loginBonusPts(au);
       allRankRows.push({uid:auid,pts:apts});
     });
@@ -3294,6 +3282,24 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
   // Points here are added ON TOP of whatever Firestore returns (which may be 0)
   // Remove once Firestore is back and data is confirmed correct
   const MANUAL_POINTS_OVERRIDE = {};
+
+  // ── FAVOURITE TEAM BONUS ────────────────────────────────────────
+  // +1 point per finished match the player's favourite team won, but only
+  // counting matches that kicked off AFTER the player picked that team —
+  // picking a team that already won earlier matches shouldn't retroactively
+  // score those. Legacy picks with no recorded pick time fall back to the
+  // player's join date, since they couldn't have picked before joining.
+  function favTeamBonus(u) {
+    if (!u || !u.favTeam) return 0;
+    const cutoff = u.favTeamPickedAt || u.joined || 0;
+    return allMatches.filter(m => {
+      const r = getResult(m.id);
+      if (!r || !r.finished) return false;
+      const kt = KICKOFF_TIMES[m.id];
+      if (!kt || new Date(kt + ':00+04:00').getTime() <= cutoff) return false;
+      return (m.home === u.favTeam && r.home > r.away) || (m.away === u.favTeam && r.away > r.home);
+    }).length;
+  }
 
   // ── LOGIN BONUS (18-28 Sep 2026) ──────────────────────────────
   // Every player who logs in during this 10-day window gets a one-time
