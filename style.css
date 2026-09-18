@@ -263,7 +263,7 @@ body.light .auth-logo h1 { color:#0a0a0a; }
 .standings-table td { text-align:center; padding:6px 3px; border-bottom:1px solid var(--border); color:var(--text); height:36px; box-sizing:border-box; }
 .standings-table td.team-cell { text-align:left; display:flex; align-items:center; gap:4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .standings-table th:nth-child(2), .standings-table td.team-cell { width:auto; }
-.standings-table th:first-child, .standings-table td:first-child { width:28px; }
+.standings-table th:first-child:not(.team-cell), .standings-table td:first-child:not(.team-cell) { width:28px; }
 .standings-table td.pts-cell { font-weight:700; color:#1D4ED8; }
 .standings-table tr.qualify td { color:var(--text); font-weight:500; }
 .qualify-dot { width:7px; height:7px; border-radius:50%; flex-shrink:0; background:var(--qualify-dot); display:inline-block; }
