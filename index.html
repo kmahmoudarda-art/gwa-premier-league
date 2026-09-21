@@ -2529,7 +2529,7 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
         const picks = saved && saved.length ? saved : [];
         return `<div class="calendar-card" style="margin-bottom:12px;padding:12px">
           <div style="font-size:12px;font-weight:700;margin-bottom:6px">${label}</div>
-          ${picks.length ? `<ol style="padding-left:16px;line-height:1.6;font-size:11px;margin:0">${picks.map(t=>`<li>${teamBadge(t)} ${t}</li>`).join('')}</ol>` : `<p style="font-size:11px;color:var(--muted);margin:0">No picks made before deadline.</p>`}
+          ${picks.length ? `<ol style="padding-left:16px;line-height:1.6;font-size:11px;margin:0">${[...picks].sort((a,b)=>a.localeCompare(b)).map(t=>`<li>${teamBadge(t)} ${t}</li>`).join('')}</ol>` : `<p style="font-size:11px;color:var(--muted);margin:0">No picks made before deadline.</p>`}
           <div style="font-size:10px;color:var(--muted);margin-top:6px">🔒 Locked for the season</div>
         </div>`;
       }
@@ -3069,10 +3069,10 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
           ? `<div style="display:flex;align-items:center;gap:8px;font-size:14px;font-weight:700;margin-bottom:6px">${teamBadge(u.favTeam)} ${u.favTeam}</div>`
           : `<div style="color:var(--muted);font-size:13px">No favourite team picked yet.</div>`;
         const top4Html = (u.top4Picks && u.top4Picks.length)
-          ? `<ol style="padding-left:18px;line-height:1.7;font-size:13px;margin:0">${u.top4Picks.map(t=>`<li>${teamBadge(t)} ${t}</li>`).join('')}</ol>`
+          ? `<ol style="padding-left:18px;line-height:1.7;font-size:13px;margin:0">${[...u.top4Picks].sort((a,b)=>a.localeCompare(b)).map(t=>`<li>${teamBadge(t)} ${t}</li>`).join('')}</ol>`
           : `<div style="color:var(--muted);font-size:13px">${u.top4Locked?'No picks were made before the deadline.':'Not picked yet (still open).'}</div>`;
         const bottom3Html = (u.bottom3Picks && u.bottom3Picks.length)
-          ? `<ol style="padding-left:18px;line-height:1.7;font-size:13px;margin:0">${u.bottom3Picks.map(t=>`<li>${teamBadge(t)} ${t}</li>`).join('')}</ol>`
+          ? `<ol style="padding-left:18px;line-height:1.7;font-size:13px;margin:0">${[...u.bottom3Picks].sort((a,b)=>a.localeCompare(b)).map(t=>`<li>${teamBadge(t)} ${t}</li>`).join('')}</ol>`
           : `<div style="color:var(--muted);font-size:13px">${u.bottom3Locked?'No picks were made before the deadline.':'Not picked yet (still open).'}</div>`;
         return `<div class="profile-groups-grid">
           <div class="profile-group">
