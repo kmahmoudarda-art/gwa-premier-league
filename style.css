@@ -611,3 +611,10 @@ body.light .fifa-bracket-wrap { background:#f8fafc; }
 body.light .fifa-match { border-color:rgba(0,0,0,0.15); background:#fff; }
 body.light .fifa-slot + .fifa-slot { border-top-color:rgba(0,0,0,0.15); }
 body.light .fifa-soon-badge, body.light .fifa-date { color:#b45309; border-color:#b45309; }
+.fifa-signup-btn {
+  display:inline-block; background:#f59e0b; color:#0b1220; font-weight:700; font-size:14px;
+  text-decoration:none; padding:10px 18px; border-radius:10px; white-space:nowrap; transition:filter .2s;
+}
+.fifa-signup-btn:hover { filter:brightness(1.1); }
+.fifa-link { color:#f59e0b; font-weight:600; }
+body.light .fifa-link { color:#b45309; }
