@@ -322,6 +322,7 @@ body.light .auth-logo h1 { color:#0a0a0a; }
   .house-bar-row { grid-template-columns:70px 1fr 50px; }
   .page-title { font-size:30px; }
   .header-inner { flex-wrap:wrap; height:auto; padding:10px 0; gap:8px; }
+  nav { max-width:100%; overflow-x:auto; scrollbar-width:none; }
   .side-by-side-tables { grid-template-columns:1fr !important; }
   .profile-stats { grid-template-columns:repeat(2,1fr); }
   .profile-groups-grid { grid-template-columns:1fr; }
@@ -571,3 +572,42 @@ body.light .bk-pen-input { background:#e8f0fe; color:#1a56db; }
   background:var(--card2); border-radius:6px; margin-bottom:4px;
 }
 .real-vs { font-size:10px; color:var(--muted); text-align:center; margin:2px 0; letter-spacing:2px; }
+
+/* ── FIFA 2026 E-GAMING TAB ─────────────────────────────────────────── */
+.fifa-soon {
+  display:flex; align-items:center; gap:16px; flex-wrap:wrap;
+  background:linear-gradient(135deg, rgba(29,78,216,0.18), rgba(245,158,11,0.12));
+  border:1px solid rgba(245,158,11,0.35); border-radius:14px; padding:18px 20px; margin-bottom:20px;
+}
+.fifa-soon-badge {
+  font-family:'Bebas Neue',sans-serif; font-size:26px; letter-spacing:2px; color:#f59e0b;
+  border:2px dashed #f59e0b; border-radius:10px; padding:4px 14px;
+}
+.fifa-soon-text { flex:1; min-width:220px; font-size:14px; line-height:1.6; }
+.fifa-info-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:16px; }
+.fifa-details { list-style:none; line-height:1.9; font-size:14px; }
+.fifa-dates { list-style:none; display:flex; flex-direction:column; gap:10px; font-size:14px; }
+.fifa-dates li { display:flex; flex-direction:column; gap:2px; }
+.fifa-date { font-weight:700; color:#f59e0b; }
+
+.fifa-bracket-wrap { overflow-x:auto; background:var(--card); border:1px solid var(--border); border-radius:14px; padding:18px; }
+.fifa-bracket { display:flex; gap:22px; min-width:max-content; }
+.fifa-round { display:flex; flex-direction:column; width:150px; }
+.fifa-round-title {
+  font-family:'Bebas Neue',sans-serif; font-size:17px; letter-spacing:1px; color:var(--muted);
+  text-align:center; margin-bottom:10px;
+}
+.fifa-round-matches { flex:1; display:flex; flex-direction:column; justify-content:space-around; gap:10px; }
+.fifa-match { border:1px dashed var(--border); border-radius:8px; overflow:hidden; background:var(--card2); }
+.fifa-slot { font-size:12px; color:var(--muted); padding:7px 10px; letter-spacing:1px; }
+.fifa-slot + .fifa-slot { border-top:1px dashed var(--border); }
+.fifa-round-champ { width:120px; }
+.fifa-champ {
+  display:flex; flex-direction:column; align-items:center; gap:4px; font-size:30px;
+  border:2px dashed rgba(245,158,11,0.5); border-radius:10px; padding:12px 8px;
+}
+.fifa-champ span { font-size:12px; color:var(--muted); letter-spacing:1px; }
+body.light .fifa-bracket-wrap { background:#f8fafc; }
+body.light .fifa-match { border-color:rgba(0,0,0,0.15); background:#fff; }
+body.light .fifa-slot + .fifa-slot { border-top-color:rgba(0,0,0,0.15); }
+body.light .fifa-soon-badge, body.light .fifa-date { color:#b45309; border-color:#b45309; }
