@@ -8,7 +8,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Champions League Predictions</title>
 <link rel="icon" type="image/png" href="cl-ball.png">
-<link rel="stylesheet" href="style.css?v=9">
+<link rel="stylesheet" href="style.css?v=10">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
 .lb-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:32px;}
@@ -1039,6 +1039,7 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
         <button data-tab="leaderboard" onclick="showTab('leaderboard')">🏅 Leaderboard</button>
         <button data-tab="groups" onclick="showTab('groups')">📊 Table</button>
         <button data-tab="rules" onclick="showTab('rules')">📜 Rules</button>
+        <button data-tab="fifa" onclick="showTab('fifa')">🎮 FIFA 2026</button>
       </nav>
       <div class="user-pill" onclick="handleLogout()">
         <img id="headerPhoto" src="" alt="" class="user-photo" style="display:none">
@@ -1157,6 +1158,55 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
           <li>25th-36th = Eliminated after the League Phase</li>
           <li>Your predicted table and the actual table are shown side by side — a ✓ appears when a team sits in the same position in both</li>
         </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- FIFA 2026 E-GAMING TOURNAMENT TAB -->
+  <div id="tabFifa" class="tab-content" style="display:none">
+    <div class="main-wrap">
+      <div class="page-title">🎮 GWA FIFA 2026 E-Gaming Tournament</div>
+      <div class="page-sub">Term 1 · Room D108 (Gaming Lab) · Wednesday lunchtimes · Free entry – every student welcome!</div>
+
+      <div class="fifa-soon">
+        <div class="fifa-soon-badge">COMING SOON</div>
+        <div class="fifa-soon-text">Brackets will be revealed on <strong>Wednesday 30 / 09 / 2026</strong> — player names, year groups, match-ups and schedule will appear here.</div>
+      </div>
+
+      <div class="fifa-info-grid">
+        <div class="group-card">
+          <div class="group-card-title">📅 Key Dates</div>
+          <ul class="fifa-dates">
+            <li><span class="fifa-date">Fri 25 / 09 / 2026</span><span>Registration opens</span></li>
+            <li><span class="fifa-date">Wed 30 / 09 / 2026</span><span>Brackets announced + Game Day 1</span></li>
+            <li><span class="fifa-date">Tue 06 / 10 / 2026</span><span>Sign-up deadline</span></li>
+            <li><span class="fifa-date">Throughout Term 1</span><span>Rolling matches every Wednesday lunchtime in D108</span></li>
+          </ul>
+        </div>
+        <div class="group-card">
+          <div class="group-card-title">📋 Tournament Details</div>
+          <ul class="fifa-details">
+            <li><strong>Format:</strong> single-elimination brackets by year group / grade</li>
+            <li><strong>Where:</strong> Room D108 (Gaming Lab)</li>
+            <li><strong>When:</strong> Wednesday lunchtime sessions</li>
+            <li><strong>Entry:</strong> FREE – sign up via the Google Form</li>
+            <li><strong>Spectators:</strong> welcome – come cheer on your friends!</li>
+          </ul>
+        </div>
+        <div class="group-card">
+          <div class="group-card-title">🏆 Prizes &amp; Recognition</div>
+          <ul class="fifa-details">
+            <li>🥇 Tournament Champion certificate</li>
+            <li>🥈 Runner-up</li>
+            <li>🤝 Fair Play Award</li>
+            <li>🏠 House points for all participants</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="chart-title" style="margin-top:28px">🗂️ Bracket</div>
+      <div class="fifa-bracket-wrap">
+        <div class="fifa-bracket" id="fifaBracket"></div>
       </div>
     </div>
   </div>
@@ -2184,8 +2234,29 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
     if(t==='predictions'){document.getElementById('tabPredictions').style.display='block';renderMatches();updateStats();updatePlayerCount();renderCalendar();renderSeasonPicks();}
     else if(t==='groups'){document.getElementById('tabGroups').style.display='block';renderGroups();}
     else if(t==='rules'){document.getElementById('tabRules').style.display='block';}
+    else if(t==='fifa'){document.getElementById('tabFifa').style.display='block';renderFifaBracket();}
     else{document.getElementById('tabLeaderboard').style.display='block';renderLeaderboard();renderHouseChart();updatePlayerCount();}
   };
+
+  // ── FIFA 2026 E-GAMING TAB ─────────────────────────────────────────
+  // Empty placeholder bracket until the draw is revealed.
+  function renderFifaBracket(){
+    const el=document.getElementById('fifaBracket');
+    if(el.dataset.built) return;
+    const rounds=[['Round of 16',8],['Quarter-finals',4],['Semi-finals',2],['Final',1]];
+    el.innerHTML=rounds.map(([name,n])=>`
+      <div class="fifa-round">
+        <div class="fifa-round-title">${name}</div>
+        <div class="fifa-round-matches">
+          ${Array.from({length:n},()=>`<div class="fifa-match"><div class="fifa-slot">TBD</div><div class="fifa-slot">TBD</div></div>`).join('')}
+        </div>
+      </div>`).join('')+`
+      <div class="fifa-round fifa-round-champ">
+        <div class="fifa-round-title">Champion</div>
+        <div class="fifa-round-matches"><div class="fifa-champ">🏆<span>TBD</span></div></div>
+      </div>`;
+    el.dataset.built='1';
+  }
 
   // ── PREDICTIONS TAB ────────────────────────────────────────────────
   async function renderMatches(){
