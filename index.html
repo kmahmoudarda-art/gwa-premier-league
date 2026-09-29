@@ -1166,7 +1166,7 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
   <div id="tabFifa" class="tab-content" style="display:none">
     <div class="main-wrap">
       <div class="page-title">🎮 GWA FIFA 2026 E-Gaming Tournament</div>
-      <div class="page-sub">Term 1 · Room D108 (Gaming Lab) · Wednesday lunchtimes · Free entry – every student welcome!</div>
+      <div class="page-sub">Term 1 · Room D108 · Wednesday lunchtimes · Free entry – every student welcome!</div>
 
       <div class="fifa-soon">
         <div class="fifa-soon-badge">COMING SOON</div>
@@ -1179,8 +1179,8 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
           <div class="group-card-title">📅 Key Dates</div>
           <ul class="fifa-dates">
             <li><span class="fifa-date">Fri 25 / 09 / 2026</span><span>Registration opens</span></li>
+            <li><span class="fifa-date">Tue 29 / 09 / 2026</span><span>Sign-up deadline</span></li>
             <li><span class="fifa-date">Wed 30 / 09 / 2026</span><span>Brackets announced + Game Day 1</span></li>
-            <li><span class="fifa-date">Tue 06 / 10 / 2026</span><span>Sign-up deadline</span></li>
             <li><span class="fifa-date">Throughout Term 1</span><span>Rolling matches every Wednesday lunchtime in D108</span></li>
           </ul>
         </div>
@@ -1188,9 +1188,9 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
           <div class="group-card-title">📋 Tournament Details</div>
           <ul class="fifa-details">
             <li><strong>Format:</strong> single-elimination brackets by year group / grade</li>
-            <li><strong>Where:</strong> Room D108 (Gaming Lab)</li>
+            <li><strong>Where:</strong> Room D108</li>
             <li><strong>When:</strong> Wednesday lunchtime sessions</li>
-            <li><strong>Entry:</strong> FREE – <a class="fifa-link" href="https://forms.cloud.microsoft/r/nhRHwuQEuV" target="_blank" rel="noopener">sign up via the form</a> by Tue 06 / 10</li>
+            <li><strong>Entry:</strong> FREE – <a class="fifa-link" href="https://forms.cloud.microsoft/r/nhRHwuQEuV" target="_blank" rel="noopener">sign up via the form</a> by Tue 29 / 09</li>
             <li><strong>Spectators:</strong> welcome – come cheer on your friends!</li>
           </ul>
         </div>
@@ -1206,8 +1206,23 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
       </div>
 
       <div class="chart-title" style="margin-top:28px">🗂️ Bracket</div>
-      <div class="fifa-bracket-wrap">
-        <div class="fifa-bracket" id="fifaBracket"></div>
+      <div class="fifa-poster">
+        <div class="fifa-poster-head">
+          <a class="fifa-claim" href="https://forms.cloud.microsoft/r/nhRHwuQEuV" target="_blank" rel="noopener"><span>Claim your open spot!</span>Sign up now &amp; rise to fame!</a>
+          <div class="fifa-poster-title">Innovation <em>FC26</em> Tournament</div>
+          <div class="fifa-poster-sub">Battle for the title! Join the action!</div>
+        </div>
+        <div class="fifa-bracket-wrap">
+          <div class="fifa-bracket" id="fifaBracket"></div>
+        </div>
+        <div class="fifa-poster-foot">
+          <table class="fifa-sched">
+            <tr><td>Wednesday</td><td>Tuesday</td></tr>
+            <tr><td>Lunchtime</td><td>Showdown</td></tr>
+            <tr><td>Every week</td><td>Room D108</td></tr>
+          </table>
+          <div class="fifa-poster-url">https://innovation-championsleague.pages.dev/</div>
+        </div>
       </div>
     </div>
   </div>
@@ -2240,7 +2255,6 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
   };
 
   // ── FIFA 2026 E-GAMING TAB ─────────────────────────────────────────
-  // Empty placeholder bracket until the draw is revealed.
   function renderFifaBracket(){
     const el=document.getElementById('fifaBracket');
     if(el.dataset.built) return;
@@ -2251,18 +2265,27 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
     const esc=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;');
     const pi=Array.from({length:nPI},(_,i)=>[playIn[2*i],playIn[2*i+1]]);
     const r16=Array.from({length:8},(_,i)=> i<nPI ? [byes[i],`Winner of Play-in ${i+1}`] : [byes[nPI+2*(i-nPI)],byes[nPI+1+2*(i-nPI)]]);
-    const rounds=[['Play-in Round',pi],['Round of 16',r16],['Quarter-finals',4],['Semi-finals',2],['Final',1]];
-    el.innerHTML=rounds.map(([name,ms])=>`
-      <div class="fifa-round">
-        <div class="fifa-round-title">${name}</div>
-        <div class="fifa-round-matches">
-          ${(Array.isArray(ms)?ms:Array.from({length:ms},()=>['TBD','TBD'])).map(([a,b])=>`<div class="fifa-match"><div class="fifa-slot">${esc(a)}</div><div class="fifa-slot">${esc(b)}</div></div>`).join('')}
-        </div>
-      </div>`).join('')+`
-      <div class="fifa-round fifa-round-champ">
-        <div class="fifa-round-title">Champion</div>
-        <div class="fifa-round-matches"><div class="fifa-champ">🏆<span>TBD</span></div></div>
-      </div>`;
+    const slot=v=>{
+      const cls=v===OPEN?' fifa-slot-open':/^Winner of/.test(v)?' fifa-slot-feed':'';
+      return `<div class="fifa-slot${cls}">${v?esc(v):'&nbsp;'}</div>`;
+    };
+    let neon=0;
+    const match=([a,b])=>{
+      const hl=(a===OPEN||b===OPEN)?` fifa-neon-${neon++%2}`:'';
+      return `<div class="fifa-cell"><div class="fifa-match${hl}">${slot(a)}${slot(b)}</div></div>`;
+    };
+    const blank=n=>Array.from({length:n},()=>['','']);
+    // Paired rounds draw a bracket line joining each two matches into the next round.
+    const pairs=ms=>ms.reduce((h,m,i)=>i%2?h:h+`<div class="fifa-pair">${match(m)}${match(ms[i+1])}</div>`,'');
+    const round=(name,body,cls='')=>`<div class="fifa-round ${cls}"><div class="fifa-round-title">${name}</div><div class="fifa-round-matches">${body}</div></div>`;
+    el.innerHTML=
+      round('Play-in Round',pi.map(match).join(''),'fifa-straight')+
+      round('Round of 16',pairs(r16),'fifa-in')+
+      round('Quarter-finals',pairs(blank(4)),'fifa-in')+
+      round('Semi-finals',pairs(blank(2)),'fifa-in')+
+      round('Final',match(['','']),'fifa-in fifa-straight')+
+      round('Champion',`<div class="fifa-cell"><div class="fifa-champ">🏆<span>TBD</span></div>
+        <div class="fifa-champ-q">Who will be crowned champion? Do you have what it takes?</div></div>`,'fifa-in fifa-round-champ');
     el.dataset.built='1';
   }
 
