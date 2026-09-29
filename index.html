@@ -2244,12 +2244,13 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
   function renderFifaBracket(){
     const el=document.getElementById('fifaBracket');
     if(el.dataset.built) return;
-    // 22 players: 12 play in (6 matches), 10 get byes straight into the Round of 16.
-    const players=['Ahmed Zaytoun','Muhammad Umar Bin Sadiq','Amir Abbas','Hamdan Alharmoodi','Saifuddin Al Qadi','Abdalla Elfadil','Yousef Addas','Ratmir','Racim Belahsene','Mohammed Allybokys','Malik Rahhim Ahmed','Georgii Shadrin','Shantia Abedian','Parham','Taha','Enes Coskun','Adam Alkhafaji','Hamza Usman (10F)','Sudarshan Rao','Sami','Adham','Adam'];
-    const byes=players.slice(0,10), playIn=players.slice(10);
+    // 24 slots (22 players + 2 open spots): 16 play in (8 matches), 8 get byes straight into the Round of 16.
+    const OPEN='Open spot – sign up!';
+    const players=['Ahmed Zaytoun','Muhammad Umar Bin Sadiq','Amir Abbas','Hamdan Alharmoodi','Saifuddin Al Qadi','Abdalla Elfadil','Yousef Addas','Ratmir','Racim Belahsene','Mohammed Allybokys','Malik Rahhim Ahmed','Georgii Shadrin','Shantia Abedian','Parham','Taha','Enes Coskun','Adam Alkhafaji','Hamza Usman (10F)','Sudarshan Rao','Sami','Adham',OPEN,'Adam',OPEN];
+    const nPI=players.length-16, byes=players.slice(0,16-nPI), playIn=players.slice(16-nPI);
     const esc=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;');
-    const pi=Array.from({length:6},(_,i)=>[playIn[2*i],playIn[2*i+1]]);
-    const r16=Array.from({length:8},(_,i)=> i<6 ? [byes[i],`Winner of Play-in ${i+1}`] : [byes[6+2*(i-6)],byes[7+2*(i-6)]]);
+    const pi=Array.from({length:nPI},(_,i)=>[playIn[2*i],playIn[2*i+1]]);
+    const r16=Array.from({length:8},(_,i)=> i<nPI ? [byes[i],`Winner of Play-in ${i+1}`] : [byes[nPI+2*(i-nPI)],byes[nPI+1+2*(i-nPI)]]);
     const rounds=[['Play-in Round',pi],['Round of 16',r16],['Quarter-finals',4],['Semi-finals',2],['Final',1]];
     el.innerHTML=rounds.map(([name,ms])=>`
       <div class="fifa-round">
