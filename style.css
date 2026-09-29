@@ -590,26 +590,97 @@ body.light .bk-pen-input { background:#e8f0fe; color:#1a56db; }
 .fifa-dates li { display:flex; flex-direction:column; gap:2px; }
 .fifa-date { font-weight:700; color:#f59e0b; }
 
-.fifa-bracket-wrap { overflow-x:auto; background:var(--card); border:1px solid var(--border); border-radius:14px; padding:18px; }
-.fifa-bracket { display:flex; gap:22px; min-width:max-content; }
-.fifa-round { display:flex; flex-direction:column; width:150px; }
+/* FIFA bracket – "Innovation FC26" poster style (always dark, like the poster) */
+.fifa-poster {
+  position:relative; border-radius:16px; overflow:hidden; padding:26px 22px 20px; color:#f1f5f9;
+  border:1px solid rgba(148,163,184,0.25);
+  background:
+    radial-gradient(ellipse 60% 45% at 85% 45%, rgba(34,197,94,0.22), transparent 70%),
+    radial-gradient(ellipse 45% 40% at 8% 55%, rgba(56,189,248,0.18), transparent 70%),
+    radial-gradient(ellipse 70% 35% at 50% 62%, rgba(249,115,22,0.16), transparent 70%),
+    radial-gradient(ellipse 50% 40% at 70% 5%, rgba(168,85,247,0.22), transparent 70%),
+    linear-gradient(180deg, #0b1020 0%, #111a33 45%, #0a0f1e 100%);
+}
+.fifa-poster::before { /* faint stadium-window grid */
+  content:''; position:absolute; inset:0; pointer-events:none; opacity:0.35;
+  background:
+    repeating-linear-gradient(90deg, transparent 0 118px, rgba(255,255,255,0.06) 118px 121px),
+    linear-gradient(180deg, rgba(0,0,0,0.35), transparent 20%, transparent 80%, rgba(0,0,0,0.45));
+}
+.fifa-poster > * { position:relative; }
+.fifa-poster-head { text-align:center; margin-bottom:14px; padding:0 190px; }
+@media (max-width:900px){ .fifa-poster-head { padding:0; } }
+.fifa-poster-title {
+  font-family:'Bebas Neue',sans-serif; font-size:clamp(34px,6vw,64px); line-height:1; letter-spacing:2px;
+  text-transform:uppercase; font-style:italic; transform:skewX(-6deg);
+  background:linear-gradient(180deg,#ffffff 0%,#cbd5e1 55%,#94a3b8 100%); -webkit-background-clip:text; background-clip:text; color:transparent;
+  filter:drop-shadow(0 3px 6px rgba(0,0,0,0.6));
+}
+.fifa-poster-title em {
+  font-style:italic;
+  background:linear-gradient(180deg,#fde68a 0%,#f59e0b 45%,#ea580c 100%); -webkit-background-clip:text; background-clip:text; color:transparent;
+  filter:drop-shadow(0 0 10px rgba(249,115,22,0.7));
+}
+.fifa-poster-sub {
+  font-family:'Bebas Neue',sans-serif; font-size:clamp(18px,2.6vw,28px); letter-spacing:1.5px; font-style:italic;
+  text-transform:uppercase; color:#cbd5e1; margin-top:4px;
+}
+.fifa-claim {
+  position:absolute; left:4px; top:0; max-width:200px; text-align:center; text-decoration:none;
+  font-family:'Bebas Neue',sans-serif; font-size:19px; line-height:1.1; letter-spacing:1px; text-transform:uppercase; color:#e2e8f0;
+}
+.fifa-claim span { display:block; color:#fbbf24; }
+.fifa-claim::after { content:'⤵'; display:block; font-size:34px; color:#5eead4; text-shadow:0 0 10px #2dd4bf; transform:translateX(60px); }
+.fifa-claim:hover { color:#fff; }
+@media (max-width:900px){ .fifa-claim { position:static; display:block; max-width:none; margin-bottom:10px; } .fifa-claim::after { display:none; } }
+
+.fifa-bracket-wrap { overflow-x:auto; padding:4px 2px 10px; }
+.fifa-bracket { display:flex; gap:24px; min-width:max-content; min-height:520px; }
+.fifa-round { display:flex; flex-direction:column; width:156px; }
 .fifa-round-title {
-  font-family:'Bebas Neue',sans-serif; font-size:17px; letter-spacing:1px; color:var(--muted);
-  text-align:center; margin-bottom:10px;
+  font-family:'Bebas Neue',sans-serif; font-size:20px; letter-spacing:1px; color:#e2e8f0; white-space:nowrap;
+  text-align:center; margin-bottom:10px; text-transform:uppercase; text-shadow:0 2px 6px rgba(0,0,0,0.6);
 }
-.fifa-round-matches { flex:1; display:flex; flex-direction:column; justify-content:space-around; gap:10px; }
-.fifa-match { border:1px dashed var(--border); border-radius:8px; overflow:hidden; background:var(--card2); }
-.fifa-slot { font-size:12px; color:var(--muted); padding:7px 10px; letter-spacing:1px; }
-.fifa-slot + .fifa-slot { border-top:1px dashed var(--border); }
-.fifa-round-champ { width:120px; }
+.fifa-round-matches { flex:1; display:flex; flex-direction:column; }
+.fifa-pair { flex:2; display:flex; flex-direction:column; position:relative; }
+.fifa-cell { flex:1; display:flex; flex-direction:column; justify-content:center; position:relative; padding:4px 0; }
+.fifa-match {
+  border:1px solid rgba(203,213,225,0.35); border-radius:6px; overflow:hidden; min-height:48px;
+  background:linear-gradient(180deg, rgba(30,34,44,0.92), rgba(12,14,20,0.92));
+  box-shadow:0 4px 14px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.08);
+}
+.fifa-slot { font-size:12.5px; font-weight:600; color:#f8fafc; padding:5px 10px; min-height:24px; line-height:1.15; }
+.fifa-slot + .fifa-slot { border-top:1px dashed rgba(203,213,225,0.22); }
+.fifa-slot-feed { color:#e2e8f0; }
+.fifa-slot-open { color:#fff; }
+.fifa-neon-0 { border:2px solid #22d3ee; box-shadow:0 0 12px #22d3ee, inset 0 0 8px rgba(34,211,238,0.35); }
+.fifa-neon-1 { border:2px solid #d946ef; box-shadow:0 0 12px #d946ef, inset 0 0 8px rgba(217,70,239,0.35); }
+
+/* connector lines */
+.fifa-straight .fifa-cell::after, .fifa-pair::after, .fifa-in .fifa-cell::before { content:''; position:absolute; border-color:rgba(226,232,240,0.7); border-style:solid; border-width:0; }
+.fifa-straight .fifa-cell::after { left:100%; top:50%; width:24px; border-top-width:2px; }
+.fifa-straight.fifa-in .fifa-cell::after { width:12px; }
+.fifa-pair::after { left:100%; top:25%; bottom:25%; width:12px; border-width:2px 2px 2px 0; }
+.fifa-in .fifa-cell::before { right:100%; top:50%; width:12px; border-top-width:2px; }
+.fifa-round-matches > .fifa-cell { flex:1; }
+.fifa-straight:not(.fifa-in) .fifa-cell::before { display:none; }
+
+.fifa-round-champ { width:170px; }
 .fifa-champ {
-  display:flex; flex-direction:column; align-items:center; gap:4px; font-size:30px;
-  border:2px dashed rgba(245,158,11,0.5); border-radius:10px; padding:12px 8px;
+  display:flex; flex-direction:column; align-items:center; gap:6px; font-size:34px; color:#fbbf24;
+  border:2px dashed #fbbf24; border-radius:10px; padding:14px 8px;
+  background:linear-gradient(180deg, rgba(40,32,12,0.9), rgba(15,12,6,0.9)); box-shadow:0 0 18px rgba(251,191,36,0.45);
 }
-.fifa-champ span { font-size:12px; color:var(--muted); letter-spacing:1px; }
-body.light .fifa-bracket-wrap { background:#f8fafc; }
-body.light .fifa-match { border-color:rgba(0,0,0,0.15); background:#fff; }
-body.light .fifa-slot + .fifa-slot { border-top-color:rgba(0,0,0,0.15); }
+.fifa-champ span { font-size:14px; font-weight:700; color:#f8fafc; letter-spacing:1px; }
+.fifa-champ-q {
+  position:absolute; top:calc(50% + 70px); left:0; right:0; text-align:center;
+  font-family:'Bebas Neue',sans-serif; font-style:italic; font-size:22px; line-height:1.15; letter-spacing:1px;
+  text-transform:uppercase; color:#e2e8f0; text-shadow:0 2px 6px rgba(0,0,0,0.7);
+}
+.fifa-poster-foot { display:flex; align-items:flex-end; justify-content:space-between; gap:16px; flex-wrap:wrap; margin-top:10px; }
+.fifa-sched { border-collapse:collapse; margin:0 auto; font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; }
+.fifa-sched td { border:1px solid rgba(203,213,225,0.5); padding:4px 14px; text-align:center; background:rgba(10,14,24,0.7); color:#f1f5f9; }
+.fifa-poster-url { font-size:12px; color:#cbd5e1; }
 body.light .fifa-soon-badge, body.light .fifa-date { color:#b45309; border-color:#b45309; }
 .fifa-signup-btn {
   display:inline-block; background:#f59e0b; color:#0b1220; font-weight:700; font-size:14px;
