@@ -2244,12 +2244,18 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
   function renderFifaBracket(){
     const el=document.getElementById('fifaBracket');
     if(el.dataset.built) return;
-    const rounds=[['Round of 16',8],['Quarter-finals',4],['Semi-finals',2],['Final',1]];
-    el.innerHTML=rounds.map(([name,n])=>`
+    // 22 players: 12 play in (6 matches), 10 get byes straight into the Round of 16.
+    const players=['Ahmed Zaytoun','Muhammad Umar Bin Sadiq','Amir Abbas','Hamdan Alharmoodi','Saifuddin Al Qadi','Abdalla Elfadil','Yousef Addas','Ratmir','Racim Belahsene','Mohammed Allybokys','Malik Rahhim Ahmed','Georgii Shadrin','Shantia Abedian','Parham','Taha','Enes Coskun','Adam Alkhafaji','Hamza Usman (10F)','Sudarshan Rao','Sami','Adham','Adam'];
+    const byes=players.slice(0,10), playIn=players.slice(10);
+    const esc=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;');
+    const pi=Array.from({length:6},(_,i)=>[playIn[2*i],playIn[2*i+1]]);
+    const r16=Array.from({length:8},(_,i)=> i<6 ? [byes[i],`Winner of Play-in ${i+1}`] : [byes[6+2*(i-6)],byes[7+2*(i-6)]]);
+    const rounds=[['Play-in Round',pi],['Round of 16',r16],['Quarter-finals',4],['Semi-finals',2],['Final',1]];
+    el.innerHTML=rounds.map(([name,ms])=>`
       <div class="fifa-round">
         <div class="fifa-round-title">${name}</div>
         <div class="fifa-round-matches">
-          ${Array.from({length:n},()=>`<div class="fifa-match"><div class="fifa-slot">TBD</div><div class="fifa-slot">TBD</div></div>`).join('')}
+          ${(Array.isArray(ms)?ms:Array.from({length:ms},()=>['TBD','TBD'])).map(([a,b])=>`<div class="fifa-match"><div class="fifa-slot">${esc(a)}</div><div class="fifa-slot">${esc(b)}</div></div>`).join('')}
         </div>
       </div>`).join('')+`
       <div class="fifa-round fifa-round-champ">
