@@ -635,7 +635,7 @@ body.light .bk-pen-input { background:#e8f0fe; color:#1a56db; }
 @media (max-width:900px){ .fifa-claim { position:static; display:block; max-width:none; margin-bottom:10px; } .fifa-claim::after { display:none; } }
 
 .fifa-bracket-wrap { overflow-x:auto; padding:4px 2px 10px; }
-.fifa-bracket { display:flex; gap:24px; min-width:max-content; min-height:520px; }
+.fifa-bracket { display:flex; gap:24px; min-width:max-content; min-height:640px; }
 .fifa-round { display:flex; flex-direction:column; width:156px; }
 .fifa-round-title {
   font-family:'Bebas Neue',sans-serif; font-size:20px; letter-spacing:1px; color:#e2e8f0; white-space:nowrap;
@@ -660,10 +660,11 @@ body.light .bk-pen-input { background:#e8f0fe; color:#1a56db; }
 .fifa-straight .fifa-cell::after, .fifa-pair::after, .fifa-in .fifa-cell::before { content:''; position:absolute; border-color:rgba(226,232,240,0.7); border-style:solid; border-width:0; }
 .fifa-straight .fifa-cell::after { left:100%; top:50%; width:24px; border-top-width:2px; }
 .fifa-straight.fifa-in .fifa-cell::after { width:12px; }
-.fifa-pair::after { left:100%; top:25%; bottom:25%; width:12px; border-width:2px 2px 2px 0; }
+.fifa-pair::after { left:100%; top:var(--t,25%); bottom:var(--b,25%); width:12px; border-width:2px 2px 2px 0; }
 .fifa-in .fifa-cell::before { right:100%; top:50%; width:12px; border-top-width:2px; }
 .fifa-round-matches > .fifa-cell { flex:1; }
 .fifa-straight:not(.fifa-in) .fifa-cell::before { display:none; }
+.fifa-straight .fifa-pair .fifa-cell::after { display:none; }
 
 .fifa-round-champ { width:170px; }
 .fifa-champ {
