@@ -1169,9 +1169,8 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
       <div class="page-sub">Term 1 · Room D108 · Wednesday lunchtimes · Free entry – every student welcome!</div>
 
       <div class="fifa-soon">
-        <div class="fifa-soon-badge">ONLY 2 SPOTS LEFT</div>
-        <div class="fifa-soon-text">Only <strong>2 spots left</strong> in the bracket — sign up now to claim yours!</div>
-        <a class="fifa-signup-btn" href="https://forms.cloud.microsoft/r/nhRHwuQEuV" target="_blank" rel="noopener">📝 Sign up now</a>
+        <div class="fifa-soon-badge">BRACKET COMPLETE</div>
+        <div class="fifa-soon-text">Registration is now <strong>closed</strong> — all 24 spots are filled. Check the bracket below for your match-up and good luck!</div>
       </div>
 
       <div class="fifa-info-grid">
@@ -1190,7 +1189,7 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
             <li><strong>Format:</strong> single-elimination brackets by year group / grade</li>
             <li><strong>Where:</strong> Room D108</li>
             <li><strong>When:</strong> Wednesday lunchtime sessions</li>
-            <li><strong>Entry:</strong> FREE – <a class="fifa-link" href="https://forms.cloud.microsoft/r/nhRHwuQEuV" target="_blank" rel="noopener">sign up via the form</a> by Tue 29 / 09</li>
+            <li><strong>Entry:</strong> registration closed – bracket full (24 players)</li>
             <li><strong>Spectators:</strong> welcome – come cheer on your friends!</li>
           </ul>
         </div>
@@ -1208,7 +1207,7 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
       <div class="chart-title" style="margin-top:28px">🗂️ Bracket</div>
       <div class="fifa-poster">
         <div class="fifa-poster-head">
-          <a class="fifa-claim" href="https://forms.cloud.microsoft/r/nhRHwuQEuV" target="_blank" rel="noopener"><span>Claim your open spot!</span>Sign up now &amp; rise to fame!</a>
+          <div class="fifa-claim"><span>Bracket complete!</span>24 players &amp; one champion!</div>
           <div class="fifa-poster-title">Innovation <em>FC26</em> Tournament</div>
           <div class="fifa-poster-sub">Battle for the title! Join the action!</div>
         </div>
@@ -2258,9 +2257,9 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
   function renderFifaBracket(){
     const el=document.getElementById('fifaBracket');
     if(el.dataset.built) return;
-    // 24 slots (22 players + 2 open spots): 16 play in (8 matches), 8 get byes straight into the Round of 16.
+    // 24 players: 16 play in (8 matches), 8 get byes straight into the Round of 16.
     const OPEN='Open spot – sign up!';
-    const players=['Ahmed Zaytoun','Muhammad Umar Bin Sadiq','Amir Abbas','Hamdan Alharmoodi','Saifuddin Al Qadi','Abdalla Elfadil','Yousef Addas','Ratmir','Racim Belahsene','Mohammed Allybokys','Malik Rahhim Ahmed','Georgii Shadrin','Shantia Abedian','Parham','Taha','Enes Coskun','Adam Alkhafaji','Hamza Usman (10F)','Sudarshan Rao','Sami','Adham',OPEN,'Adam',OPEN];
+    const players=['Ahmed Zaytoun','Muhammad Umar Bin Sadiq','Amir Abbas','Hamdan Alharmoodi','Saifuddin Al Qadi','Abdalla Elfadil','Yousef Addas','Ratmir','Racim Belahsene','Mohammed Allybokys','Malik Rahhim Ahmed','Georgii Shadrin','Shantia Abedian','Parham','Taha','Enes Coskun','Adam Alkhafaji','Hamza Usman (10F)','Sudarshan Rao','Sami','Adham','Roshan Bahirwani','Adam','Mahdiar'];
     const nPI=players.length-16, byes=players.slice(0,16-nPI), playIn=players.slice(16-nPI);
     const esc=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;');
     const pi=Array.from({length:nPI},(_,i)=>[playIn[2*i],playIn[2*i+1]]);
