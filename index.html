@@ -1169,9 +1169,8 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
       <div class="page-sub">Term 1 · Room D108 · Wednesday lunchtimes · Free entry – every student welcome!</div>
 
       <div class="fifa-soon">
-        <div class="fifa-soon-badge">ONLY 1 SPOT LEFT</div>
-        <div class="fifa-soon-text">Just <strong>1 spot left</strong> in the bracket — sign up now to claim it!</div>
-        <a class="fifa-signup-btn" href="https://forms.cloud.microsoft/r/nhRHwuQEuV" target="_blank" rel="noopener">📝 Sign up now</a>
+        <div class="fifa-soon-badge">BRACKET COMPLETE</div>
+        <div class="fifa-soon-text">All <strong>29 players</strong> are in and the play-in round is under way — winners are marked ✓ in the bracket below. Good luck!</div>
       </div>
 
       <div class="fifa-info-grid">
@@ -1190,7 +1189,7 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
             <li><strong>Format:</strong> single-elimination brackets by year group / grade</li>
             <li><strong>Where:</strong> Room D108</li>
             <li><strong>When:</strong> Wednesday lunchtime sessions</li>
-            <li><strong>Entry:</strong> FREE – <a class="fifa-link" href="https://forms.cloud.microsoft/r/nhRHwuQEuV" target="_blank" rel="noopener">sign up via the form</a> – 1 spot left!</li>
+            <li><strong>Entry:</strong> registration closed – bracket full (29 players)</li>
             <li><strong>Spectators:</strong> welcome – come cheer on your friends!</li>
           </ul>
         </div>
@@ -1208,7 +1207,7 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
       <div class="chart-title" style="margin-top:28px">🗂️ Bracket</div>
       <div class="fifa-poster">
         <div class="fifa-poster-head">
-          <a class="fifa-claim" href="https://forms.cloud.microsoft/r/nhRHwuQEuV" target="_blank" rel="noopener"><span>Claim the last spot!</span>Sign up now &amp; rise to fame!</a>
+          <div class="fifa-claim"><span>Bracket complete!</span>29 players &amp; one champion!</div>
           <div class="fifa-poster-title">Innovation <em>FC26</em> Tournament</div>
           <div class="fifa-poster-sub">Battle for the title! Join the action!</div>
         </div>
@@ -2258,36 +2257,47 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
   function renderFifaBracket(){
     const el=document.getElementById('fifaBracket');
     if(el.dataset.built) return;
-    // 26 slots (25 players + 1 open spot): 20 play in (10 matches), 6 get byes straight into the Round of 16.
-    // Play-in 1–8 are the original draw; Play-in 9–10 were added later and feed Round of 16 matches 7–8.
+    // 29 players: 26 play in (13 matches), 3 get byes straight into the Round of 16.
+    // Play-in 1–8 are the original draw; 9–13 were added as late sign-ups joined, each taking a
+    // former bye player into the play-in so the Round of 16 stays at 16.
     const OPEN='Open spot – sign up!';
     const esc=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;');
-    const byes=['Ahmed Zaytoun','Muhammad Umar Bin Sadiq','Amir Abbas','Hamdan Alharmoodi','Saifuddin Al Qadi','Abdalla Elfadil'];
+    const byes=['Ahmed Zaytoun','Muhammad Umar Bin Sadiq','Amir Abbas'];
     const pi=[['Racim Belahsene','Mohammed Allybokys'],['Malik Rahhim Ahmed','Georgii Shadrin'],['Shantia Abedian','Parham'],['Taha','Enes Coskun'],
       ['Adam Alkhafaji','Hamza Usman (10F)'],['Sudarshan Rao','Sami'],['Adham','Roshan Bahirwani'],['Adam','Mahdiar'],
-      ['Yousef Addas','Mohammed R'],['Ratmir',OPEN]];
-    const W=n=>`Winner of Play-in ${n}`;
-    const r16=[...byes.map((p,i)=>[p,W(i+1)]),[W(7),W(9)],[W(8),W(10)]];
-    const slot=v=>{
-      const cls=v===OPEN?' fifa-slot-open':/^Winner of/.test(v)?' fifa-slot-feed':'';
+      ['Yousef Addas','Mohammed R'],['Ratmir','Mr. Barry'],['Hamdan Alharmoodi','Jassim Al Baqali'],
+      ['Saifuddin Al Qadi','Dara Daoud'],['Abdalla Elfadil','Diyeco Esteki']];
+    // Results so far: play-in number → winner. Winners move straight into their Round of 16 slot.
+    const piWinners={5:'Hamza Usman (10F)',8:'Mahdiar',9:'Yousef Addas'};
+    const W=n=>piWinners[n]||`Winner of Play-in ${n}`;
+    const r16=[...byes.map((p,i)=>[p,W(i+1)]),[W(4),W(11)],[W(5),W(12)],[W(6),W(13)],[W(7),W(9)],[W(8),W(10)]];
+    const winners=new Set(Object.values(piWinners));
+    const decided=new Set(Object.keys(piWinners).map(n=>pi[n-1]).flat());
+    const slot=(v,done)=>{
+      const cls=v===OPEN?' fifa-slot-open':/^Winner of/.test(v)?' fifa-slot-feed':
+        done&&winners.has(v)?' fifa-slot-win':done&&decided.has(v)?' fifa-slot-lose':'';
       return `<div class="fifa-slot${cls}">${v?esc(v):'&nbsp;'}</div>`;
     };
     let neon=0;
     // Each cell gets a flex weight (= number of bracket rows it spans) so every match lines up
     // with the match it feeds in the next round, even when the play-in column is taller.
-    const match=([a,b],w=1)=>{
+    const match=([a,b],w=1,done=false)=>{
       const hl=(a===OPEN||b===OPEN)?` fifa-neon-${neon++%2}`:'';
-      return `<div class="fifa-cell" style="flex:${w}"><div class="fifa-match${hl}">${slot(a)}${slot(b)}</div></div>`;
+      return `<div class="fifa-cell" style="flex:${w}"><div class="fifa-match${hl}">${slot(a,done)}${slot(b,done)}</div></div>`;
     };
+    const piMatch=(n,w=1)=>match(pi[n-1],w,n in piWinners);
     // A pair draws a bracket line joining its two matches into one match in the next round.
-    const pair=(m1,w1,m2,w2)=>{const t=w1+w2;
-      return `<div class="fifa-pair" style="flex:${t};--t:${w1/2/t*100}%;--b:${w2/2/t*100}%">${match(m1,w1)}${match(m2,w2)}</div>`;};
+    const wrap=(c1,w1,c2,w2)=>{const t=w1+w2;
+      return `<div class="fifa-pair" style="flex:${t};--t:${w1/2/t*100}%;--b:${w2/2/t*100}%">${c1}${c2}</div>`;};
+    const pair=(m1,w1,m2,w2)=>wrap(match(m1,w1),w1,match(m2,w2),w2);
     const pairs=(ms,ws)=>ms.reduce((h,m,i)=>i%2?h:h+pair(m,ws[i],ms[i+1],ws[i+1]),'');
     const blank=n=>Array.from({length:n},()=>['','']);
     const round=(name,body,cls='')=>`<div class="fifa-round ${cls}"><div class="fifa-round-title">${name}</div><div class="fifa-round-matches">${body}</div></div>`;
-    const r16w=[1,1,1,1,1,1,2,2], qfw=[2,2,2,4], sfw=[4,6];
+    const r16w=[1,1,1,2,2,2,2,2], qfw=[2,3,4,4], sfw=[5,8];
+    const piCol=[1,2,3].map(n=>piMatch(n)).join('')+
+      [[4,11],[5,12],[6,13],[7,9],[8,10]].map(([x,y])=>wrap(piMatch(x),1,piMatch(y),1)).join('');
     el.innerHTML=
-      round('Play-in Round',pi.slice(0,6).map(m=>match(m)).join('')+pair(pi[6],1,pi[8],1)+pair(pi[7],1,pi[9],1),'fifa-straight')+
+      round('Play-in Round',piCol,'fifa-straight')+
       round('Round of 16',pairs(r16,r16w),'fifa-in')+
       round('Quarter-finals',pairs(blank(4),qfw),'fifa-in')+
       round('Semi-finals',pairs(blank(2),sfw),'fifa-in')+
