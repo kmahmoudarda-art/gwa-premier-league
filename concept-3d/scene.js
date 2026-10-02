@@ -86,6 +86,10 @@ const fillText = (key, text) => document.querySelectorAll(`[data-league="${key}"
 fillText('last-md', LEAGUE.lastMd);
 fillText('next-md', LEAGUE.nextMd || '');
 fillText('next-date', LEAGUE.nextDate);
+fillText('clubs', table.length);
+fillText('leader', table[0].name);
+fillText('leader-pts', table[0].pts);
+fillText('goals', table.reduce((n, c) => n + c.gf, 0));
 
 // Accessible list (also the visible fallback without WebGL)
 const standingsEl = document.getElementById('standings');
@@ -114,7 +118,7 @@ renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
-const NIGHT = new THREE.Color('#050d1f');
+const NIGHT = new THREE.Color('#050d1f'), CHALK = new THREE.Color('#e9eee6');
 const scene = new THREE.Scene();
 scene.background = NIGHT;
 scene.fog = new THREE.Fog(NIGHT, 24, 52);
@@ -129,28 +133,18 @@ new RGBELoader().load(new URL('./vendor/venice_sunset_256.hdr', import.meta.url)
   needsDraw = true;
 });
 
-// Grass and concrete surface detail: thin random strokes give the bump and
-// roughness variation real turf has. Smaller on phones.
+// Real surface scans from ambientCG (Grass001, Concrete001; CC0), 512 px on
+// desktop and 256 px on phones.
 const DETAIL = matchMedia('(pointer: coarse)').matches || innerWidth < 760 ? 256 : 512;
-function detailTexture(blades, repeat) {
-  const c = document.createElement('canvas');
-  c.width = c.height = DETAIL;
-  const g = c.getContext('2d');
-  g.fillStyle = '#808080'; g.fillRect(0, 0, DETAIL, DETAIL);
-  g.lineCap = 'round';
-  for (let i = 0; i < DETAIL * DETAIL / 40; i++) {
-    const x = Math.random() * DETAIL, y = Math.random() * DETAIL, l = blades ? 2 + Math.random() * 5 : 0.6 + Math.random() * 1.4;
-    const a = blades ? -Math.PI / 2 + (Math.random() - 0.5) * 0.9 : Math.random() * Math.PI;
-    const v = 60 + Math.random() * 150 | 0;
-    g.strokeStyle = `rgb(${v},${v},${v})`; g.lineWidth = blades ? 0.9 : 1.6;
-    g.beginPath(); g.moveTo(x, y); g.lineTo(x + Math.cos(a) * l, y + Math.sin(a) * l); g.stroke();
-  }
-  const t = new THREE.CanvasTexture(c);
+const texLoader = new THREE.TextureLoader();
+function scan(name, repeat) {
+  const t = texLoader.load(new URL(`./textures/${name}-${DETAIL}.jpg`, import.meta.url).href, () => { needsDraw = true; });
   t.wrapS = t.wrapT = THREE.RepeatWrapping;
   t.repeat.set(repeat, repeat);
   return t;
 }
-const grass = detailTexture(true, 14), concrete = detailTexture(false, 30);
+const grassNormal = scan('grass-normal', 10), grassRough = scan('grass-rough', 10);
+const concreteNormal = scan('concrete-normal', 24), floorNormal = scan('concrete-normal', 3);
 
 const camera = new THREE.PerspectiveCamera(40, 1, 0.1, 200);
 
@@ -187,14 +181,14 @@ function pitchTexture() {
 }
 const pitch = new THREE.Mesh(
   new THREE.PlaneGeometry(PITCH_W, PITCH_D),
-  new THREE.MeshStandardMaterial({ map: pitchTexture(), roughness: 1, roughnessMap: grass, bumpMap: grass, bumpScale: 1.2 }));
+  new THREE.MeshStandardMaterial({ map: pitchTexture(), roughness: 1, roughnessMap: grassRough, normalMap: grassNormal, normalScale: new THREE.Vector2(0.8, 0.8) }));
 pitch.rotation.x = -Math.PI / 2;
 pitch.receiveShadow = true;
 scene.add(pitch);
 
 const ground = new THREE.Mesh(
   new THREE.PlaneGeometry(200, 200),
-  new THREE.MeshStandardMaterial({ color: '#07160f', roughness: 1, bumpMap: concrete, bumpScale: 0.6 }));
+  new THREE.MeshStandardMaterial({ color: '#07160f', roughness: 1, normalMap: concreteNormal }));
 ground.rotation.x = -Math.PI / 2; ground.position.y = -0.01;
 ground.receiveShadow = true;
 scene.add(ground);
@@ -354,7 +348,7 @@ function addSpotLight(at, color = '#fff3dc', intensity = 2.2) {
 }
 function addFloor(at, r = 7) {
   const floor = new THREE.Mesh(new THREE.CircleGeometry(r, 64),
-    new THREE.MeshStandardMaterial({ color: '#0b1a33', roughness: 0.8, roughnessMap: concrete, bumpMap: concrete, bumpScale: 0.5, metalness: 0.1, envMapIntensity: 0.25 }));
+    new THREE.MeshStandardMaterial({ color: '#0b1a33', roughness: 0.75, normalMap: floorNormal, normalScale: new THREE.Vector2(0.6, 0.6), metalness: 0.1, envMapIntensity: 0.25 }));
   floor.rotation.x = -Math.PI / 2; floor.position.copy(at); floor.position.y = 0.01;
   floor.receiveShadow = true;
   scene.add(floor);
@@ -420,6 +414,68 @@ addSpotLight(SPOTS.rules);
   addSpotLight(SPOTS.fifa, '#fff1c9', 3);
 }
 
+// A classic match ball: 12 black pentagons and 20 white hexagons, found per
+// pixel as the nearest face centre of a truncated icosahedron, with dark seams.
+function ballTexture() {
+  const W = 512, H = 256, c = document.createElement('canvas');
+  c.width = W; c.height = H;
+  const g = c.getContext('2d'), img = g.createImageData(W, H);
+  const t = (1 + Math.sqrt(5)) / 2;
+  const pent = [[0,1,t],[0,-1,t],[0,1,-t],[0,-1,-t],[1,t,0],[-1,t,0],[1,-t,0],[-1,-t,0],[t,0,1],[-t,0,1],[t,0,-1],[-t,0,-1]]
+    .map(a => new THREE.Vector3(...a).normalize());
+  const hex = new THREE.IcosahedronGeometry(1, 0).toNonIndexed().attributes.position, centres = [];
+  for (let i = 0; i < hex.count; i += 3) centres.push(new THREE.Vector3().fromBufferAttribute(hex, i)
+    .add(new THREE.Vector3().fromBufferAttribute(hex, i + 1)).add(new THREE.Vector3().fromBufferAttribute(hex, i + 2)).normalize());
+  const faces = [...pent.map(v => [v, 0.06]), ...centres.map(v => [v, 0])]; // pentagons are slightly smaller
+  const d = new THREE.Vector3();
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+    const th = (y + 0.5) / H * Math.PI, ph = (x + 0.5) / W * Math.PI * 2;
+    d.set(-Math.cos(ph) * Math.sin(th), Math.cos(th), Math.sin(ph) * Math.sin(th));
+    let b1 = Infinity, b2 = Infinity, isPent = false;
+    faces.forEach(([v, w], i) => {
+      const a = Math.acos(Math.min(1, d.dot(v))) + w;
+      if (a < b1) { b2 = b1; b1 = a; isPent = i < 12; } else if (a < b2) b2 = a;
+    });
+    const seam = b2 - b1 < 0.02, v = seam ? 40 : isPent ? 22 : 240, o = (y * W + x) * 4;
+    img.data[o] = img.data[o + 1] = img.data[o + 2] = v; img.data[o + 3] = 255;
+  }
+  g.putImageData(img, 0, 0);
+  const tex = new THREE.CanvasTexture(c);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  return tex;
+}
+const BALL_R = 0.38;
+const ball = new THREE.Mesh(new THREE.SphereGeometry(BALL_R, 48, 32),
+  new THREE.MeshPhysicalMaterial({ map: ballTexture(), roughness: 0.35, clearcoat: 0.5, clearcoatRoughness: 0.3 }));
+ball.position.set(0, BALL_R, 1.3); // just off the centre spot, clear of the fixture pairs
+ball.castShadow = true;
+scene.add(ball);
+
+// Goals at both ends, true to scale (7.32 x 2.44 m), with a simple net
+{
+  const m = PITCH_W / 113, gw = 7.32 * m, gh = 2.44 * m, gd = 1.6 * m, r = 0.025;
+  const post = new THREE.MeshStandardMaterial({ color: '#f4f6f2', roughness: 0.3, metalness: 0.1 });
+  const net = new THREE.LineBasicMaterial({ color: '#dfe6ee', transparent: true, opacity: 0.35 });
+  for (const side of [-1, 1]) {
+    const goal = new THREE.Group();
+    const bar = (len, axis, x, y, z) => {
+      const b = new THREE.Mesh(new THREE.CylinderGeometry(r, r, len, 10), post);
+      if (axis === 'z') b.rotation.x = Math.PI / 2;
+      b.position.set(x, y, z); b.castShadow = true; goal.add(b);
+    };
+    bar(gh, 'y', 0, gh / 2, -gw / 2); bar(gh, 'y', 0, gh / 2, gw / 2); bar(gw, 'z', 0, gh, 0);
+    const pts = [], step = gw / 16;
+    for (let z = -gw / 2; z <= gw / 2 + 1e-6; z += step) pts.push(0, gh, z, gd, 0, z);       // roof-to-ground lines
+    for (let k = 0; k <= 6; k++) { const f = k / 6; pts.push(gd * f, gh * (1 - f), -gw / 2, gd * f, gh * (1 - f), gw / 2); }
+    const ng = new THREE.BufferGeometry();
+    ng.setAttribute('position', new THREE.Float32BufferAttribute(pts, 3));
+    goal.add(new THREE.LineSegments(ng, net));
+    goal.position.set(side * PITCH_W / 2 * (105 / 113), 0, 0);
+    goal.rotation.y = side > 0 ? 0 : Math.PI;
+    scene.add(goal);
+  }
+}
+
 // ── Camera keyframes ──
 function keyframes(side) {
   const narrow = innerWidth / innerHeight < 0.9;
@@ -433,6 +489,9 @@ function keyframes(side) {
     hero:   narrow ? { pos: v3(0, 12, 11.5), look: v3(0, 0, 3.5) } : { pos: v3(-2 * side, 13.5, 15.5), look: v3(-2.8 * side, 0, 0.6) },
     table:  { pos: v3(GRID.x - off, GRID.y + lift + 0.6, GRID.z + dist), look: v3(GRID.x - off, GRID.y + lift, GRID.z) },
     finale: narrow ? { pos: v3(-6, 6.5, 15), look: v3(0, 0, 5) } : { pos: v3(-12, 2.6, 10.5), look: v3(-1, 0.4, -1) },
+    wide:   { pos: v3(narrow ? 0 : -3, narrow ? 22 : 15, narrow ? 24 : 17), look: v3(narrow ? 0 : -3.5, 0, 0) },
+    ball:   { pos: v3(narrow ? 1.2 : 0.6, 1.1, narrow ? 5.6 : 3.9), look: v3(narrow ? 0 : -0.9, narrow ? -0.1 : 0.45, 1.3) },
+    cup:    { pos: SPOTS.fifa.clone().add(v3(narrow ? 0 : -2.6, 3.2, narrow ? 12 : 8)), look: SPOTS.fifa.clone().add(v3(narrow ? 0 : -2.4, narrow ? 3 : 2.4, 0)) },
     houses: { pos: SPOTS.houses.clone().add(v3(-sh, narrow ? 7 : 6, narrow ? 27 : 19)), look: SPOTS.houses.clone().add(v3(-sh, narrow ? 1.5 : 3.2, 0)) },
     rules:  { pos: SPOTS.rules.clone().add(v3(-1.5 - sh, 3, narrow ? 17 : 14)), look: SPOTS.rules.clone().add(v3(-sh * 0.8, narrow ? 0.8 : 1.9, 0)) },
     fifa:   { pos: SPOTS.fifa.clone().add(v3(2.5 - sh, 4, narrow ? 13 : 8.5)), look: SPOTS.fifa.clone().add(v3(-sh * 0.6, narrow ? 1 : 2.2, 0)) },
@@ -456,17 +515,26 @@ resize();
 // ── Scene state: which two layouts we're between, and how far ──
 const clamp01 = x => Math.min(1, Math.max(0, x));
 const smooth = x => x * x * (3 - 2 * x);
-const STANDING = { hero: 0, table: 1, finale: 0, houses: 0, rules: 0, fifa: 0 };
+const STANDING = { hero: 0, table: 1, finale: 0, houses: 0, rules: 0, fifa: 0, wide: 0, ball: 0, cup: 0 };
 // Club pucks rest on the pitch (hero layout) while the camera visits the other scenes
 const puckKey = v => (v === 'table' || v === 'finale') ? v : 'hero';
 const tableEl = document.getElementById('table');
 
+// The pinned intro: hold each camera stop, then dolly to the next.
+const introEl = document.getElementById('intro');
+const INTRO = ['wide', 'ball', 'cup', 'hero'];
 function scrollStage() {
   const y = scrollY, vh = innerHeight;
-  const tableIn = tableEl.offsetTop * 0.85;
+  if (introEl && y < introEl.offsetHeight - vh) {
+    const p = clamp01(y / Math.max(1, introEl.offsetHeight - vh)) * 3, i = Math.min(2, Math.floor(p));
+    const t = reduceMotion ? 0 : clamp01((p - i - 0.45) / 0.55);
+    return { from: INTRO[i], to: INTRO[i + 1], t };
+  }
+  const start = introEl ? introEl.offsetHeight - vh : 0;
+  const tableIn = start + (tableEl.offsetTop - start) * 0.85;
   const tableOut = tableEl.offsetTop + tableEl.offsetHeight - vh;
   const end = document.documentElement.scrollHeight - vh;
-  const a = clamp01(y / tableIn);
+  const a = clamp01((y - start) / Math.max(1, tableIn - start));
   const b = clamp01((y - tableOut) / Math.max(1, end - tableOut));
   return b > 0 ? { from: 'table', to: 'finale', t: b } : { from: 'hero', to: 'table', t: a };
 }
@@ -556,7 +624,16 @@ function updateHover() {
 
 // ── Loop ──
 const camPos = new THREE.Vector3(), camLook = new THREE.Vector3();
-const tmpPos = new THREE.Vector3(), tmpLook = new THREE.Vector3();
+const tmpPos = new THREE.Vector3(), tmpLook = new THREE.Vector3(), tmpV = new THREE.Vector3();
+const CUP_TOP = SPOTS.fifa.clone().add(v3(0, 4.3, 0));
+const ANCHORS = {
+  ball: () => ball.position,
+  cup: () => CUP_TOP,
+  leader: () => pucks.find(m => m.userData.club.rank === 1)?.position,
+  centre: () => v3(0, 0, 0),
+};
+const badges = [...document.querySelectorAll('[data-anchor]')];
+for (const b of badges) b._off = v3(...(b.dataset.off || '0,0,0').split(',').map(Number));
 let first = true, last = performance.now();
 const t0 = last;
 
@@ -582,6 +659,14 @@ function frame(now) {
   }
   needsDraw = false;
   const { from, to, t } = stage;
+  // Concept page: a hard light/dark flip while the camera holds on the table
+  if (MODE === 'scroll') {
+    const flip = (from === 'hero' && to === 'table' && t > 0.6) || (from === 'table' && t < 0.4);
+    if (flip !== document.body.classList.contains('flip')) {
+      document.body.classList.toggle('flip', flip);
+      scene.background = flip ? CHALK : NIGHT; scene.fog.color = scene.background;
+    }
+  }
   const kf = inApp ? KF_APP : KF;
   const dt = Math.min(0.1, (now - last) / 1000); last = now;
   const ease = 1 - Math.exp(-dt * 5); // frame-rate independent damping
@@ -624,6 +709,16 @@ function frame(now) {
     u.hover += ((m === hovered ? 1 : 0) - u.hover) * (reduceMotion ? 1 : Math.min(1, ease * 2.5));
     m.scale.setScalar(1 + u.hover * 0.14);
     u.top.emissiveIntensity = u.hover * 0.12;
+  }
+
+  // Stat badges stay pinned to their point in the scene
+  for (const b of badges) {
+    const at = ANCHORS[b.dataset.anchor]?.();
+    if (!at) continue;
+    tmpV.copy(at).add(b._off).project(camera);
+    const half = b.offsetWidth / 2 + 8; // keep the whole badge on screen
+    const x = Math.min(innerWidth - half, Math.max(half, (tmpV.x + 1) / 2 * innerWidth));
+    b.style.transform = `translate(${x}px, ${(1 - tmpV.y) / 2 * innerHeight}px) translate(-50%, -50%)`;
   }
 
   updateHover();

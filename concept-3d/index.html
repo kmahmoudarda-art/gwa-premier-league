@@ -8,7 +8,7 @@
 <link rel="icon" href="../cl-logo.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@200;300;400;500;600&display=swap" rel="stylesheet">
 <style>
   /* Night-match palette. Navy and gold come from the existing cl-logo;
      zone colours mirror the standings zones in the main app. */
@@ -154,9 +154,58 @@
     .brand span { display: none; }
   }
 
+  /* Pinned intro: one huge thin line per camera stop, with stat badges
+     pinned to points in the scene. intro.js crossfades them on scroll. */
+  #intro { height: 420vh; position: relative; z-index: 2; }
+  #intro .pin { position: sticky; top: 0; height: 100dvh; overflow: hidden; }
+  .stop { position: absolute; inset: 0; pointer-events: none; }
+  .stop:not(:first-child) { opacity: 0; }
+  .stop h2 {
+    position: absolute; left: clamp(16px, 4vw, 48px); bottom: clamp(56px, 14vh, 140px);
+    font: 200 clamp(64px, 11vw, 168px)/.9 'Outfit', sans-serif; letter-spacing: -.035em;
+  }
+  .stop h2 em { font-style: normal; color: var(--gold); }
+  .badge {
+    position: fixed; left: 0; top: 0; z-index: 3;
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 8px 14px 8px 8px; border-radius: 999px;
+    background: rgba(5,13,31,.72); border: 1px solid rgba(238,242,234,.16);
+    -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+    font-size: 14px; white-space: nowrap; will-change: transform;
+  }
+  .badge b { display: inline-flex; align-items: center; justify-content: center; min-width: 30px; height: 30px; padding: 0 6px; border-radius: 999px; background: var(--gold); color: var(--night); font-weight: 600; }
+  .scroll-cue { position: absolute; left: 50%; bottom: 20px; transform: translateX(-50%); color: var(--muted); font-size: 13px; letter-spacing: .14em; text-transform: uppercase; }
+
+  /* Hard light/dark flip for the table, as the camera reaches it */
+  body.flip { color: var(--night); }
+  body.flip .scrim { background: linear-gradient(90deg, rgba(238,242,234,.92) 0%, rgba(238,242,234,.6) 34%, rgba(238,242,234,0) 58%); }
+  body.flip .zones span, body.flip .hint { color: #3c4a5c; }
+  body.flip .btn-ghost { color: var(--night); box-shadow: inset 0 0 0 1px rgba(5,13,31,.3); }
+  body.flip .brand { color: var(--night); }
+
+  /* Frosted call to action */
+  .cta-card {
+    margin-top: 28px; padding: 22px; max-width: 26rem;
+    border-radius: 16px; background: rgba(12,28,58,.45);
+    border: 1px solid rgba(238,242,234,.16);
+    -webkit-backdrop-filter: blur(14px) saturate(1.3); backdrop-filter: blur(14px) saturate(1.3);
+  }
+  .cta-card p { color: #c9d3df; font-size: 15px; }
+  .cta-card .actions { margin-top: 16px; }
+
+  @media (max-width: 760px) {
+    .stop h2 { bottom: 9vh; }
+    .badge { font-size: 13px; }
+  }
+
   @media (prefers-reduced-motion: reduce) {
     html { scroll-behavior: auto; }
     .btn, #tip { transition: none; }
+    /* Static stops: each line sits in its own screen, no scrubbing */
+    #intro { height: auto; }
+    #intro .pin { position: static; height: auto; overflow: visible; }
+    .stop { position: relative; height: 100dvh; opacity: 1 !important; }
+    .badge { display: none; }
   }
 </style>
 </head>
@@ -173,6 +222,28 @@
 </header>
 
 <main>
+  <section id="intro" aria-label="Introduction">
+    <div class="pin">
+      <div class="stop">
+        <h2><span data-league="clubs">36</span> clubs.</h2>
+        <span class="badge" data-anchor="leader" data-off="0,0.9,0"><b data-league="leader-pts">3</b><span>Top of the table: <span data-league="leader">PSG</span></span></span>
+        <span class="badge" data-anchor="centre" data-off="-6,0.2,4"><b>MD<span data-league="next-md">2</span></b><span data-league="next-date">13 October</span></span>
+        <p class="scroll-cue">Scroll</p>
+      </div>
+      <div class="stop">
+        <h2>144 matches.</h2>
+        <span class="badge" data-anchor="ball" data-off="-0.75,0.55,0"><b>3</b>Exact score</span>
+        <span class="badge" data-anchor="ball" data-off="0.8,0.15,0"><b>1</b>Right result</span>
+        <span class="badge" data-anchor="ball" data-off="0,-0.3,0.4"><b data-league="goals">0</b>Goals so far</span>
+      </div>
+      <div class="stop">
+        <h2>One <em>trophy.</em></h2>
+        <span class="badge" data-anchor="cup" data-off="-2.2,-0.6,0"><b>8</b>Straight to the round of 16</span>
+        <span class="badge" data-anchor="cup" data-off="2.3,-1.6,0"><b>4</b>Houses chasing points</span>
+      </div>
+    </div>
+  </section>
+
   <section id="hero">
     <div class="copy">
       <h1>Thirty-six clubs. Your call on every match.</h1>
@@ -209,8 +280,12 @@
         <span><i style="background:var(--battuta)"></i>Battuta</span>
         <span><i style="background:var(--sina)"></i>Sina</span>
       </div>
-      <div class="actions">
-        <a class="btn btn-gold" href="../">Predict matchday <span data-league="next-md">2</span></a>
+      <div class="cta-card">
+        <p>Predictions lock 15 minutes before kickoff.</p>
+        <div class="actions">
+          <a class="btn btn-gold" href="../">Make predictions</a>
+          <a class="btn btn-ghost" href="#table">See the table</a>
+        </div>
       </div>
     </div>
   </section>
@@ -224,5 +299,8 @@
   { "imports": { "three": "./vendor/three.module.min.js" } }
 </script>
 <script type="module" src="./scene.js"></script>
+<script defer src="./vendor/gsap.min.js"></script>
+<script defer src="./vendor/ScrollTrigger.min.js"></script>
+<script type="module" src="./intro.js"></script>
 </body>
 </html>
