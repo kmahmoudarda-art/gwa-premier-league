@@ -156,10 +156,19 @@
 
   /* Pinned intro: one huge thin line per camera stop, with stat badges
      pinned to points in the scene. intro.js crossfades them on scroll. */
-  #intro { height: 420vh; position: relative; z-index: 2; }
+  #intro { height: 420vh; position: relative; z-index: 2; padding: 0; }
   #intro .pin { position: sticky; top: 0; height: 100dvh; overflow: hidden; }
   .stop { position: absolute; inset: 0; pointer-events: none; }
-  .stop:not(:first-child) { opacity: 0; }
+  /* Opening photo (supplied by the school), dissolving into the 3D pitch */
+  .photo {
+    position: absolute; inset: 0; z-index: -1;
+    background: linear-gradient(0deg, rgba(5,13,31,.9) 0%, rgba(5,13,31,.15) 45%, rgba(5,13,31,.55) 100%),
+      url(textures/stadium-photo-736.jpg) center 72% / cover no-repeat;
+  }
+  @media (max-width: 760px) {
+    .photo { background-image: linear-gradient(0deg, rgba(5,13,31,.9) 0%, rgba(5,13,31,.15) 45%, rgba(5,13,31,.55) 100%), url(textures/stadium-photo-420.jpg); background-position: center 60%; }
+  }
+  .stop:not(:nth-child(2)) { opacity: 0; }
   .stop h2 {
     position: absolute; left: clamp(16px, 4vw, 48px); bottom: clamp(56px, 14vh, 140px);
     font: 200 clamp(64px, 11vw, 168px)/.9 'Outfit', sans-serif; letter-spacing: -.035em;
@@ -224,6 +233,7 @@
 <main>
   <section id="intro" aria-label="Introduction">
     <div class="pin">
+      <div class="photo" aria-hidden="true"></div>
       <div class="stop">
         <h2><span data-league="clubs">36</span> clubs.</h2>
         <span class="badge" data-anchor="leader" data-off="0,0.9,0"><b data-league="leader-pts">3</b><span>Top of the table: <span data-league="leader">PSG</span></span></span>
