@@ -1006,8 +1006,8 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
   #tabPhoto[data-view="rules"]       { --photo:url(concept-3d/photos/players-tunnel-1600.webp); }
   #tabPhoto[data-view="fifa"]        { --photo:url(concept-3d/photos/trophy-closeup-1600.webp); }
   /* The site owner's trophy picture is portrait, so it sits whole on the right */
-  #tabPhoto[data-view="trophy"] { background:url(concept-3d/photos/user-trophy-1200.webp) right 8vw center / contain no-repeat, #050d1f; --pb:1; }
-  @media (min-width: 761px) { #tabPhoto[data-view="trophy"] { -webkit-mask-image:linear-gradient(90deg, transparent 58%, #000 70%, #000 80%, transparent 92%); mask-image:linear-gradient(90deg, transparent 58%, #000 70%, #000 80%, transparent 92%); } }
+  /* The owner's trophy picture fills the last story stop, dimmed so the headline reads over it */
+  #tabPhoto[data-view="trophy"] { background:url(concept-3d/photos/user-trophy-1200.webp) center 38% / cover no-repeat, #050d1f; --pb:.6; }
   @media (max-width: 760px) {
     #tabPhoto[data-view="signin"]      { --photo:url(concept-3d/photos/hero-stadium-night-720.webp); }
     body.in-app #tabPhoto[data-view="signin"],
