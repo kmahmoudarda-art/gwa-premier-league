@@ -21,6 +21,17 @@ if (gsap && ScrollTrigger) {
     },
   });
 
+  // Crossfade the page's night photo when the tab changes
+  const photo = document.getElementById('tabPhoto');
+  function swapPhoto(tab) {
+    if (!photo || photo.dataset.view === tab) return;
+    if (reduce.matches) { photo.dataset.view = tab; return; }
+    gsap.to(photo, { autoAlpha: 0, duration: 0.25, overwrite: true, onComplete() {
+      photo.dataset.view = tab;
+      gsap.to(photo, { autoAlpha: 0.7, duration: 0.6 });
+    } });
+  }
+
   const tabEl = tab => document.getElementById('tab' + tab[0].toUpperCase() + tab.slice(1));
 
   function enter(tab) {
@@ -39,6 +50,7 @@ if (gsap && ScrollTrigger) {
     const showTab = window.showTab;
     window.showTab = (tab, ...rest) => {
       const out = showTab(tab, ...rest);
+      swapPhoto(tab);
       enter(tab);
       ScrollTrigger.refresh();
       return out;
