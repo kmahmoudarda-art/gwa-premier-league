@@ -414,6 +414,8 @@ const ruleTags = RULES.map(([, label, color], i) => {
   scene.add(tag);
   return tag;
 });
+const ruleMeshes = [];
+let ruleGrow = 1;
 new FontLoader().load(new URL('./vendor/bebas-digits.typeface.json', import.meta.url).href, font => {
   RULES.forEach(([n, , color], i) => {
     const geo = new TextGeometry(n, { font, size: 3.4, depth: 0.7, curveSegments: 10, bevelEnabled: true, bevelThickness: 0.08, bevelSize: 0.05, bevelSegments: 3 });
@@ -423,6 +425,8 @@ new FontLoader().load(new URL('./vendor/bebas-digits.typeface.json', import.meta
     mesh.castShadow = true;
     mesh.position.set(SPOTS.rules.x + (i - 1) * 3.2, 0.95 + 1.7, SPOTS.rules.z - Math.abs(i - 1) * 0.8);
     mesh.rotation.y = (1 - i) * 0.22;
+    mesh.userData.y = mesh.position.y;
+    ruleMeshes.push(mesh);
     scene.add(mesh);
   });
   needsDraw = true;
@@ -683,7 +687,13 @@ if (MODE === 'auto' && typeof window.showTab === 'function') {
   window.showTab = (tab, ...rest) => {
     const out = showTab(tab, ...rest);
     const v = TAB_VIEW[tab] || 'hero';
-    if (v !== appView) { appFrom = appView; appView = v; appChanged = performance.now(); }
+    // Cut straight to the tab's scene rather than flying across the pitch, and let
+    // its pillars or numerals grow in again
+    if (v !== appView) {
+      appFrom = appView = v; appChanged = performance.now(); first = true;
+      if (v === 'houses') for (const p of pillars) p.height = 0.01;
+      if (v === 'rules') ruleGrow = 0;
+    }
     return out;
   };
 }
@@ -805,6 +815,14 @@ function frame(now) {
     p.mesh.scale.y = p.height; p.mesh.position.y = p.height / 2;
     p.tag.position.y = p.height + 0.8;
     if (Math.abs(p.target - p.height) > 0.01) needsDraw = true; // keep drawing until grown
+  }
+  if (ruleGrow < 0.999) {
+    ruleGrow += (1 - ruleGrow) * (reduceMotion ? 1 : Math.min(1, ease * 1.2));
+    ruleMeshes.forEach((m, i) => {
+      const g = smooth(clamp01(ruleGrow * 1.4 - i * 0.15));
+      m.scale.set(1, Math.max(0.001, g), 1); m.position.y = m.userData.y * g;
+    });
+    needsDraw = true;
   }
   const plateOn = STANDING[from] + (STANDING[to] - STANDING[from]) * et;
   for (const p of zonePlates) p.material.opacity = p.userData.max * smooth(clamp01(plateOn * 1.6 - 0.6));
