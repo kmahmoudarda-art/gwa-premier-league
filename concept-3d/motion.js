@@ -9,11 +9,18 @@ const appPage = document.getElementById('appPage');
 let tab = 'predictions';
 
 // Signed-in pages get the night palette; signed out shows the sign-in photo.
+// The sign-in page is always dark: a light choice is held back until sign-in.
+let wantLight = document.body.classList.contains('light');
 function syncPage() {
+  const body = document.body;
   const inApp = !!appPage?.classList.contains('active');
-  document.body.classList.toggle('in-app', inApp);
+  if (!inApp && body.classList.contains('light')) { wantLight = true; body.classList.remove('light'); }
+  else if (inApp && body.classList.contains('in-app')) wantLight = body.classList.contains('light');
+  else if (inApp && wantLight) body.classList.add('light');
+  body.classList.toggle('in-app', inApp);
   swapPhoto(inApp ? tab : 'signin');
 }
+new MutationObserver(syncPage).observe(document.body, { attributes: true, attributeFilter: ['class'] });
 
 function swapPhoto(view) {
   if (!photo || photo.dataset.view === view) return;
