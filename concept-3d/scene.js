@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { RGBELoader } from './vendor/RGBELoader.js';
 
 // ── Data ──
 // The main site exposes its live data as window.__leagueData (TEAM_COLORS, TEAM_ABBR,
@@ -118,6 +119,39 @@ const scene = new THREE.Scene();
 scene.background = NIGHT;
 scene.fog = new THREE.Fog(NIGHT, 24, 52);
 
+// Photo-based reflections from a Poly Haven HDRI (Venice Sunset, CC0), cut to
+// 256x128 so it stays light. It lights materials only; the night sky stays.
+new RGBELoader().load(new URL('./vendor/venice_sunset_256.hdr', import.meta.url).href, hdr => {
+  const pmrem = new THREE.PMREMGenerator(renderer);
+  scene.environment = pmrem.fromEquirectangular(hdr).texture;
+  scene.environmentIntensity = 0.3;
+  hdr.dispose(); pmrem.dispose();
+  needsDraw = true;
+});
+
+// Grass and concrete surface detail: thin random strokes give the bump and
+// roughness variation real turf has. Smaller on phones.
+const DETAIL = matchMedia('(pointer: coarse)').matches || innerWidth < 760 ? 256 : 512;
+function detailTexture(blades, repeat) {
+  const c = document.createElement('canvas');
+  c.width = c.height = DETAIL;
+  const g = c.getContext('2d');
+  g.fillStyle = '#808080'; g.fillRect(0, 0, DETAIL, DETAIL);
+  g.lineCap = 'round';
+  for (let i = 0; i < DETAIL * DETAIL / 40; i++) {
+    const x = Math.random() * DETAIL, y = Math.random() * DETAIL, l = blades ? 2 + Math.random() * 5 : 0.6 + Math.random() * 1.4;
+    const a = blades ? -Math.PI / 2 + (Math.random() - 0.5) * 0.9 : Math.random() * Math.PI;
+    const v = 60 + Math.random() * 150 | 0;
+    g.strokeStyle = `rgb(${v},${v},${v})`; g.lineWidth = blades ? 0.9 : 1.6;
+    g.beginPath(); g.moveTo(x, y); g.lineTo(x + Math.cos(a) * l, y + Math.sin(a) * l); g.stroke();
+  }
+  const t = new THREE.CanvasTexture(c);
+  t.wrapS = t.wrapT = THREE.RepeatWrapping;
+  t.repeat.set(repeat, repeat);
+  return t;
+}
+const grass = detailTexture(true, 14), concrete = detailTexture(false, 30);
+
 const camera = new THREE.PerspectiveCamera(40, 1, 0.1, 200);
 
 // ── Pitch ──
@@ -153,14 +187,14 @@ function pitchTexture() {
 }
 const pitch = new THREE.Mesh(
   new THREE.PlaneGeometry(PITCH_W, PITCH_D),
-  new THREE.MeshStandardMaterial({ map: pitchTexture(), roughness: 0.92 }));
+  new THREE.MeshStandardMaterial({ map: pitchTexture(), roughness: 1, roughnessMap: grass, bumpMap: grass, bumpScale: 1.2 }));
 pitch.rotation.x = -Math.PI / 2;
 pitch.receiveShadow = true;
 scene.add(pitch);
 
 const ground = new THREE.Mesh(
   new THREE.PlaneGeometry(200, 200),
-  new THREE.MeshStandardMaterial({ color: '#07160f', roughness: 1 }));
+  new THREE.MeshStandardMaterial({ color: '#07160f', roughness: 1, bumpMap: concrete, bumpScale: 0.6 }));
 ground.rotation.x = -Math.PI / 2; ground.position.y = -0.01;
 ground.receiveShadow = true;
 scene.add(ground);
@@ -277,9 +311,10 @@ async function buildPucks() {
     ]);
   } catch (_) { /* draw with fallback fonts */ }
   for (const c of table) {
-    const side = sideMats[c.color] ||= new THREE.MeshStandardMaterial({
-      color: new THREE.Color(c.color).multiplyScalar(0.7), roughness: 0.4, metalness: 0.25 });
-    const top = new THREE.MeshStandardMaterial({ map: faceTexture(c), roughness: 0.45, emissive: '#ffffff', emissiveIntensity: 0 });
+    const side = sideMats[c.color] ||= new THREE.MeshPhysicalMaterial({
+      color: new THREE.Color(c.color).multiplyScalar(0.7), roughness: 0.4, metalness: 0.25, clearcoat: 0.8, clearcoatRoughness: 0.15 });
+    // Lacquered resin, like a real table-football counter
+    const top = new THREE.MeshPhysicalMaterial({ map: faceTexture(c), roughness: 0.45, clearcoat: 0.8, clearcoatRoughness: 0.15, emissive: '#ffffff', emissiveIntensity: 0 });
     const mesh = new THREE.Mesh(puckGeo, [side, top, side]);
     mesh.castShadow = true;
     mesh.userData = {
@@ -319,7 +354,7 @@ function addSpotLight(at, color = '#fff3dc', intensity = 2.2) {
 }
 function addFloor(at, r = 7) {
   const floor = new THREE.Mesh(new THREE.CircleGeometry(r, 64),
-    new THREE.MeshStandardMaterial({ color: '#0b1a33', roughness: 0.35, metalness: 0.2 }));
+    new THREE.MeshStandardMaterial({ color: '#0b1a33', roughness: 0.8, roughnessMap: concrete, bumpMap: concrete, bumpScale: 0.5, metalness: 0.1, envMapIntensity: 0.25 }));
   floor.rotation.x = -Math.PI / 2; floor.position.copy(at); floor.position.y = 0.01;
   floor.receiveShadow = true;
   scene.add(floor);
@@ -328,7 +363,7 @@ function addFloor(at, r = 7) {
 // Leaderboard: four house pillars, heights follow house points
 const HOUSES = [['Razi', '#1a6fd4'], ['Zhur', '#22c55e'], ['Battuta', '#f59e0b'], ['Sina', '#ef4444']];
 const pillars = HOUSES.map(([name, color], i) => {
-  const mat = new THREE.MeshStandardMaterial({ color, roughness: 0.35, metalness: 0.15, emissive: color, emissiveIntensity: 0.12 });
+  const mat = new THREE.MeshPhysicalMaterial({ color, roughness: 0.35, metalness: 0.15, clearcoat: 0.6, clearcoatRoughness: 0.2, emissive: color, emissiveIntensity: 0.08 });
   const mesh = new THREE.Mesh(new THREE.BoxGeometry(1.6, 1, 1.6), mat);
   mesh.castShadow = true;
   const x = SPOTS.houses.x + (i - 1.5) * 2.4;
@@ -374,7 +409,7 @@ addSpotLight(SPOTS.rules);
 {
   const prof = [[0, 0], [0.9, 0], [0.9, 0.25], [0.35, 0.4], [0.25, 1.2], [0.5, 1.5], [1.2, 2.2], [1.35, 3.3], [1.25, 3.35], [1.05, 2.4], [0.4, 1.75], [0, 1.7]]
     .map(([x, y]) => new THREE.Vector2(x, y));
-  const gold = new THREE.MeshStandardMaterial({ color: '#e8b931', metalness: 0.75, roughness: 0.28, emissive: '#3a2a00', emissiveIntensity: 0.4 });
+  const gold = new THREE.MeshStandardMaterial({ color: '#e8b931', metalness: 1, roughness: 0.2, emissive: '#3a2a00', emissiveIntensity: 0.15 });
   const cup = new THREE.Mesh(new THREE.LatheGeometry(prof, 64), gold);
   cup.castShadow = true;
   const plinth = new THREE.Mesh(new THREE.CylinderGeometry(1.3, 1.5, 0.9, 48), new THREE.MeshStandardMaterial({ color: '#111827', roughness: 0.4 }));
