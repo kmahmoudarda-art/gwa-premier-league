@@ -972,8 +972,23 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
 .fav-team-celebration button { background: rgba(255,255,255,0.2); border: none; color: #fff; border-radius: 6px; width: 22px; height: 22px; cursor: pointer; flex-shrink: 0; }
 @keyframes fav-pop { from { opacity:0; transform:translateX(-50%) translateY(20px); } to { opacity:1; transform:translateX(-50%) translateY(0); } }
 </style>
+<link rel="stylesheet" href="ui-review.css?v=1">
 </head>
 <body>
+<!-- Phosphor Icons (regular, MIT) - used via <svg class="ph"><use href="#ph-NAME"/></svg> -->
+<svg xmlns="http://www.w3.org/2000/svg" style="display:none" aria-hidden="true">
+<symbol id="ph-soccer-ball" viewBox="0 0 256 256"><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm76.52,147.42H170.9l-9.26-12.76,12.63-36.78,15-4.89,26.24,20.13A87.38,87.38,0,0,1,204.52,171.42Zm-164-34.3L66.71,117l15,4.89,12.63,36.78L85.1,171.42H51.48A87.38,87.38,0,0,1,40.47,137.12Zm10-50.64,5.51,18.6L40.71,116.77A87.33,87.33,0,0,1,50.43,86.48ZM109,152,97.54,118.65,128,97.71l30.46,20.94L147,152Zm91.07-46.92,5.51-18.6a87.33,87.33,0,0,1,9.72,30.29Zm-6.2-35.38-9.51,32.08-15.07,4.89L136,83.79V68.21l29.09-20A88.58,88.58,0,0,1,193.86,69.7ZM146.07,41.87,128,54.29,109.93,41.87a88.24,88.24,0,0,1,36.14,0ZM90.91,48.21l29.09,20V83.79L86.72,106.67l-15.07-4.89L62.14,69.7A88.58,88.58,0,0,1,90.91,48.21ZM63.15,187.42H83.52l7.17,20.27A88.4,88.4,0,0,1,63.15,187.42ZM110,214.13,98.12,180.71,107.35,168h41.3l9.23,12.71-11.83,33.42a88,88,0,0,1-36.1,0Zm55.36-6.44,7.17-20.27h20.37A88.4,88.4,0,0,1,165.31,207.69Z"/></symbol>
+<symbol id="ph-ranking" viewBox="0 0 256 256"><path d="M112.41,102.53a8,8,0,0,1,5.06-10.12l12-4A8,8,0,0,1,140,96v40a8,8,0,0,1-16,0V107.1l-1.47.49A8,8,0,0,1,112.41,102.53ZM248,208a8,8,0,0,1-8,8H16a8,8,0,0,1,0-16h8V104A16,16,0,0,1,40,88H80V56A16,16,0,0,1,96,40h64a16,16,0,0,1,16,16v72h40a16,16,0,0,1,16,16v56h8A8,8,0,0,1,248,208Zm-72-64v56h40V144ZM96,200h64V56H96Zm-56,0H80V104H40Z"/></symbol>
+<symbol id="ph-table" viewBox="0 0 256 256"><path d="M224,48H32a8,8,0,0,0-8,8V192a16,16,0,0,0,16,16H216a16,16,0,0,0,16-16V56A8,8,0,0,0,224,48ZM40,112H80v32H40Zm56,0H216v32H96ZM216,64V96H40V64ZM40,160H80v32H40Zm176,32H96V160H216v32Z"/></symbol>
+<symbol id="ph-book-open" viewBox="0 0 256 256"><path d="M232,48H160a40,40,0,0,0-32,16A40,40,0,0,0,96,48H24a8,8,0,0,0-8,8V200a8,8,0,0,0,8,8H96a24,24,0,0,1,24,24,8,8,0,0,0,16,0,24,24,0,0,1,24-24h72a8,8,0,0,0,8-8V56A8,8,0,0,0,232,48ZM96,192H32V64H96a24,24,0,0,1,24,24V200A39.81,39.81,0,0,0,96,192Zm128,0H160a39.81,39.81,0,0,0-24,8V88a24,24,0,0,1,24-24h64Z"/></symbol>
+<symbol id="ph-game-controller" viewBox="0 0 256 256"><path d="M176,112H152a8,8,0,0,1,0-16h24a8,8,0,0,1,0,16ZM104,96H96V88a8,8,0,0,0-16,0v8H72a8,8,0,0,0,0,16h8v8a8,8,0,0,0,16,0v-8h8a8,8,0,0,0,0-16ZM241.48,200.65a36,36,0,0,1-54.94,4.81c-.12-.12-.24-.24-.35-.37L146.48,160h-37L69.81,205.09l-.35.37A36.08,36.08,0,0,1,44,216,36,36,0,0,1,8.56,173.75a.68.68,0,0,1,0-.14L24.93,89.52A59.88,59.88,0,0,1,83.89,40H172a60.08,60.08,0,0,1,59,49.25c0,.06,0,.12,0,.18l16.37,84.17a.68.68,0,0,1,0,.14A35.74,35.74,0,0,1,241.48,200.65ZM172,144a44,44,0,0,0,0-88H83.89A43.9,43.9,0,0,0,40.68,92.37l0,.13L24.3,176.59A20,20,0,0,0,58,194.3l41.92-47.59a8,8,0,0,1,6-2.71Zm59.7,32.59-8.74-45A60,60,0,0,1,172,160h-4.2L198,194.31a20.09,20.09,0,0,0,17.46,5.39,20,20,0,0,0,16.23-23.11Z"/></symbol>
+<symbol id="ph-moon" viewBox="0 0 256 256"><path d="M233.54,142.23a8,8,0,0,0-8-2,88.08,88.08,0,0,1-109.8-109.8,8,8,0,0,0-10-10,104.84,104.84,0,0,0-52.91,37A104,104,0,0,0,136,224a103.09,103.09,0,0,0,62.52-20.88,104.84,104.84,0,0,0,37-52.91A8,8,0,0,0,233.54,142.23ZM188.9,190.34A88,88,0,0,1,65.66,67.11a89,89,0,0,1,31.4-26A106,106,0,0,0,96,56,104.11,104.11,0,0,0,200,160a106,106,0,0,0,14.92-1.06A89,89,0,0,1,188.9,190.34Z"/></symbol>
+<symbol id="ph-sun" viewBox="0 0 256 256"><path d="M120,40V16a8,8,0,0,1,16,0V40a8,8,0,0,1-16,0Zm72,88a64,64,0,1,1-64-64A64.07,64.07,0,0,1,192,128Zm-16,0a48,48,0,1,0-48,48A48.05,48.05,0,0,0,176,128ZM58.34,69.66A8,8,0,0,0,69.66,58.34l-16-16A8,8,0,0,0,42.34,53.66Zm0,116.68-16,16a8,8,0,0,0,11.32,11.32l16-16a8,8,0,0,0-11.32-11.32ZM192,72a8,8,0,0,0,5.66-2.34l16-16a8,8,0,0,0-11.32-11.32l-16,16A8,8,0,0,0,192,72Zm5.66,114.34a8,8,0,0,0-11.32,11.32l16,16a8,8,0,0,0,11.32-11.32ZM48,128a8,8,0,0,0-8-8H16a8,8,0,0,0,0,16H40A8,8,0,0,0,48,128Zm80,80a8,8,0,0,0-8,8v24a8,8,0,0,0,16,0V216A8,8,0,0,0,128,208Zm112-88H216a8,8,0,0,0,0,16h24a8,8,0,0,0,0-16Z"/></symbol>
+<symbol id="ph-eye" viewBox="0 0 256 256"><path d="M247.31,124.76c-.35-.79-8.82-19.58-27.65-38.41C194.57,61.26,162.88,48,128,48S61.43,61.26,36.34,86.35C17.51,105.18,9,124,8.69,124.76a8,8,0,0,0,0,6.5c.35.79,8.82,19.57,27.65,38.4C61.43,194.74,93.12,208,128,208s66.57-13.26,91.66-38.34c18.83-18.83,27.3-37.61,27.65-38.4A8,8,0,0,0,247.31,124.76ZM128,192c-30.78,0-57.67-11.19-79.93-33.25A133.47,133.47,0,0,1,25,128,133.33,133.33,0,0,1,48.07,97.25C70.33,75.19,97.22,64,128,64s57.67,11.19,79.93,33.25A133.46,133.46,0,0,1,231.05,128C223.84,141.46,192.43,192,128,192Zm0-112a48,48,0,1,0,48,48A48.05,48.05,0,0,0,128,80Zm0,80a32,32,0,1,1,32-32A32,32,0,0,1,128,160Z"/></symbol>
+<symbol id="ph-heart" viewBox="0 0 256 256"><path d="M178,40c-20.65,0-38.73,8.88-50,23.89C116.73,48.88,98.65,40,78,40a62.07,62.07,0,0,0-62,62c0,70,103.79,126.66,108.21,129a8,8,0,0,0,7.58,0C136.21,228.66,240,172,240,102A62.07,62.07,0,0,0,178,40ZM128,214.8C109.74,204.16,32,155.69,32,102A46.06,46.06,0,0,1,78,56c19.45,0,35.78,10.36,42.6,27a8,8,0,0,0,14.8,0c6.82-16.67,23.15-27,42.6-27a46.06,46.06,0,0,1,46,46C224,155.61,146.24,204.15,128,214.8Z"/></symbol>
+<symbol id="ph-sign-out" viewBox="0 0 256 256"><path d="M120,216a8,8,0,0,1-8,8H48a8,8,0,0,1-8-8V40a8,8,0,0,1,8-8h64a8,8,0,0,1,0,16H56V208h56A8,8,0,0,1,120,216Zm109.66-93.66-40-40a8,8,0,0,0-11.32,11.32L204.69,120H112a8,8,0,0,0,0,16h92.69l-26.35,26.34a8,8,0,0,0,11.32,11.32l40-40A8,8,0,0,0,229.66,122.34Z"/></symbol>
+<symbol id="ph-alarm" viewBox="0 0 256 256"><path d="M128,40a96,96,0,1,0,96,96A96.11,96.11,0,0,0,128,40Zm0,176a80,80,0,1,1,80-80A80.09,80.09,0,0,1,128,216ZM61.66,37.66l-32,32A8,8,0,0,1,18.34,58.34l32-32A8,8,0,0,1,61.66,37.66Zm176,32a8,8,0,0,1-11.32,0l-32-32a8,8,0,0,1,11.32-11.32l32,32A8,8,0,0,1,237.66,69.66ZM184,128a8,8,0,0,1,0,16H128a8,8,0,0,1-8-8V80a8,8,0,0,1,16,0v48Z"/></symbol>
+</svg>
 <div class="bg-pattern"></div>
 
 
@@ -986,7 +1001,7 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
     background-size:cover;
     background-position:center 50%;"></div>
   <!-- Dark overlay for readability -->
-  <div style="position:fixed;top:0;left:0;right:0;bottom:0;z-index:1;background:linear-gradient(to bottom,rgba(0,0,0,0.25),rgba(0,0,0,0.55));pointer-events:none;user-select:none;"></div>
+  <div class="auth-scrim" style="position:fixed;top:0;left:0;right:0;bottom:0;z-index:1;background:linear-gradient(to bottom,rgba(0,0,0,0.25),rgba(0,0,0,0.55));pointer-events:none;user-select:none;"></div>
   <div class="auth-wrap" style="position:relative;z-index:100;pointer-events:auto;">
     <div class="auth-card">
       <div class="auth-logo">
@@ -996,22 +1011,20 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
       <div id="housePicker" style="display:none">
         <p class="house-prompt">Welcome! Choose your House to continue:</p>
         <div class="house-grid">
-          <div class="house-card razi" onclick="selectHouse('Razi')" id="houseRazi"><div class="house-icon">🔵</div><div class="house-name">Razi</div><div class="house-sub">Blue House</div></div>
-          <div class="house-card zhur" onclick="selectHouse('Zhur')" id="houseZhur"><div class="house-icon">🟢</div><div class="house-name">Zhur</div><div class="house-sub">Green House</div></div>
-          <div class="house-card battuta" onclick="selectHouse('Battuta')" id="houseBattuta"><div class="house-icon">🟡</div><div class="house-name">Battuta</div><div class="house-sub">Yellow House</div></div>
-          <div class="house-card sina" onclick="selectHouse('Sina')" id="houseSina"><div class="house-icon">🔴</div><div class="house-name">Sina</div><div class="house-sub">Red House</div></div>
+          <div class="house-card razi" onclick="selectHouse('Razi')" id="houseRazi"><div class="house-icon"><span class="house-dot"></span></div><div class="house-name">Razi</div><div class="house-sub">Blue House</div></div>
+          <div class="house-card zhur" onclick="selectHouse('Zhur')" id="houseZhur"><div class="house-icon"><span class="house-dot"></span></div><div class="house-name">Zhur</div><div class="house-sub">Green House</div></div>
+          <div class="house-card battuta" onclick="selectHouse('Battuta')" id="houseBattuta"><div class="house-icon"><span class="house-dot"></span></div><div class="house-name">Battuta</div><div class="house-sub">Yellow House</div></div>
+          <div class="house-card sina" onclick="selectHouse('Sina')" id="houseSina"><div class="house-icon"><span class="house-dot"></span></div><div class="house-name">Sina</div><div class="house-sub">Red House</div></div>
         </div>
         <button class="btn-primary" onclick="confirmHouse()">Continue →</button>
         <div id="houseMsg" class="auth-msg"></div>
       </div>
       <div id="googleSignIn">
-        <div class="divider-text">Sign in with your Google account</div>
         <button class="btn-google" onclick="signInWithGoogle()">
           <svg width="18" height="18" viewBox="0 0 18 18"><path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z"/><path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.258c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z"/><path fill="#FBBC05" d="M3.964 10.707A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.707V4.961H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.039l3.007-2.332z"/><path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.961L3.964 7.293C4.672 5.163 6.656 3.58 9 3.58z"/></svg>
           Sign in with Google
         </button>
         <div id="authMsg" class="auth-msg"></div>
-        <p class="auth-note">Use any Google account to sign in</p>
       </div>
     </div>
   </div>
@@ -1027,25 +1040,25 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
           <div class="logo-text">Champions League Predictions</div>
           <div class="logo-sub">Wellbeing League</div>
           <div class="logo-acc-btns">
-            <button class="acc-btn" id="theme-btn" onclick="toggleTheme()" title="Toggle light/dark">🌙 Dark</button>
-            <button class="acc-btn" id="cb-btn" onclick="toggleColorblind()" title="Toggle colorblind mode">👁 Colorblind</button>
-            <button class="acc-btn" onclick="openTeamSettings()" title="Pick your favourite team">❤️ My Team</button>
+            <button class="acc-btn" id="theme-btn" onclick="toggleTheme()" title="Toggle light/dark" aria-label="Toggle light or dark theme"><svg class="ph" aria-hidden="true"><use href="#ph-moon"/></svg><span class="acc-label">Dark</span></button>
+            <button class="acc-btn" id="cb-btn" onclick="toggleColorblind()" title="Toggle colorblind mode" aria-label="Toggle colorblind mode"><svg class="ph" aria-hidden="true"><use href="#ph-eye"/></svg><span class="acc-label">Colorblind</span></button>
+            <button class="acc-btn" onclick="openTeamSettings()" title="Pick your favourite team" aria-label="Pick your favourite team"><svg class="ph" aria-hidden="true"><use href="#ph-heart"/></svg><span class="acc-label">My Team</span></button>
           </div>
         </div>
       </div>
       <div class="live-ticker" id="liveTicker"><span class="live-dot"></span><div class="ticker-viewport"><span id="tickerText" class="ticker-content">Loading live scores...</span></div></div>
       <nav>
-        <button class="active" data-tab="predictions" onclick="showTab('predictions')">⚽ Predictions</button>
-        <button data-tab="leaderboard" onclick="showTab('leaderboard')">🏅 Leaderboard</button>
-        <button data-tab="groups" onclick="showTab('groups')">📊 Table</button>
-        <button data-tab="rules" onclick="showTab('rules')">📜 Rules</button>
-        <button data-tab="fifa" onclick="showTab('fifa')">🎮 FIFA 2026</button>
+        <button class="active" data-tab="predictions" onclick="showTab('predictions')"><svg class="ph" aria-hidden="true"><use href="#ph-soccer-ball"/></svg><span>Predictions</span></button>
+        <button data-tab="leaderboard" onclick="showTab('leaderboard')"><svg class="ph" aria-hidden="true"><use href="#ph-ranking"/></svg><span>Leaderboard</span></button>
+        <button data-tab="groups" onclick="showTab('groups')"><svg class="ph" aria-hidden="true"><use href="#ph-table"/></svg><span>Table</span></button>
+        <button data-tab="rules" onclick="showTab('rules')"><svg class="ph" aria-hidden="true"><use href="#ph-book-open"/></svg><span>Rules</span></button>
+        <button data-tab="fifa" onclick="showTab('fifa')"><svg class="ph" aria-hidden="true"><use href="#ph-game-controller"/></svg><span>FIFA 2026</span></button>
       </nav>
       <div class="user-pill" onclick="handleLogout()">
         <img id="headerPhoto" src="" alt="" class="user-photo" style="display:none">
         <div class="user-avatar" id="headerAvatar"></div>
         <span id="headerName">—</span>
-        <span class="logout-icon" title="Sign out">⏻</span>
+        <span class="logout-icon" title="Sign out"><svg class="ph" aria-hidden="true"><use href="#ph-sign-out"/></svg></span>
       </div>
     </div>
   </header>
@@ -1060,9 +1073,9 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
   <!-- PREDICTIONS TAB -->
   <div id="tabPredictions" class="tab-content">
     <div class="main-wrap">
-      <div class="page-title">🏆 Make Your Predictions</div>
+      <div class="page-title">Make Your Predictions</div>
       <div class="predictions-notice">
-        ⏰ Predictions are <strong>automatically locked 15 minutes before each match starts</strong>. Make sure to submit your scores before kickoff!
+        <svg class="ph" aria-hidden="true"><use href="#ph-alarm"/></svg> Predictions are <strong>automatically locked 15 minutes before each match starts</strong>. Make sure to submit your scores before kickoff!
         <span id="noticeNextMatch"></span>
       </div>
       <div class="page-sub">Predict the score for each match. Exact score = <strong>3 pts</strong> · Correct result = <strong>1 pt</strong> · Wrong = 0 pts</div>
@@ -1120,8 +1133,8 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
 
   <!-- GROUPS TAB -->
   <div id="tabGroups" class="tab-content" style="display:none">
-    <div class="main-wrap" style="max-width:none;width:100%;box-sizing:border-box;">
-      <div class="page-title">📊 Champions League Table</div>
+    <div class="main-wrap">
+      <div class="page-title">Champions League Table</div>
       <div class="page-sub">Your predicted table side-by-side with the actual table.</div>
       <div id="groupsGrid" class="groups-grid"></div>
     </div>
@@ -1130,34 +1143,42 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
   <!-- RULES TAB -->
   <div id="tabRules" class="tab-content" style="display:none">
     <div class="main-wrap">
-      <div class="page-title">📜 Rules</div>
-      <div class="group-card" style="max-width:700px">
-        <div class="group-card-title">Scoring</div>
-        <ul style="line-height:1.9;padding-left:20px">
-          <li>Exact score prediction = <strong>3 points</strong></li>
-          <li>Correct result (win/draw/loss) but wrong score = <strong>1 point</strong></li>
-          <li>Wrong result = <strong>0 points</strong></li>
-          <li>Predictions lock automatically 15 minutes before kickoff</li>
-          <li>Predictions open right from Matchday 1, before a ball is kicked — there are no pre-launch matches this season</li>
-        </ul>
-        <div class="group-card-title" style="margin-top:20px">Bonus Points</div>
-        <ul style="line-height:1.9;padding-left:20px">
-          <li>Pick a favourite team — every time they win, you get <strong>+1 point</strong></li>
-        </ul>
-        <div class="group-card-title" style="margin-top:20px">Top 8 &amp; Early Exit Predictions</div>
-        <ul style="line-height:1.9;padding-left:20px">
-          <li><strong>Top 8:</strong> predict the 8 clubs that finish 1st-8th (direct to the Round of 16) — +1 point for each correct club named</li>
-          <li><strong>Eliminated:</strong> predict all 12 clubs that will finish in the 25th-36th elimination zone — +1 point for each correct club named</li>
-          <li>No bonus for exact finishing order in either list — just +1 per club you get right</li>
-          <li>You have <strong>3 days from joining</strong> to lock in your picks — after that, or once you confirm, they're locked for the whole season</li>
-        </ul>
-        <div class="group-card-title" style="margin-top:20px">League Table</div>
-        <ul style="line-height:1.9;padding-left:20px">
-          <li>Top 8 = direct qualification to the Round of 16</li>
-          <li>9th-24th = Knockout Play-offs</li>
-          <li>25th-36th = Eliminated after the League Phase</li>
-          <li>Your predicted table and the actual table are shown side by side — a ✓ appears when a team sits in the same position in both</li>
-        </ul>
+      <div class="page-title">Rules</div>
+      <div class="rules-grid">
+        <div class="group-card">
+          <div class="group-card-title">Scoring</div>
+          <ul class="rules-list">
+            <li>Exact score prediction = <strong>3 points</strong></li>
+            <li>Correct result (win/draw/loss) but wrong score = <strong>1 point</strong></li>
+            <li>Wrong result = <strong>0 points</strong></li>
+            <li>Predictions lock automatically 15 minutes before kickoff</li>
+            <li>Predictions open right from Matchday 1, before a ball is kicked. There are no pre-launch matches this season</li>
+          </ul>
+        </div>
+        <div class="group-card">
+          <div class="group-card-title">Bonus Points</div>
+          <ul class="rules-list">
+            <li>Pick a favourite team: every time they win, you get <strong>+1 point</strong></li>
+          </ul>
+        </div>
+        <div class="group-card">
+          <div class="group-card-title">Top 8 &amp; Early Exit Predictions</div>
+          <ul class="rules-list">
+            <li><strong>Top 8:</strong> predict the 8 clubs that finish 1st-8th (direct to the Round of 16). +1 point for each correct club named</li>
+            <li><strong>Eliminated:</strong> predict all 12 clubs that will finish in the 25th-36th elimination zone. +1 point for each correct club named</li>
+            <li>No bonus for exact finishing order in either list, just +1 per club you get right</li>
+            <li>You have <strong>3 days from joining</strong> to lock in your picks. After that, or once you confirm, they're locked for the whole season</li>
+          </ul>
+        </div>
+        <div class="group-card">
+          <div class="group-card-title">League Table</div>
+          <ul class="rules-list">
+            <li>Top 8 = direct qualification to the Round of 16</li>
+            <li>9th-24th = Knockout Play-offs</li>
+            <li>25th-36th = Eliminated after the League Phase</li>
+            <li>Your predicted table and the actual table are shown side by side. A ✓ appears when a team sits in the same position in both</li>
+          </ul>
+        </div>
       </div>
     </div>
   </div>
@@ -1165,17 +1186,16 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
   <!-- FIFA 2026 E-GAMING TOURNAMENT TAB -->
   <div id="tabFifa" class="tab-content" style="display:none">
     <div class="main-wrap">
-      <div class="page-title">🎮 GWA FIFA 2026 E-Gaming Tournament</div>
-      <div class="page-sub">Term 1 · Room D108 · Wednesday lunchtimes · Free entry – every student welcome!</div>
+      <div class="page-title">GWA FIFA 2026 E-Gaming Tournament</div>
+      <div class="page-sub">Term 1, Room D108, Wednesday lunchtimes. Free entry for every student.</div>
 
       <div class="fifa-soon">
-        <div class="fifa-soon-badge">BRACKET COMPLETE</div>
-        <div class="fifa-soon-text">All <strong>29 players</strong> are in and the play-in round is under way — winners are marked ✓ in the bracket below. Good luck!</div>
+        <div class="fifa-soon-text">All <strong>29 players</strong> are in and the play-in round is under way. Winners are marked ✓ in the bracket below. Good luck!</div>
       </div>
 
       <div class="fifa-info-grid">
         <div class="group-card">
-          <div class="group-card-title">📅 Key Dates</div>
+          <div class="group-card-title">Key Dates</div>
           <ul class="fifa-dates">
             <li><span class="fifa-date">Fri 25 / 09 / 2026</span><span>Registration opens</span></li>
             <li><span class="fifa-date">Tue 29 / 09 / 2026</span><span>Sign-up deadline</span></li>
@@ -1184,30 +1204,29 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
           </ul>
         </div>
         <div class="group-card">
-          <div class="group-card-title">📋 Tournament Details</div>
+          <div class="group-card-title">Tournament Details</div>
           <ul class="fifa-details">
             <li><strong>Format:</strong> single-elimination brackets by year group / grade</li>
             <li><strong>Where:</strong> Room D108</li>
             <li><strong>When:</strong> Wednesday lunchtime sessions</li>
-            <li><strong>Entry:</strong> registration closed – bracket full (29 players)</li>
-            <li><strong>Spectators:</strong> welcome – come cheer on your friends!</li>
+            <li><strong>Entry:</strong> registration closed, bracket full (29 players)</li>
+            <li><strong>Spectators:</strong> welcome, come cheer on your friends!</li>
           </ul>
         </div>
         <div class="group-card">
-          <div class="group-card-title">🏆 Prizes &amp; Recognition</div>
+          <div class="group-card-title">Prizes &amp; Recognition</div>
           <ul class="fifa-details">
-            <li>🥇 Tournament Champion certificate</li>
-            <li>🥈 Runner-up</li>
-            <li>🤝 Fair Play Award</li>
-            <li>🏠 House points for all participants</li>
+            <li><strong>Champion:</strong> Tournament Champion certificate</li>
+            <li><strong>Runner-up:</strong> certificate</li>
+            <li><strong>Fair Play Award</strong></li>
+            <li><strong>House points</strong> for all participants</li>
           </ul>
         </div>
       </div>
 
-      <div class="chart-title" style="margin-top:28px">🗂️ Bracket</div>
+      <div class="chart-title" style="margin-top:28px">Bracket</div>
       <div class="fifa-poster">
         <div class="fifa-poster-head">
-          <div class="fifa-claim"><span>Bracket complete!</span>29 players &amp; one champion!</div>
           <div class="fifa-poster-title">Innovation <em>FC26</em> Tournament</div>
           <div class="fifa-poster-sub">Battle for the title! Join the action!</div>
         </div>
@@ -1229,7 +1248,7 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
   <!-- LEADERBOARD TAB -->
   <div id="tabLeaderboard" class="tab-content" style="display:none">
     <div class="main-wrap">
-      <div class="page-title">🏅 Leaderboard</div>
+      <div class="page-title">Leaderboard</div>
       <div class="page-sub">Click any player to see their predictions and group standings.</div>
       <div class="lb-summary">
         <div class="lb-sum-card"><div class="lb-sum-num" id="lbTotalPlayers">0</div><div class="lb-sum-label">Total Players</div></div>
@@ -1237,17 +1256,17 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
         <div class="lb-sum-card"><div class="lb-sum-num" id="lbTotalPoints">0</div><div class="lb-sum-label">Total Points</div></div>
         <div class="lb-sum-card"><div class="lb-sum-num" id="lbMatchesPlayed">0</div><div class="lb-sum-label">Matches Played</div></div>
       </div>
-      <div class="chart-section"><div class="chart-title">🏠 House Standings</div><div class="house-bars" id="houseBars"></div></div>
+      <div class="chart-section"><div class="chart-title">House Standings</div><div class="house-bars" id="houseBars"></div></div>
       <div class="dual-lb-wrap">
         <!-- LEFT: Points Leaderboard -->
         <div class="dual-lb-col">
-          <div class="chart-title">👤 Points Rankings</div>
+          <div class="chart-title">Points Rankings</div>
       <div class="lb-header"><div>#</div><div>Player</div><div class="center">Points</div><div class="center hide-mobile">Exact</div><div class="center hide-mobile">Correct</div><div class="center hide-mobile">View</div></div>
       <div id="lbList"></div>
         </div>
         <!-- RIGHT: Accuracy Leaderboard -->
         <div class="dual-lb-col">
-          <div class="chart-title">🎯 Accuracy Rankings</div>
+          <div class="chart-title">Accuracy Rankings</div>
           <div class="lb-header lb-header-acc">
             <div>#</div>
             <div>Player</div>
@@ -1257,7 +1276,7 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
           <div id="lbAccList"></div>
         </div>
         <div class="dual-lb-col">
-          <div class="chart-title">&#x2714; Correct Predictions</div>
+          <div class="chart-title">Correct Predictions</div>
           <div class="corr-header"><div>#</div><div>Player</div><div>Correct</div></div>
           <div id="lbCorrList"></div>
         </div>
@@ -1269,7 +1288,7 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
 <!-- KNOCKOUT TAB -->
   <div id="tabKnockout" class="tab-content" style="display:none">
     <div class="main-wrap">
-      <div class="page-title">🏆 Knockout Stage</div>
+      <div class="page-title">Knockout Stage</div>
       <div class="ko-announcement">
         🏆 <strong>SPAIN ARE WORLD CHAMPIONS!</strong> The tournament is over — check the recap below to see who won the prediction league! 🎉
       </div>
@@ -1398,7 +1417,7 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
 <div id="teamSettingsModal" class="modal-overlay" style="display:none" onclick="if(event.target===this)this.style.display='none'">
   <div class="modal-box" style="max-width:360px">
     <button class="modal-close" onclick="document.getElementById('teamSettingsModal').style.display='none'">✕</button>
-    <div class="page-title" style="font-size:22px">❤️ Favourite Team</div>
+    <div class="page-title" style="font-size:22px">Favourite Team</div>
     <div id="teamSettingsBody"></div>
   </div>
 </div>
@@ -1908,7 +1927,8 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
     return new Date() >= finishTime;
   }
 
-  const HOUSES = {Razi:{color:'#1a6fd4',emoji:'🔵'},Zhur:{color:'#22c55e',emoji:'🟢'},Battuta:{color:'#f59e0b',emoji:'🟡'},Sina:{color:'#ef4444',emoji:'🔴'}};
+  const houseDot=c=>`<span class="house-dot" style="background:${c}"></span>`;
+  const HOUSES = {Razi:{color:'#1a6fd4',emoji:houseDot('#1a6fd4')},Zhur:{color:'#22c55e',emoji:houseDot('#22c55e')},Battuta:{color:'#f59e0b',emoji:houseDot('#f59e0b')},Sina:{color:'#ef4444',emoji:houseDot('#ef4444')}};
 
   let currentUser=null, userProfile=null, pendingGUser=null;
   let currentFilter='all', selectedHouse='', liveResults={}, allMatches=STATIC_MATCHES, hideFinished=true;
@@ -1946,10 +1966,14 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
 
 
   // ── ACCESSIBILITY ──────────────────────────────────────────────────
+  // Theme button shows the current mode: moon + "Dark" or sun + "Light"
+  function setThemeBtn(isLight){
+    const b=document.getElementById('theme-btn');
+    b.innerHTML='<svg class="ph" aria-hidden="true"><use href="#ph-'+(isLight?'sun':'moon')+'"/></svg><span class="acc-label">'+(isLight?'Light':'Dark')+'</span>';
+  }
   window.toggleTheme=function(){
     const isLight=document.body.classList.toggle('light');
-    document.getElementById('theme-btn').textContent=isLight?'🌑 Dark':'🌙 Dark';
-    document.getElementById('theme-btn').classList.toggle('on',isLight);
+    setThemeBtn(isLight);
     // logo stays the same in both themes now (single purple/white version)
     localStorage.setItem('gwa-theme',isLight?'light':'dark');
   };
@@ -1961,8 +1985,7 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
   // Restore preferences
   if(localStorage.getItem('gwa-theme')==='light'){
     document.body.classList.add('light');
-    document.getElementById('theme-btn').textContent='🌑 Dark';
-    document.getElementById('theme-btn').classList.add('on');
+    setThemeBtn(true);
   }
   if(localStorage.getItem('gwa-cb')==='1'){document.body.classList.add('colorblind');document.getElementById('cb-btn').classList.add('on');}
 
@@ -2657,7 +2680,7 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
       const selects=Array.from({length:count},(_,i)=>{
         const v=saved&&saved[i]?saved[i]:'';
         return `<select id="${kind}Pick${i}" style="width:100%;padding:6px;margin-bottom:6px;border-radius:6px;background:var(--input-bg);color:var(--text);border:1px solid var(--border);font-size:11px">
-          <option value="">— Pick #${i+1} —</option>${opts}
+          <option value="">Pick #${i+1}</option>${opts}
         </select>`;
       }).join('');
       return `<div class="calendar-card" style="margin-bottom:12px;padding:12px">
@@ -2759,11 +2782,11 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
 
     let html=`<div class="side-by-side-tables">
       <div class="group-card table-card">
-        <div class="group-card-title" style="font-size:14px">👤 Your Predicted Table</div>
+        <div class="group-card-title" style="font-size:14px">Your Predicted Table</div>
         ${tableHtml(myStandings, actualRank)}
       </div>
       <div class="group-card table-card">
-        <div class="group-card-title" style="font-size:14px">📡 Actual Table</div>
+        <div class="group-card-title" style="font-size:14px">Actual Table</div>
         ${tableHtml(actualStandings, myRank)}
       </div>
     </div>
@@ -2895,7 +2918,7 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
           const h=HOUSES[u.house]||{color:'#64748b',emoji:'⚪'};
           const isMe=u.uid===currentUser.uid;
           const r=u._accRank;
-          const medal=r===1?'🥇':r===2?'🥈':r===3?'🥉':r;
+          const medal=u.accuracy<=0?r:r===1?'🥇':r===2?'🥈':r===3?'🥉':r;
           const accColor=u.accuracy>=50?'#4ade80':u.accuracy>=25?'#fbbf24':'#f87171';
           const accDisplay=u.accuracy+'%';
           return`<div class="lb-row-acc ${isMe?'me':''}" onclick="openProfile('${u.uid}')">
@@ -2920,7 +2943,7 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
     list.innerHTML=rows.map((u,i)=>{
       const h=HOUSES[u.house]||{color:'#64748b',emoji:'⚪'};const isMe=u.uid===currentUser.uid;
       const r=u._ptsRank;
-      const medal=r===1?'🥇':r===2?'🥈':r===3?'🥉':r;
+      const medal=u.pts<=0?r:r===1?'🥇':r===2?'🥈':r===3?'🥉':r;
       return`<div class="lb-row ${isMe?'me':''}" onclick="openProfile('${u.uid}')" style="cursor:pointer">
         <div class="rank ${r<=3?'top':''}">${medal}</div>
         <div class="lb-user">
@@ -2949,13 +2972,13 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
       const kp=allKoPreds[uid]||{};
       KO_ROUNDS.forEach(round=>{round.matches.forEach(match=>{const result=KO_RESULTS[match.id];if(!result)return;const pred=kp[match.id];if(!pred||pred.home===undefined)return;const wPts=match.winPts||round.winPts;const ePts=match.exactBonus||round.exactBonus;const tA=match.teamA,tB=match.teamB;const realFT=result.home>result.away?'winA':result.away>result.home?'winB':'draw';const predFT=pred.home>pred.away?'winA':pred.away>pred.home?'winB':'draw';const rAdv=realFT==='draw'?(result.homePen>result.awayPen?tA:tB):(realFT==='winA'?tA:tB);const pAdv=predFT==='draw'?(pred.homePen!==undefined?pred.homePen>pred.awayPen?tA:tB:''):( predFT==='winA'?tA:tB);const mpens=result.homePen!==undefined;const exactScore=pred.home===result.home&&pred.away===result.away;const correctFTResult=predFT===realFT;const correctAdv=(predFT!=='winA'&&predFT!=='winB')?true:pAdv===rAdv;const penok=mpens&&predFT==='draw'&&pred.homePen!==undefined&&pAdv===rAdv;const pb=penok?1:0;if(exactScore)housePts[u.house]+=ePts+pb;else if(correctFTResult&&correctAdv)housePts[u.house]+=wPts+pb;});});
     });
-    const maxPts=Math.max(...Object.values(housePts),1);
-    // Sort houses by points descending - re-rank every time results update
+    // Ranked list: ties share a rank ("=1"), points and player counts as plain numbers
     const sortedHouses=Object.entries(HOUSES).sort(([a],[b])=>housePts[b]-housePts[a]);
+    const ranks=sortedHouses.map(([name])=>1+sortedHouses.filter(([n])=>housePts[n]>housePts[name]).length);
     document.getElementById('houseBars').innerHTML=sortedHouses.map(([name,h],i)=>{
-      const pts=housePts[name];const pct=Math.max((pts/maxPts)*100,pts>0?6:0);
-      const medal=i===0?'🥇':i===1?'🥈':i===2?'🥉':'4️⃣';
-      return`<div class="house-bar-row"><div class="house-bar-label" style="color:${h.color}">${medal} ${h.emoji} ${name}</div><div class="house-bar-track"><div class="house-bar-fill" style="width:${pct}%;background:${h.color}">${houseCount[name]} player${houseCount[name]!==1?'s':''}</div></div><div class="house-bar-pts" style="color:${h.color}">${pts} pts</div></div>`;
+      const pts=housePts[name];const n=houseCount[name];
+      const tied=ranks.filter(r=>r===ranks[i]).length>1;
+      return`<div class="house-row"><div class="house-rank">${tied?'=':''}${ranks[i]}</div><div class="house-row-name"><span class="house-dot" style="background:${h.color}"></span>${name}</div><div class="house-row-players">${n} player${n!==1?'s':''}</div><div class="house-row-pts">${pts}<span> pts</span></div></div>`;
     }).join('');
   }
 
@@ -4439,4 +4462,17 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
     content.innerHTML = t.html;
   };
 
+</script><script>
+  // Keyboard access for clickable non-button elements (house picker, leaderboard rows, calendar days...).
+  // Makes them focusable and lets Enter/Space activate them, including rows rendered later.
+  (function(){
+    const SEL='[onclick]:not(button):not(a):not(input):not(select):not(textarea):not(label)';
+    const prep=root=>{ if(!root.querySelectorAll) return; root.querySelectorAll(SEL).forEach(el=>{ if(!el.hasAttribute('tabindex')){ el.setAttribute('tabindex','0'); el.setAttribute('role','button'); } }); };
+    prep(document);
+    new MutationObserver(ms=>ms.forEach(m=>m.addedNodes.forEach(n=>{ if(n.nodeType===1){ if(n.matches&&n.matches(SEL)) prep(n.parentNode||document); prep(n); } }))).observe(document.body,{childList:true,subtree:true});
+    document.addEventListener('keydown',e=>{
+      const el=e.target;
+      if((e.key==='Enter'||e.key===' ')&&el.matches&&el.matches(SEL)){ e.preventDefault(); el.click(); }
+    });
+  })();
 </script>
