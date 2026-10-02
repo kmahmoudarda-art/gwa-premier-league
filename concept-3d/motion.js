@@ -49,17 +49,21 @@ if (gsap && ScrollTrigger) {
     },
   });
 
-  // Signed-out home: each story stop brings in its photo and its headline.
+  // Signed-out home: the opening stadium photo dissolves into the 3D pitch as
+  // you scroll, then returns as the trophy picture for the last stop.
   const stops = [...document.querySelectorAll('.intro-stop')];
-  stops.forEach((stop, i) => {
-    ScrollTrigger.create({
-      trigger: stop, start: 'top 55%', end: 'bottom 55%',
-      onToggle(self) {
-        if (document.body.classList.contains('in-app')) return;
-        if (self.isActive) swapPhoto(stop.dataset.photo);
-        else if (i === 0 && self.direction < 0) swapPhoto('signin');
-      },
-    });
+  const photoStop = stops.find(st => st.dataset.photo);
+  function storyPhoto() {
+    if (!photo || document.body.classList.contains('in-app')) return;
+    const vh = innerHeight;
+    const onPhoto = photoStop && photoStop.getBoundingClientRect().top < vh * 0.55;
+    photo.dataset.view = onPhoto ? photoStop.dataset.photo : 'signin';
+    const o = onPhoto ? 1 : 1 - Math.min(1, Math.max(0, (scrollY - vh * 0.25) / (vh * 0.6)));
+    gsap.set(photo, { autoAlpha: o, scale: 1 });
+  }
+  addEventListener('scroll', storyPhoto, { passive: true });
+  addEventListener('resize', storyPhoto);
+  stops.forEach(stop => {
     if (!reduce.matches) gsap.from(stop.children, {
       y: 36, autoAlpha: 0, filter: 'blur(12px)', duration: 1, ease: 'power3.out', stagger: 0.12,
       scrollTrigger: { trigger: stop, start: 'top 70%', toggleActions: 'play none none reverse' },
@@ -85,6 +89,7 @@ if (gsap && ScrollTrigger) {
     window.showTab = (t, ...rest) => {
       const out = showTab(t, ...rest);
       tab = t;
+      document.body.dataset.tab = t;
       syncPage();
       enter(t);
       ScrollTrigger.refresh();
