@@ -297,30 +297,32 @@ async function buildPucks() {
 
 // ── Camera keyframes ──
 const v3 = (x, y, z) => new THREE.Vector3(x, y, z);
-function keyframes() {
+function keyframes(side) {
   const narrow = innerWidth / innerHeight < 0.9;
   const dist = narrow ? 24 : 15.5;
   // Shift the view left of the grid so it sits right of the copy on wide screens.
   const vw = 2 * dist * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) * camera.aspect;
-  // Scroll page: copy on the left, so the scene sits right. Auto: sign-in card on the right, scene sits left.
-  const side = MODE === 'auto' ? -1 : 1;
   const off = narrow ? 0 : side * Math.min(vw * 0.22, 5);
-  const lift = narrow ? -3.6 : 0; // on phones, keep the grid above the copy
+  const lift = narrow && side ? -3.6 : 0; // on phones, keep the grid above the copy
   return {
     hero:   narrow ? { pos: v3(0, 12, 11.5), look: v3(0, 0, 3.5) } : { pos: v3(-2 * side, 13.5, 15.5), look: v3(-2.8 * side, 0, 0.6) },
     table:  { pos: v3(GRID.x - off, GRID.y + lift + 0.6, GRID.z + dist), look: v3(GRID.x - off, GRID.y + lift, GRID.z) },
     finale: narrow ? { pos: v3(-6, 6.5, 15), look: v3(0, 0, 5) } : { pos: v3(-12, 2.6, 10.5), look: v3(-1, 0.4, -1) },
   };
 }
-let KF;
+// side: 1 = copy on the left (scroll page), -1 = sign-in card on the right, 0 = centred (signed-in pages)
+let KF, KF_APP;
 
 function resize() {
   const w = innerWidth, h = innerHeight;
   renderer.setSize(w, h, false);
   camera.aspect = w / h;
   camera.updateProjectionMatrix();
-  KF = keyframes();
+  KF = keyframes(MODE === 'auto' ? -1 : 1);
+  KF_APP = keyframes(0);
+  needsDraw = true;
 }
+let needsDraw = true;
 addEventListener('resize', resize);
 resize();
 
@@ -355,6 +357,20 @@ function autoStage(seconds) {
     s -= MOVE;
   }
   return { from: 'hero', to: 'table', t: 0 };
+}
+
+// Signed-in pages: a dimmed backdrop whose view follows the open tab.
+const appPage = document.getElementById('appPage');
+const TAB_VIEW = { predictions: 'finale', groups: 'table' };
+let appView = 'hero', appFrom = 'hero', appChanged = 0, wasInApp = false;
+if (MODE === 'auto' && typeof window.showTab === 'function') {
+  const showTab = window.showTab;
+  window.showTab = (tab, ...rest) => {
+    const out = showTab(tab, ...rest);
+    const v = TAB_VIEW[tab] || 'hero';
+    if (v !== appView) { appFrom = appView; appView = v; appChanged = performance.now(); }
+    return out;
+  };
 }
 
 // ── Hover / tap ──
@@ -418,13 +434,28 @@ function frame(now) {
     if (hovered) { hovered = null; tip.classList.remove('on'); }
     return;
   }
+  const inApp = MODE === 'auto' && !!appPage?.classList.contains('active');
+  document.body.classList.toggle('in-app', inApp);
+  let stage;
+  if (inApp) {
+    if (!wasInApp) { appFrom = appView; appChanged = now - 2200; tip.classList.remove('on'); }
+    wasInApp = true;
+    stage = { from: appFrom, to: appView, t: clamp01((now - appChanged) / 2200) };
+    // Once the view has settled, stop drawing until the tab or window size changes.
+    if (now - appChanged > 4500 && !needsDraw) { last = now; return; }
+  } else {
+    wasInApp = false;
+    stage = MODE === 'auto' ? autoStage((now - t0) / 1000) : scrollStage();
+  }
+  needsDraw = false;
+  const { from, to, t } = stage;
+  const kf = inApp ? KF_APP : KF;
   const dt = Math.min(0.1, (now - last) / 1000); last = now;
   const ease = 1 - Math.exp(-dt * 5); // frame-rate independent damping
-  const { from, to, t } = MODE === 'auto' ? autoStage((now - t0) / 1000) : scrollStage();
   const et = smooth(t);
 
-  tmpPos.lerpVectors(KF[from].pos, KF[to].pos, et);
-  tmpLook.lerpVectors(KF[from].look, KF[to].look, et);
+  tmpPos.lerpVectors(kf[from].pos, kf[to].pos, et);
+  tmpLook.lerpVectors(kf[from].look, kf[to].look, et);
   if (first || reduceMotion) { camPos.copy(tmpPos); camLook.copy(tmpLook); first = false; }
   else { camPos.lerp(tmpPos, ease); camLook.lerp(tmpLook, ease); }
   camera.position.copy(camPos);
