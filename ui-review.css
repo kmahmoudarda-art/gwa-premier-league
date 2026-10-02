@@ -145,3 +145,70 @@ button:active, .filter-btn:active, [role="button"]:active { transform: translate
 /* House standings: a meter per house, scaled to the leading house */
 .house-meter { grid-column: 2 / -1; height: 6px; border-radius: 3px; background: rgba(127,140,160,.18); overflow: hidden; margin-top: -4px; }
 .house-meter i { display: block; height: 100%; border-radius: inherit; }
+
+/* Team badge: grows on hover (tap on touch) and a pill in the team colour
+   slides out to the right with the full name */
+.team-badge {
+  position: relative; isolation: isolate;
+  display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0;
+  width: 30px; height: 20px; border-radius: 4px;
+  background: var(--tb); color: var(--tbt);
+  font-size: 9px; font-weight: 800; letter-spacing: .3px;
+  cursor: default; -webkit-tap-highlight-color: transparent;
+  transition: transform .28s cubic-bezier(.34,1.56,.64,1), box-shadow .28s ease, border-radius .28s ease;
+}
+.team-badge::after {
+  content: attr(data-name);
+  position: absolute; z-index: -1; left: 0; top: 0; bottom: 0;
+  display: flex; align-items: center;
+  padding: 0 10px 0 calc(100% + 2px);
+  background: var(--tb); color: var(--tbt); border-radius: inherit;
+  font-size: 10px; font-weight: 700; letter-spacing: .2px; white-space: nowrap;
+  clip-path: inset(0 100% 0 0 round 4px);
+  transition: clip-path .32s cubic-bezier(.22,1,.36,1), color .2s ease;
+  pointer-events: none;
+}
+.team-badge.open { z-index: 5; transform: scale(1.18); border-radius: 999px;
+  }
+.team-badge.open::after { clip-path: inset(0 0 0 0 round 999px); box-shadow: 0 0 0 1.5px rgba(255,255,255,.2), 0 6px 18px -4px var(--tb); }
+@media (hover: hover) {
+  .team-badge:hover { z-index: 5; transform: scale(1.18); border-radius: 999px;
+    }
+  .team-badge:hover::after { clip-path: inset(0 0 0 0 round 999px); box-shadow: 0 0 0 1.5px rgba(255,255,255,.2), 0 6px 18px -4px var(--tb); }
+}
+
+/* Table rows: soft accent glow, a slight lift and a light sweep on hover */
+.standings-table tbody tr {
+  background: linear-gradient(100deg, transparent 44%, rgba(122,167,255,.22) 50%, transparent 56%) 92% 0 / 300% 100% no-repeat;
+  transition: transform .25s cubic-bezier(.22,1,.36,1), filter .25s ease;
+}
+.standings-table tbody tr td { transition: background-color .25s ease, box-shadow .25s ease; }
+@media (hover: hover) {
+  .standings-table tbody tr:hover {
+    transform: translateY(-2px);
+    filter: drop-shadow(0 4px 16px rgba(122,167,255,.4));
+    background-position: 8% 0;
+    transition: transform .25s cubic-bezier(.22,1,.36,1), filter .25s ease, background-position .9s cubic-bezier(.45,0,.25,1);
+  }
+  .standings-table tbody tr:hover td {
+    background-color: rgba(122,167,255,.12);
+    box-shadow: inset 0 1px 0 rgba(122,167,255,.35), inset 0 -1px 0 rgba(122,167,255,.35);
+  }
+  .standings-table tbody tr:hover td:first-child { box-shadow: inset 3px 0 0 var(--accent-text), inset 0 1px 0 rgba(122,167,255,.35), inset 0 -1px 0 rgba(122,167,255,.35); }
+}
+
+/* On match cards the badge sits centred over the name, so the pill opens both ways */
+.team-flag .team-badge::after { left: 50%; padding: 0 12px; transform: translateX(-50%); clip-path: inset(0 calc(50% - 15px) round 4px); color: transparent; }
+.team-flag .team-badge { transition: transform .28s cubic-bezier(.34,1.56,.64,1), box-shadow .28s ease, border-radius .28s ease, color .2s ease; }
+.team-flag .team-badge.open { color: transparent; }
+.team-flag .team-badge.open::after { clip-path: inset(0 round 999px); color: var(--tbt); }
+@media (hover: hover) {
+  .team-flag .team-badge:hover { color: transparent; }
+  .team-flag .team-badge:hover::after { clip-path: inset(0 round 999px); color: var(--tbt); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .team-badge, .team-badge::after, .standings-table tbody tr, .standings-table tbody tr td { transition: none !important; }
+  .team-badge:hover, .team-badge.open { transform: none; }
+  .standings-table tbody tr:hover { transform: none; background-position: 92% 0; }
+}
