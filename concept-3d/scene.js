@@ -123,9 +123,21 @@ const scene = new THREE.Scene();
 scene.background = NIGHT;
 scene.fog = new THREE.Fog(NIGHT, 24, 52);
 
-// Photo-based reflections from a Poly Haven HDRI (Venice Sunset, CC0), cut to
-// 256x128 so it stays light. It lights materials only; the night sky stays.
-new RGBELoader().load(new URL('./vendor/venice_sunset_256.hdr', import.meta.url).href, hdr => {
+// A real stadium from Poly Haven (Stadium 01, CC0). The HDR (256x128) lights
+// reflections, and the stands, cut from the same panorama and graded to night,
+// ring the pitch at a distance (2048 px wide on desktop, 1024 on phones).
+let stands = null;
+new THREE.TextureLoader().load(new URL(`./textures/stands-${matchMedia('(pointer: coarse)').matches || innerWidth < 760 ? 1024 : 2048}.jpg`, import.meta.url).href, t => {
+  t.colorSpace = THREE.SRGBColorSpace;
+  t.anisotropy = renderer.capabilities.getMaxAnisotropy();
+  const h = 14; // squashed a little from the photo's 8:1 so the ring sits low
+  stands = new THREE.Mesh(new THREE.CylinderGeometry(30, 30, h, 96, 1, true),
+    new THREE.MeshBasicMaterial({ map: t, side: THREE.BackSide }));
+  stands.position.y = h / 2 - h * 0.08; // the photo's strip of grass sits just under the pitch
+  scene.add(stands);
+  needsDraw = true;
+});
+new RGBELoader().load(new URL('./vendor/stadium_01_256.hdr', import.meta.url).href, hdr => {
   const pmrem = new THREE.PMREMGenerator(renderer);
   scene.environment = pmrem.fromEquirectangular(hdr).texture;
   scene.environmentIntensity = 0.3;
@@ -515,6 +527,7 @@ resize();
 // ── Scene state: which two layouts we're between, and how far ──
 const clamp01 = x => Math.min(1, Math.max(0, x));
 const smooth = x => x * x * (3 - 2 * x);
+const PITCH_VIEWS = new Set(['hero', 'table', 'finale', 'wide', 'ball']);
 const STANDING = { hero: 0, table: 1, finale: 0, houses: 0, rules: 0, fifa: 0, wide: 0, ball: 0, cup: 0 };
 // Club pucks rest on the pitch (hero layout) while the camera visits the other scenes
 const puckKey = v => (v === 'table' || v === 'finale') ? v : 'hero';
@@ -668,6 +681,8 @@ function frame(now) {
     }
   }
   const kf = inApp ? KF_APP : KF;
+  // The stands ring the pitch only; the leaderboard, rules and trophy scenes sit outside it.
+  if (stands) stands.visible = PITCH_VIEWS.has(t < 0.5 ? from : to);
   const dt = Math.min(0.1, (now - last) / 1000); last = now;
   const ease = 1 - Math.exp(-dt * 5); // frame-rate independent damping
   const et = smooth(t);

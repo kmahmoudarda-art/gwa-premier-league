@@ -9,6 +9,11 @@ if (gsap && ScrollTrigger && stops.length && !matchMedia('(prefers-reduced-motio
     defaults: { duration: 0.3, ease: 'power2.inOut' },
     scrollTrigger: { trigger: '#intro', start: 'top top', end: 'bottom bottom', scrub: 0.5 },
   });
+  // Open on the stadium photo, push in, then dissolve to the 3D pitch;
+  // the first stop's badges arrive once the pitch is showing.
+  tl.fromTo('#intro .photo', { scale: 1 }, { scale: 1.12, duration: 0.6, ease: 'none' }, 0)
+    .to('#intro .photo', { autoAlpha: 0, duration: 0.3 }, 0.2)
+    .fromTo(stops[0].querySelectorAll('.badge'), { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.15 }, 0.4);
   stops.forEach((stop, i) => {
     const h = stop.querySelector('h2');
     if (i > 0) tl.fromTo(stop, { autoAlpha: 0 }, { autoAlpha: 1 }, i - 0.35)
