@@ -135,6 +135,7 @@ new THREE.TextureLoader().load(new URL(`./textures/stands-${matchMedia('(pointer
     new THREE.MeshBasicMaterial({ map: t, side: THREE.BackSide }));
   stands.position.y = h / 2 - h * 0.08; // the photo's strip of grass sits just under the pitch
   scene.add(stands);
+  miniStandsMat.map = t; miniStandsMat.color.set('#ffffff'); miniStandsMat.needsUpdate = true;
   needsDraw = true;
 });
 new RGBELoader().load(new URL('./vendor/stadium_01_256.hdr', import.meta.url).href, hdr => {
@@ -390,7 +391,7 @@ function setHousePoints(pts) {
   }
   needsDraw = true;
 }
-setHousePoints({});
+setHousePoints(window.__housePts || {}); // the app may have counted points before this scene loaded
 addEventListener('house-points', e => setHousePoints(e.detail || {}));
 addFloor(SPOTS.houses, 8);
 addSpotLight(SPOTS.houses);
@@ -412,6 +413,15 @@ addFloor(SPOTS.rules);
 addSpotLight(SPOTS.rules);
 
 // FIFA tournament: a gold trophy on a plinth
+const miniStandsMat = new THREE.MeshBasicMaterial({ color: '#1a2a4a', side: THREE.DoubleSide });
+const orbitStars = [];
+function placeStars(sec) {
+  for (const st of orbitStars) {
+    const u = st.userData, a = u.a + (reduceMotion ? 0 : sec * 0.25);
+    st.position.set(SPOTS.fifa.x + Math.cos(a) * u.r, u.y + (reduceMotion ? 0 : Math.sin(sec * 0.8 + u.a * 3) * 0.15), SPOTS.fifa.z + Math.sin(a) * u.r);
+    st.rotation.set(0.3, -a + (reduceMotion ? 0 : sec * u.spin), 0.2);
+  }
+}
 {
   const prof = [[0, 0], [0.9, 0], [0.9, 0.25], [0.35, 0.4], [0.25, 1.2], [0.5, 1.5], [1.2, 2.2], [1.35, 3.3], [1.25, 3.35], [1.05, 2.4], [0.4, 1.75], [0, 1.7]]
     .map(([x, y]) => new THREE.Vector2(x, y));
@@ -424,6 +434,48 @@ addSpotLight(SPOTS.rules);
   scene.add(plinth, cup);
   addFloor(SPOTS.fifa);
   addSpotLight(SPOTS.fifa, '#fff1c9', 3);
+
+  // A tiny floodlit stadium nested in the cup: the pitch plus a ring of the
+  // same Stadium 01 stands, lit from above
+  const bowl = new THREE.Group();
+  const turf = new THREE.Mesh(new THREE.CircleGeometry(0.98, 48), new THREE.MeshStandardMaterial({ map: pitch.material.map, roughness: 0.9, emissive: '#0f4a1c', emissiveIntensity: 0.35 }));
+  turf.rotation.x = -Math.PI / 2;
+  const ring = new THREE.Mesh(new THREE.CylinderGeometry(1.12, 1.0, 0.32, 64, 1, true), miniStandsMat);
+  ring.position.y = 0.14;
+  bowl.add(turf, ring);
+  bowl.position.copy(SPOTS.fifa); bowl.position.y = 0.9 + 3.02;
+  scene.add(bowl);
+  const lamp = new THREE.PointLight('#bfe0ff', 2, 3.5, 1.5);
+  lamp.position.copy(bowl.position).add(v3(0, 1.1, 0));
+  scene.add(lamp);
+
+  // Blue floodlight haze behind the trophy
+  const haze = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowMat.map, color: '#2f7bff', blending: THREE.AdditiveBlending, depthWrite: false, transparent: true, opacity: 0.55, fog: false }));
+  haze.scale.set(14, 9, 1);
+  haze.position.copy(SPOTS.fifa).add(v3(0, 3.6, -4));
+  scene.add(haze);
+  const rim = new THREE.SpotLight('#3d8bff', 16, 0, 0.6, 0.8, 0);
+  rim.position.copy(SPOTS.fifa).add(v3(0, 6, -6)); rim.target.position.copy(SPOTS.fifa).add(v3(0, 2.5, 0));
+  scene.add(rim, rim.target);
+
+  // Glowing glass stars circling the trophy
+  const shape = new THREE.Shape();
+  for (let i = 0; i < 10; i++) {
+    const a = Math.PI / 2 + i * Math.PI / 5, r = i % 2 ? 0.2 : 0.5;
+    i ? shape.lineTo(Math.cos(a) * r, Math.sin(a) * r) : shape.moveTo(Math.cos(a) * r, Math.sin(a) * r);
+  }
+  const starGeo = new THREE.ExtrudeGeometry(shape, { depth: 0.08, bevelEnabled: true, bevelThickness: 0.04, bevelSize: 0.04, bevelSegments: 2 });
+  starGeo.center();
+  const starMat = new THREE.MeshPhysicalMaterial({ color: '#7cc0ff', emissive: '#2a7dff', emissiveIntensity: 1.1, roughness: 0.08, clearcoat: 1, transparent: true, opacity: 0.7 });
+  const starGlow = new THREE.SpriteMaterial({ map: glowMat.map, color: '#4f9bff', blending: THREE.AdditiveBlending, depthWrite: false, transparent: true, opacity: 0.6 });
+  for (let i = 0; i < 7; i++) {
+    const star = new THREE.Mesh(starGeo, starMat);
+    const glow = new THREE.Sprite(starGlow); glow.scale.setScalar(1.6); star.add(glow);
+    star.userData = { a: i / 7 * Math.PI * 2, r: 2.3 + (i % 3) * 0.55, y: 1.6 + (i * 0.47) % 2.6, s: 0.6 + (i % 4) * 0.22, spin: 0.4 + (i % 3) * 0.3 };
+    star.scale.setScalar(star.userData.s);
+    orbitStars.push(star);
+    scene.add(star);
+  }
 }
 
 // A classic match ball: 12 black pentagons and 20 white hexagons, found per
@@ -503,7 +555,7 @@ function keyframes(side) {
     finale: narrow ? { pos: v3(-6, 6.5, 15), look: v3(0, 0, 5) } : { pos: v3(-12, 2.6, 10.5), look: v3(-1, 0.4, -1) },
     wide:   { pos: v3(narrow ? 0 : -3, narrow ? 22 : 15, narrow ? 24 : 17), look: v3(narrow ? 0 : -3.5, 0, 0) },
     ball:   { pos: v3(narrow ? 1.2 : 0.6, 1.1, narrow ? 5.6 : 3.9), look: v3(narrow ? 0 : -0.9, narrow ? -0.1 : 0.45, 1.3) },
-    cup:    { pos: SPOTS.fifa.clone().add(v3(narrow ? 0 : -2.6, 3.2, narrow ? 12 : 8)), look: SPOTS.fifa.clone().add(v3(narrow ? 0 : -2.4, narrow ? 3 : 2.4, 0)) },
+    cup:    { pos: SPOTS.fifa.clone().add(v3(narrow ? 0 : -2.6, narrow ? 8.5 : 7.4, narrow ? 11 : 7.5)), look: SPOTS.fifa.clone().add(v3(narrow ? 0 : -2.4, narrow ? 2.2 : 2.6, 0)) }, // high enough to see the stadium in the cup
     houses: { pos: SPOTS.houses.clone().add(v3(-sh, narrow ? 7 : 6, narrow ? 27 : 19)), look: SPOTS.houses.clone().add(v3(-sh, narrow ? 1.5 : 3.2, 0)) },
     rules:  { pos: SPOTS.rules.clone().add(v3(-1.5 - sh, 3, narrow ? 17 : 14)), look: SPOTS.rules.clone().add(v3(-sh * 0.8, narrow ? 0.8 : 1.9, 0)) },
     fifa:   { pos: SPOTS.fifa.clone().add(v3(2.5 - sh, 4, narrow ? 13 : 8.5)), look: SPOTS.fifa.clone().add(v3(-sh * 0.6, narrow ? 1 : 2.2, 0)) },
@@ -725,6 +777,8 @@ function frame(now) {
     m.scale.setScalar(1 + u.hover * 0.14);
     u.top.emissiveIntensity = u.hover * 0.12;
   }
+
+  placeStars(now / 1000);
 
   // Stat badges stay pinned to their point in the scene
   for (const b of badges) {
