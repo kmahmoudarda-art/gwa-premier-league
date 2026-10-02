@@ -76,7 +76,7 @@ if (gsap && ScrollTrigger) {
     if (reduce.matches) return;
     const el = tabEl(t);
     if (!el) return;
-    const hero = el.querySelectorAll('.tab-hero > :not(.hero-houses)'); // the 2D house bars stay hidden while the 3D pillars show
+    const hero = el.querySelectorAll('.tab-hero > :not(.hero-houses,.hero-points)'); // the 2D fallbacks stay hidden while 3D shows
     const rest = [...el.querySelectorAll('.main-wrap > :not(.tab-hero)')].slice(0, 4);
     const show = { y: 0, autoAlpha: 1, filter: 'blur(0px)', overwrite: true, clearProps: 'transform,opacity,visibility,filter' };
     gsap.timeline({ defaults: { duration: 0.9, ease: 'power3.out' } })
