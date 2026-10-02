@@ -1049,7 +1049,9 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
   .intro-title { font-family:'Bebas Neue',sans-serif; font-weight:400; font-size:clamp(56px,8vw,120px); line-height:.92; letter-spacing:.01em; margin:0; }
   .intro-hero .lede, .intro-stop .lede { margin:18px 0 0; font-size:clamp(16px,1.4vw,20px); line-height:1.55; color:#c9d3df; max-width:36ch; }
   .intro-cue { margin:36px 0 0; font-size:13px; letter-spacing:.12em; text-transform:uppercase; color:#93a3b8; }
-  .intro-stops { position:relative; z-index:100; }
+  /* The story text scrolls over the page but lets clicks through to the pinned sign-in card */
+  .intro-stops { position:relative; z-index:100; pointer-events:none; }
+  .intro-stops :is(a,button) { pointer-events:auto; }
   .intro-stop { min-height:100vh; display:flex; flex-direction:column; justify-content:center; padding:0 5vw; color:#eef2ea; }
   .intro-cta { margin-top:32px; align-self:flex-start; padding:16px 28px; border-radius:14px; font:600 16px 'Outfit',sans-serif; color:#eef2ea; cursor:pointer;
     background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.28); backdrop-filter:blur(18px); -webkit-backdrop-filter:blur(18px); }
