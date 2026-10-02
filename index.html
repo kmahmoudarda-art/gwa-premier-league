@@ -1007,7 +1007,11 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
   #tabPhoto[data-view="fifa"]        { --photo:url(concept-3d/photos/trophy-closeup-1600.webp); }
   /* The site owner's trophy picture is portrait, so it sits whole on the right */
   /* The owner's trophy picture fills the last story stop, dimmed so the headline reads over it */
-  #tabPhoto[data-view="trophy"] { background:url(concept-3d/photos/user-trophy-1200.webp) center 38% / cover no-repeat, #050d1f; --pb:.6; }
+  #tabPhoto[data-view="trophy"] { background:radial-gradient(ellipse 60% 70% at 52% 70%, #0d2a5c 0%, #050d1f 70%); --pb:.95; }
+  /* The whole picture, sharp and uncropped, standing between the headline and the sign-in card */
+  #tabPhoto[data-view="trophy"]::before { content:""; position:absolute; top:0; bottom:0; left:52%; aspect-ratio:600/1190; transform:translateX(-50%);
+    background:url(concept-3d/photos/user-trophy-1200.webp) center / contain no-repeat;
+    -webkit-mask-image:linear-gradient(90deg, transparent, #000 14%, #000 86%, transparent); mask-image:linear-gradient(90deg, transparent, #000 14%, #000 86%, transparent); }
   @media (max-width: 760px) {
     #tabPhoto[data-view="signin"]      { --photo:url(concept-3d/photos/hero-stadium-night-720.webp); }
     body.in-app #tabPhoto[data-view="signin"],
@@ -1017,6 +1021,7 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
     #tabPhoto[data-view="rules"]       { --photo:url(concept-3d/photos/players-tunnel-720.webp); }
     #tabPhoto[data-view="fifa"]        { --photo:url(concept-3d/photos/trophy-closeup-720.webp); }
     #tabPhoto[data-view="trophy"] { background:url(concept-3d/photos/user-trophy-600.webp) center top / cover no-repeat, #050d1f; --pb:.6; }
+    #tabPhoto[data-view="trophy"]::before { content:none; }
   }
   /* 3D stage: behind the main-page story (under the opening photo), and the
      house pillars on the Leaderboard; hidden on the other tabs */
