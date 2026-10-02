@@ -1023,6 +1023,13 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
   .tab-hero .zones i { width:12px; height:12px; border-radius:3px; transform:translateY(1px); }
   .tab-hero .zones span { color:#93a3b8; }
   body.light .tab-hero .lede { color:inherit; opacity:.8; }
+  body.light .tab-hero .lede strong { color:inherit; }
+  body.light .tab-hero .eyebrow { color:#8a6200; }
+  body.in-app.light :is(.stat-card,.match-card,.group-card,.lb-row,.lb-sum-card,.predictions-notice,.house-bars) { background:rgba(255,255,255,.92) !important; }
+  body.in-app.light .predictions-notice, body.in-app.light .predictions-notice strong { color:#7a4f00 !important; }
+  @media (max-width: 760px) {
+    body.light #tabPhoto::after { background:linear-gradient(180deg, rgba(244,246,240,.45) 0%, rgba(244,246,240,.85) 40%, rgba(244,246,240,.95) 100%); }
+  }
   body.light .tab-hero .zones span { color:inherit; opacity:.7; }
   body.in-app:not(.light) :is(.stat-card,.match-card,.group-card,.lb-row,.lb-sum-card,.modal-box,.predictions-notice,.fifa-soon) {
     background:rgba(5,13,31,.8) !important; border:1px solid rgba(238,242,234,.1) !important; box-shadow:none !important;
