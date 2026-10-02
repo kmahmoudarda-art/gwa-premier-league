@@ -5,6 +5,7 @@ const { gsap, ScrollTrigger } = window;
 
 if (gsap && ScrollTrigger) {
   gsap.registerPlugin(ScrollTrigger);
+  gsap.ticker.lagSmoothing(0); // on slow frames, finish on time rather than stall half-faded
   const root = document.documentElement;
   const reduce = matchMedia('(prefers-reduced-motion: reduce)');
 
