@@ -393,16 +393,17 @@ function keyframes(side) {
   const vw = 2 * dist * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) * camera.aspect;
   const off = narrow ? 0 : side * Math.min(vw * 0.22, 5);
   const lift = narrow && side ? -3.6 : 0; // on phones, keep the grid above the copy
+  const sh = narrow ? 0 : side * 4.5; // per-tab subjects sit right of the hero copy
   return {
     hero:   narrow ? { pos: v3(0, 12, 11.5), look: v3(0, 0, 3.5) } : { pos: v3(-2 * side, 13.5, 15.5), look: v3(-2.8 * side, 0, 0.6) },
     table:  { pos: v3(GRID.x - off, GRID.y + lift + 0.6, GRID.z + dist), look: v3(GRID.x - off, GRID.y + lift, GRID.z) },
     finale: narrow ? { pos: v3(-6, 6.5, 15), look: v3(0, 0, 5) } : { pos: v3(-12, 2.6, 10.5), look: v3(-1, 0.4, -1) },
-    houses: { pos: SPOTS.houses.clone().add(v3(0, narrow ? 7 : 5, narrow ? 27 : 13)), look: SPOTS.houses.clone().add(v3(0, narrow ? 1.5 : 2.6, 0)) },
-    rules:  { pos: SPOTS.rules.clone().add(v3(-1.5, 3, narrow ? 17 : 11)), look: SPOTS.rules.clone().add(v3(0, narrow ? 0.8 : 1.9, 0)) },
-    fifa:   { pos: SPOTS.fifa.clone().add(v3(2.5, 4, narrow ? 13 : 8.5)), look: SPOTS.fifa.clone().add(v3(0, narrow ? 1 : 2.2, 0)) },
+    houses: { pos: SPOTS.houses.clone().add(v3(-sh, narrow ? 7 : 6, narrow ? 27 : 19)), look: SPOTS.houses.clone().add(v3(-sh, narrow ? 1.5 : 3.2, 0)) },
+    rules:  { pos: SPOTS.rules.clone().add(v3(-1.5 - sh, 3, narrow ? 17 : 14)), look: SPOTS.rules.clone().add(v3(-sh * 0.8, narrow ? 0.8 : 1.9, 0)) },
+    fifa:   { pos: SPOTS.fifa.clone().add(v3(2.5 - sh, 4, narrow ? 13 : 8.5)), look: SPOTS.fifa.clone().add(v3(-sh * 0.6, narrow ? 1 : 2.2, 0)) },
   };
 }
-// side: 1 = copy on the left (scroll page), -1 = sign-in card on the right, 0 = centred (signed-in pages)
+// side: 1 = copy on the left (scroll page and signed-in tabs), -1 = sign-in card on the right
 let KF, KF_APP;
 
 function resize() {
@@ -411,7 +412,7 @@ function resize() {
   camera.aspect = w / h;
   camera.updateProjectionMatrix();
   KF = keyframes(MODE === 'auto' ? -1 : 1);
-  KF_APP = keyframes(0);
+  KF_APP = keyframes(1);
   needsDraw = true;
 }
 addEventListener('resize', resize);
@@ -456,6 +457,10 @@ function autoStage(seconds) {
 const appPage = document.getElementById('appPage');
 const TAB_VIEW = { predictions: 'finale', groups: 'table', leaderboard: 'houses', rules: 'rules', fifa: 'fifa' };
 let appView = 'hero', appFrom = 'hero', appChanged = 0, wasInApp = false;
+// Scrolling a tab eases the camera up and back (progress 0..1 comes from motion.js).
+let scrollP = 0;
+const DOLLY = v3(0, 2.5, 6);
+addEventListener('stage-scroll', e => { scrollP = e.detail || 0; needsDraw = true; });
 if (MODE === 'auto' && typeof window.showTab === 'function') {
   const showTab = window.showTab;
   window.showTab = (tab, ...rest) => {
@@ -552,6 +557,7 @@ function frame(now) {
   if (first || reduceMotion) { camPos.copy(tmpPos); camLook.copy(tmpLook); first = false; }
   else { camPos.lerp(tmpPos, ease); camLook.lerp(tmpLook, ease); }
   camera.position.copy(camPos);
+  if (inApp && !reduceMotion) camera.position.addScaledVector(DOLLY, scrollP);
   camera.lookAt(camLook);
 
   for (const p of pillars) {
