@@ -42,6 +42,23 @@ if (gsap && ScrollTrigger) {
     },
   });
 
+  // Signed-out home: each story stop brings in its photo and its headline.
+  const stops = [...document.querySelectorAll('.intro-stop')];
+  stops.forEach((stop, i) => {
+    ScrollTrigger.create({
+      trigger: stop, start: 'top 55%', end: 'bottom 55%',
+      onToggle(self) {
+        if (document.body.classList.contains('in-app')) return;
+        if (self.isActive) swapPhoto(stop.dataset.photo);
+        else if (i === 0 && self.direction < 0) swapPhoto('signin');
+      },
+    });
+    if (!reduce.matches) gsap.from(stop.children, {
+      y: 36, autoAlpha: 0, filter: 'blur(12px)', duration: 1, ease: 'power3.out', stagger: 0.12,
+      scrollTrigger: { trigger: stop, start: 'top 70%', toggleActions: 'play none none reverse' },
+    });
+  });
+
   const tabEl = t => document.getElementById('tab' + t[0].toUpperCase() + t.slice(1));
 
   function enter(t) {
