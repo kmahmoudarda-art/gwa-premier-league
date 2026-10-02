@@ -1,7 +1,9 @@
 import * as THREE from 'three';
 
-// ── Data (copied from index.html: TEAM_COLORS, TEAM_ABBR, MANUAL_RESULTS, STATIC_MATCHES) ──
-const TEAMS = [
+// ── Data ──
+// The main site exposes its live data as window.__leagueData (TEAM_COLORS, TEAM_ABBR,
+// STATIC_MATCHES, MANUAL_RESULTS). The fallback below is a snapshot after matchday 1.
+const FALLBACK_TEAMS = [
   ['Real Madrid','#00529F','RMA'], ['Barcelona','#A50044','BAR'], ['Atlético Madrid','#CB3524','ATM'],
   ['Paris Saint-Germain','#004170','PSG'], ['Bayern München','#DC052D','BAY'], ['Inter','#0068A8','INT'],
   ['Manchester City','#6CABDD','MCI'], ['Arsenal','#EF0107','ARS'], ['Liverpool','#C8102E','LIV'],
@@ -16,7 +18,7 @@ const TEAMS = [
   ['AEK Athens','#F7D117','AEK'], ['LASK','#1A1A1A','LAS'], ['Club Brugge','#0066B3','CLB'],
 ];
 
-const MD1 = [
+const FALLBACK_LAST = [
   ['AEK Athens','LASK',1,0], ['Club Brugge','Aston Villa',2,3], ['Borussia Dortmund','Villarreal',3,2],
   ['Porto','Manchester City',0,2], ['Lille','Real Betis',2,3], ['Real Madrid','Inter',2,1],
   ['Barcelona','Feyenoord',5,1], ['Stuttgart','Viking',3,1], ['Liverpool','Atlético Madrid',2,1],
@@ -25,7 +27,7 @@ const MD1 = [
   ['Bayern München','Bodø/Glimt',5,0], ['Manchester United','Sabah',4,0], ['Slavia Praha','Lens',2,3],
 ];
 
-const MD2 = [
+const FALLBACK_NEXT = [
   ['Lens','Sporting CP'], ['Sabah','Slavia Praha'], ['Arsenal','Lille'], ['Atlético Madrid','Manchester United'],
   ['Inter','Club Brugge'], ['Galatasaray','Barcelona'], ['Leipzig','PSV Eindhoven'], ['Viking','Bayern München'],
   ['Villarreal','Napoli'], ['Feyenoord','Como'], ['LASK','Liverpool'], ['Roma','Real Madrid'],
@@ -33,14 +35,43 @@ const MD2 = [
   ['Manchester City','Paris Saint-Germain'], ['Real Betis','Porto'], ['Slovan Bratislava','Stuttgart'],
 ];
 
-// ── Standings after matchday 1 ──
-const clubs = TEAMS.map(([name, color, abbr]) => ({ name, color, abbr, pts: 0, gf: 0, ga: 0, md1: '' }));
+function leagueData() {
+  const d = window.__leagueData;
+  if (!d || !d.STATIC_MATCHES || !d.MANUAL_RESULTS) {
+    return { teams: FALLBACK_TEAMS, played: FALLBACK_LAST.map(f => [...f, 1]), last: FALLBACK_LAST, next: FALLBACK_NEXT, lastMd: 1, nextMd: 2, nextDate: '13 October' };
+  }
+  const teams = Object.keys(d.TEAM_COLORS).map(n => [n, d.TEAM_COLORS[n], d.TEAM_ABBR[n] || n.slice(0, 3).toUpperCase()]);
+  const played = [], byMd = {};
+  for (const m of d.STATIC_MATCHES) {
+    (byMd[m.group] ||= []).push(m);
+    const r = d.MANUAL_RESULTS[m.id];
+    if (r) played.push([m.home, m.away, r.home, r.away, m.group]);
+  }
+  const mds = Object.keys(byMd).map(Number).sort((x, y) => x - y);
+  const lastMd = Math.max(0, ...played.map(f => f[4]));
+  const nextMd = mds.find(md => byMd[md].some(m => !d.MANUAL_RESULTS[m.id]));
+  const pairs = md => (byMd[md] || []).map(m => [m.home, m.away]);
+  const next = nextMd ? byMd[nextMd] : [];
+  const [mon, day] = (next[0]?.date || '').split(' ');
+  const months = { Jan:'January', Feb:'February', Mar:'March', Apr:'April', May:'May', Jun:'June', Jul:'July', Aug:'August', Sep:'September', Oct:'October', Nov:'November', Dec:'December' };
+  return {
+    teams, played,
+    last: played.filter(f => f[4] === lastMd),
+    next: pairs(nextMd || mds[0]),
+    lastMd, nextMd, nextDate: day ? `${day} ${months[mon] || mon}` : '',
+  };
+}
+const LEAGUE = leagueData();
+
+// ── Standings ──
+const clubs = LEAGUE.teams.map(([name, color, abbr]) => ({ name, color, abbr, pts: 0, gf: 0, ga: 0, last: '' }));
 const byName = Object.fromEntries(clubs.map(c => [c.name, c]));
-for (const [h, a, hg, ag] of MD1) {
+for (const [h, a, hg, ag] of LEAGUE.played) {
   const H = byName[h], A = byName[a];
+  if (!H || !A) continue;
   H.gf += hg; H.ga += ag; A.gf += ag; A.ga += hg;
   if (hg > ag) H.pts += 3; else if (ag > hg) A.pts += 3; else { H.pts++; A.pts++; }
-  H.md1 = A.md1 = `${h} ${hg}–${ag} ${a}`;
+  H.last = A.last = `${h} ${hg}–${ag} ${a}`;
 }
 const table = [...clubs].sort((x, y) =>
   y.pts - x.pts || (y.gf - y.ga) - (x.gf - x.ga) || y.gf - x.gf || x.name.localeCompare(y.name));
@@ -49,16 +80,27 @@ table.forEach((c, i) => { c.rank = i + 1; });
 const ordinal = n => { const s = ['th','st','nd','rd'], v = n % 100; return n + (s[(v - 20) % 10] || s[v] || s[0]); };
 const gd = c => { const d = c.gf - c.ga; return d > 0 ? `+${d}` : `${d}`; };
 
+// Fill any matchday labels on the page
+const fillText = (key, text) => document.querySelectorAll(`[data-league="${key}"]`).forEach(el => { el.textContent = text; });
+fillText('last-md', LEAGUE.lastMd);
+fillText('next-md', LEAGUE.nextMd || '');
+fillText('next-date', LEAGUE.nextDate);
+
 // Accessible list (also the visible fallback without WebGL)
-document.getElementById('standings').innerHTML = table
+const standingsEl = document.getElementById('standings');
+if (standingsEl) standingsEl.innerHTML = table
   .map(c => `<li>${c.name}, ${c.pts} pts, goal difference ${gd(c)}</li>`).join('');
 
 const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const coarse = matchMedia('(pointer: coarse)').matches;
-if (coarse) document.getElementById('hint').textContent = 'Tap a club to see its matchday 1 result.';
+const hintEl = document.getElementById('hint');
+if (coarse && hintEl) hintEl.textContent = 'Tap a club to see its latest result.';
 
 // ── Renderer ──
 const canvas = document.getElementById('stage');
+// 'scroll': the page's scroll position drives the scene (concept page).
+// 'auto': the scene cycles on its own behind the sign-in card (main site).
+const MODE = canvas.dataset.mode || 'scroll';
 let renderer;
 try {
   renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
@@ -200,8 +242,10 @@ function fixtureSpots(fixtures) {
   });
   return spots;
 }
-const heroSpots = fixtureSpots(MD1);
-const finaleSpots = fixtureSpots(MD2);
+const heroSpots = fixtureSpots(LEAGUE.last.length ? LEAGUE.last : LEAGUE.next);
+const finaleSpots = fixtureSpots(LEAGUE.next);
+// Clubs without a fixture in a list wait on the touchline
+const touchline = rank => new THREE.Vector3(-10 + (rank - 1) * 0.6, HGT / 2, PITCH_D / 2 + 1.2);
 
 // Table grid: 4 columns × 9 rows, so the zones fall on whole rows (2 / 4 / 3).
 const GRID = { x: 0, y: 5.3, z: 2.5, dx: 1.06, dy: 0.98 };
@@ -240,7 +284,7 @@ async function buildPucks() {
     mesh.castShadow = true;
     mesh.userData = {
       club: c, top,
-      hero: heroSpots[c.name], table: tableSpot(c.rank), finale: finaleSpots[c.name],
+      hero: heroSpots[c.name] || touchline(c.rank), table: tableSpot(c.rank), finale: finaleSpots[c.name] || touchline(c.rank),
       delay: (c.rank - 1) / 35 * 0.35,
       drop: 5 + Math.random() * 5, dropDelay: Math.random() * 0.6,
       hover: 0,
@@ -258,10 +302,12 @@ function keyframes() {
   const dist = narrow ? 24 : 15.5;
   // Shift the view left of the grid so it sits right of the copy on wide screens.
   const vw = 2 * dist * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) * camera.aspect;
-  const off = narrow ? 0 : Math.min(vw * 0.22, 5);
+  // Scroll page: copy on the left, so the scene sits right. Auto: sign-in card on the right, scene sits left.
+  const side = MODE === 'auto' ? -1 : 1;
+  const off = narrow ? 0 : side * Math.min(vw * 0.22, 5);
   const lift = narrow ? -3.6 : 0; // on phones, keep the grid above the copy
   return {
-    hero:   narrow ? { pos: v3(0, 12, 11.5), look: v3(0, 0, 3.5) } : { pos: v3(-2, 13.5, 15.5), look: v3(-2.8, 0, 0.6) },
+    hero:   narrow ? { pos: v3(0, 12, 11.5), look: v3(0, 0, 3.5) } : { pos: v3(-2 * side, 13.5, 15.5), look: v3(-2.8 * side, 0, 0.6) },
     table:  { pos: v3(GRID.x - off, GRID.y + lift + 0.6, GRID.z + dist), look: v3(GRID.x - off, GRID.y + lift, GRID.z) },
     finale: narrow ? { pos: v3(-6, 6.5, 15), look: v3(0, 0, 5) } : { pos: v3(-12, 2.6, 10.5), look: v3(-1, 0.4, -1) },
   };
@@ -278,33 +324,61 @@ function resize() {
 addEventListener('resize', resize);
 resize();
 
-// ── Scroll → scene state ──
+// ── Scene state: which two layouts we're between, and how far ──
 const clamp01 = x => Math.min(1, Math.max(0, x));
 const smooth = x => x * x * (3 - 2 * x);
+const STANDING = { hero: 0, table: 1, finale: 0 };
 const tableEl = document.getElementById('table');
-function scrollState() {
+
+function scrollStage() {
   const y = scrollY, vh = innerHeight;
   const tableIn = tableEl.offsetTop * 0.85;
   const tableOut = tableEl.offsetTop + tableEl.offsetHeight - vh;
   const end = document.documentElement.scrollHeight - vh;
-  return {
-    a: clamp01(y / tableIn),
-    b: clamp01((y - tableOut) / Math.max(1, end - tableOut)),
-  };
+  const a = clamp01(y / tableIn);
+  const b = clamp01((y - tableOut) / Math.max(1, end - tableOut));
+  return b > 0 ? { from: 'table', to: 'finale', t: b } : { from: 'hero', to: 'table', t: a };
+}
+
+// Auto mode: hold each layout, then move to the next, looping.
+const HOLD = { hero: 4.5, table: 7, finale: 4.5 }, MOVE = 2.6;
+const ORDER = ['hero', 'table', 'finale'];
+const CYCLE = ORDER.reduce((s, k) => s + HOLD[k] + MOVE, 0);
+function autoStage(seconds) {
+  if (reduceMotion) return { from: 'table', to: 'table', t: 0 };
+  let s = Math.max(0, seconds - 1.2) % CYCLE;
+  for (let i = 0; i < ORDER.length; i++) {
+    const from = ORDER[i], to = ORDER[(i + 1) % ORDER.length];
+    if (s < HOLD[from]) return { from, to, t: 0 };
+    s -= HOLD[from];
+    if (s < MOVE) return { from, to, t: s / MOVE };
+    s -= MOVE;
+  }
+  return { from: 'hero', to: 'table', t: 0 };
 }
 
 // ── Hover / tap ──
 const ray = new THREE.Raycaster();
 const ndc = new THREE.Vector2();
-const tip = document.getElementById('tip');
+let tip = document.getElementById('tip');
+if (!tip) {
+  tip = document.createElement('div');
+  tip.id = 'tip';
+  tip.setAttribute('role', 'status');
+  document.body.appendChild(tip);
+  const css = document.createElement('style');
+  css.textContent = `#tip{position:fixed;z-index:200;pointer-events:none;min-width:180px;padding:12px 14px;background:rgba(8,20,40,.94);color:#eef2ea;border:1px solid rgba(238,242,234,.14);border-radius:10px;font:14px/1.4 'Outfit',sans-serif;opacity:0;transform:translateY(4px);transition:opacity .15s,transform .15s}#tip.on{opacity:1;transform:none}#tip strong{display:block;font-size:16px;font-weight:600}#tip .rank{color:#93a3b8}`;
+  document.head.appendChild(css);
+}
 let pointer = null, hovered = null;
+// Only react when the pointer is over bare scene, not over cards or copy on top of it.
 addEventListener('pointermove', e => {
   if (e.pointerType === 'touch') return;
-  pointer = { x: e.clientX, y: e.clientY };
+  pointer = e.target === canvas ? { x: e.clientX, y: e.clientY } : null;
 });
 addEventListener('pointerleave', () => { pointer = null; });
-canvas.ownerDocument.addEventListener('pointerdown', e => {
-  if (e.pointerType === 'touch') pointer = { x: e.clientX, y: e.clientY };
+addEventListener('pointerdown', e => {
+  if (e.pointerType === 'touch') pointer = e.target === canvas ? { x: e.clientX, y: e.clientY } : null;
 });
 addEventListener('scroll', () => { if (coarse) pointer = null; }, { passive: true });
 
@@ -317,10 +391,10 @@ function updateHover() {
   }
   if (hit !== hovered) {
     hovered = hit;
-    document.body.style.cursor = hit ? 'pointer' : '';
+    canvas.style.cursor = hit ? 'pointer' : '';
     if (hit) {
       const c = hit.userData.club;
-      tip.innerHTML = `<strong>${c.name}</strong><span class="rank">${ordinal(c.rank)} · ${c.pts} pts · GD ${gd(c)}</span><br>${c.md1}`;
+      tip.innerHTML = `<strong>${c.name}</strong><span class="rank">${ordinal(c.rank)} · ${c.pts} pts · GD ${gd(c)}</span>${c.last ? `<br>${c.last}` : ''}`;
     }
     tip.classList.toggle('on', !!hit);
   }
@@ -338,25 +412,25 @@ let first = true, last = performance.now();
 const t0 = last;
 
 function frame(now) {
+  requestAnimationFrame(frame);
+  // Skip all work while the canvas is hidden (e.g. after signing in)
+  if (!canvas.getClientRects().length) {
+    if (hovered) { hovered = null; tip.classList.remove('on'); }
+    return;
+  }
   const dt = Math.min(0.1, (now - last) / 1000); last = now;
   const ease = 1 - Math.exp(-dt * 5); // frame-rate independent damping
-  const { a, b } = scrollState();
-  const ea = smooth(a), eb = smooth(b);
+  const { from, to, t } = MODE === 'auto' ? autoStage((now - t0) / 1000) : scrollStage();
+  const et = smooth(t);
 
-  // Camera: hero → table → finale
-  if (b > 0) {
-    tmpPos.lerpVectors(KF.table.pos, KF.finale.pos, eb);
-    tmpLook.lerpVectors(KF.table.look, KF.finale.look, eb);
-  } else {
-    tmpPos.lerpVectors(KF.hero.pos, KF.table.pos, ea);
-    tmpLook.lerpVectors(KF.hero.look, KF.table.look, ea);
-  }
+  tmpPos.lerpVectors(KF[from].pos, KF[to].pos, et);
+  tmpLook.lerpVectors(KF[from].look, KF[to].look, et);
   if (first || reduceMotion) { camPos.copy(tmpPos); camLook.copy(tmpLook); first = false; }
   else { camPos.lerp(tmpPos, ease); camLook.lerp(tmpLook, ease); }
   camera.position.copy(camPos);
   camera.lookAt(camLook);
 
-  const plateOn = b > 0 ? 1 - eb : ea;
+  const plateOn = STANDING[from] + (STANDING[to] - STANDING[from]) * et;
   for (const p of zonePlates) p.material.opacity = p.userData.max * smooth(clamp01(plateOn * 1.6 - 0.6));
 
   // Intro: pucks drop onto the pitch once, staggered
@@ -364,14 +438,10 @@ function frame(now) {
 
   for (const m of pucks) {
     const u = m.userData;
-    const la = smooth(clamp01((a - u.delay) / 0.65));
-    const lb = smooth(clamp01((b - u.delay) / 0.65));
-    let l, from, to;
-    if (b > 0) { from = u.table; to = u.finale; l = lb; } else { from = u.hero; to = u.table; l = la; }
-    m.position.lerpVectors(from, to, l);
+    const l = smooth(clamp01((t - u.delay) / 0.65));
+    m.position.lerpVectors(u[from], u[to], l);
     m.position.y += Math.sin(l * Math.PI) * 1.4;
-    const standing = b > 0 ? 1 - lb : la;
-    m.rotation.x = standing * Math.PI / 2;
+    m.rotation.x = (STANDING[from] + (STANDING[to] - STANDING[from]) * l) * Math.PI / 2;
     m.rotation.z = Math.sin(l * Math.PI) * 0.6;
 
     const d = clamp01((intro - u.dropDelay) / 0.9);
@@ -387,7 +457,6 @@ function frame(now) {
 
   updateHover();
   renderer.render(scene, camera);
-  requestAnimationFrame(frame);
 }
 
 buildPucks().then(() => requestAnimationFrame(frame));
