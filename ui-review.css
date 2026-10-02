@@ -1,0 +1,143 @@
+/* ─────────────────────────────────────────────────────────────────────
+   UI REVIEW FIXES (taste-skill review, Oct 2026)
+   Loaded after style.css and the inline <style> in index.html so these
+   rules win without touching the original blocks.
+   ───────────────────────────────────────────────────────────────────── */
+
+/* ── 1. COLOUR ROLES + CONTRAST ──
+   blue  = brand / actions / key numbers (--accent-text for text on dark)
+   amber = warnings only (lock notice)
+   house colours = houses only, green/red = right/wrong only
+   --muted lifted so helper text passes 4.5:1 on the navy cards */
+:root {
+  --muted: #94a3b8;        /* 6.4:1 on --card (was #64748b, 3.6:1) */
+  --accent-text: #7aa7ff;  /* 6.6:1 on --card (was #1D4ED8, 2.5:1) */
+}
+body.light {
+  --muted: #526077;        /* 6.3:1 on white */
+  --accent-text: #1D4ED8;
+}
+
+.group-card-title { color: var(--accent-text); }
+.standings-table td.pts-cell,
+.fifa-date,
+.standings-table tr.third-gold td,
+.standings-table tr.third-gold td.pts-cell,
+.third-place-note { color: var(--accent-text); }
+
+/* Leaderboard points, top ranks and the "You" badge: one accent, not amber */
+.lb-stat.pts, .rank.top { color: var(--accent-text); }
+.badge-yellow { background: rgba(122,167,255,0.14); color: var(--accent-text); }
+.toggle-switch input:checked + .toggle-slider { background: #1D4ED8; }
+
+/* ── 2. STAT ROWS: one quiet panel instead of four coloured cards ── */
+.stats-bar, .lb-summary {
+  gap: 1px; background: var(--border); border: 1px solid var(--border);
+  border-radius: 14px; overflow: hidden;
+}
+.stat-card, .lb-sum-card { background: var(--card); border: none; border-radius: 0; }
+.stat-num, .stat-num.yellow, .stat-num.green, .stat-num.blue,
+.lb-sum-num { color: var(--text); font-variant-numeric: tabular-nums; }
+#statPoints, #lbTotalPoints { color: var(--accent-text); }
+body.colorblind .stat-num.green { color: var(--text); }
+
+/* ── 3. ICONS (Phosphor sprite) ── */
+.ph { width: 1.15em; height: 1.15em; fill: currentColor; flex-shrink: 0; vertical-align: -0.2em; }
+nav button { display: inline-flex; align-items: center; gap: 7px; }
+.acc-btn .ph { width: 13px; height: 13px; }
+.logout-icon { display: inline-flex; }
+.predictions-notice .ph { margin-right: 4px; }
+
+.house-dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; vertical-align: 0.05em; margin-right: 2px; background: currentColor; }
+.house-icon .house-dot { width: 22px; height: 22px; margin: 2px 0 0; }
+
+/* ── 4. HOUSE STANDINGS: ranked list ── */
+.house-bars { gap: 0; background: var(--card); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; }
+.house-row {
+  display: grid; grid-template-columns: 44px 1fr auto 90px; align-items: center; gap: 12px;
+  padding: 14px 18px; border-top: 1px solid var(--border);
+}
+.house-row:first-child { border-top: none; }
+.house-rank { font-family: 'Bebas Neue', sans-serif; font-size: 24px; color: var(--muted); }
+.house-row:first-child .house-rank { color: var(--accent-text); }
+.house-row-name { font-size: 16px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+.house-row-name .house-dot { width: 12px; height: 12px; margin: 0; }
+.house-row-players { font-size: 13px; color: var(--muted); }
+.house-row-pts { font-family: 'Bebas Neue', sans-serif; font-size: 26px; text-align: right; font-variant-numeric: tabular-nums; }
+.house-row-pts span { font-family: 'Outfit', sans-serif; font-size: 12px; color: var(--muted); margin-left: 2px; }
+
+/* ── 5. RULES: four cards in a grid instead of one half-width column ── */
+.rules-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; align-items: start; }
+.rules-list { line-height: 1.7; padding-left: 20px; display: flex; flex-direction: column; gap: 6px; max-width: 62ch; }
+.rules-grid .group-card { padding: 22px; }
+
+/* ── 6. FIFA: round titles never collide, quieter banner ── */
+.fifa-round-title { white-space: normal; font-size: 18px; line-height: 1.1; min-height: 2.2em; display: flex; align-items: flex-end; justify-content: center; }
+.fifa-soon { background: var(--card); border-color: var(--border); }
+.fifa-poster-head { padding: 0; }
+
+/* ── 7. FOCUS + MOTION ── */
+:focus-visible { outline: 2px solid var(--accent-text); outline-offset: 2px; border-radius: 6px; }
+button:active, .filter-btn:active, [role="button"]:active { transform: translateY(1px); }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important; animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important; scroll-behavior: auto !important;
+  }
+  .ticker-content { padding-left: 0; transform: none !important; }
+}
+
+/* ── 8. SIGN-IN: let the card lead ── */
+.auth-logo { margin-bottom: 28px; }
+.auth-logo p { color: #cbd5e1; }
+.auth-scrim {
+  background:
+    linear-gradient(90deg, rgba(3,8,20,0.15) 0%, rgba(3,8,20,0.35) 45%, rgba(3,8,20,0.8) 75%) ,
+    linear-gradient(to bottom, rgba(0,0,0,0.2), rgba(0,0,0,0.5)) !important;
+}
+
+/* ── 9. PHONE LAYOUT: one-row header + bottom tab bar ── */
+@media (max-width: 640px) {
+  .header-inner { flex-wrap: nowrap; height: 60px; padding: 0; gap: 10px; }
+  header { backdrop-filter: none; -webkit-backdrop-filter: none; background: var(--dark); }
+  .logo { min-width: 0; flex: 1; }
+  .logo > img { width: 28px !important; height: 28px !important; }
+  .logo > div { min-width: 0; display: flex; align-items: center; gap: 8px; }
+  .logo-text { font-size: 13px; overflow: hidden; text-overflow: ellipsis; }
+  .logo-sub { display: none; }
+  .logo-acc-btns { margin-top: 0; gap: 4px; flex-shrink: 0; }
+  .acc-btn { padding: 6px; border-radius: 8px; }
+  .acc-btn .ph { width: 15px; height: 15px; }
+  .acc-label { display: none; }
+  .user-pill { padding: 4px; gap: 0; }
+  .user-pill #headerName, .user-pill .logout-icon { display: none; }
+
+  nav {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 50;
+    display: grid; grid-template-columns: repeat(5, 1fr); gap: 0;
+    max-width: none; overflow: visible;
+    background: var(--header-bg); border-top: 1px solid var(--border);
+    backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+    padding: 6px 4px calc(6px + env(safe-area-inset-bottom));
+  }
+  nav button {
+    flex-direction: column; gap: 3px; padding: 6px 2px; border-radius: 10px;
+    font-size: 10.5px; font-weight: 600; min-height: 48px; justify-content: center;
+  }
+  nav button .ph { width: 22px; height: 22px; }
+  nav button.active { background: rgba(122,167,255,0.12); color: var(--accent-text); }
+  body.light nav button.active { background: rgba(29,78,216,0.08); color: #1D4ED8; }
+  #appPage.active { padding-bottom: calc(72px + env(safe-area-inset-bottom)); }
+
+  .main-wrap { padding: 24px 16px; }
+  .house-row { grid-template-columns: 32px 1fr auto 64px; padding: 12px 14px; gap: 8px; }
+  .rules-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 380px) {
+  .logo-text { display: none; }
+}
+@media (max-width: 640px) {
+  /* the poster art has its own headline baked in; soften it behind the card on phones */
+  #authBg { filter: blur(4px) brightness(0.7); transform: scale(1.04); }
+}
