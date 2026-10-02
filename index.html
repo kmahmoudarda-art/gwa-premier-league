@@ -1022,9 +1022,9 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
      house pillars on the Leaderboard; hidden on the other tabs */
   #stage { position:fixed; inset:0; width:100%; height:100%; display:block; z-index:0; }
   body.in-app #stage { z-index:1; pointer-events:none; opacity:var(--stage-o,1); }
-  body.in-app:not([data-tab="leaderboard"]) #stage, body.light.in-app #stage { display:none; }
+  body.in-app:not([data-tab="leaderboard"]):not([data-tab="rules"]) #stage { display:none; }
   body.no-webgl #stage { display:none; }
-  body:not(.no-webgl):not(.light) .hero-houses { visibility:hidden; }
+  body:not(.no-webgl) :is(.hero-houses,.hero-points) { visibility:hidden; }
   /* The sign-in card stays pinned while the story scrolls behind it */
   @media (min-width: 761px) {
     #authPage .auth-card { position:fixed; right:5vw; top:50%; transform:translateY(-50%); }
@@ -1061,9 +1061,14 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
     .intro-cue { display:none; }
     .intro-stop { min-height:85vh; }
   }
-  /* House pillars standing in the open right side of the Leaderboard photo */
-  #tabLeaderboard .tab-hero { position:relative; max-width:none; }
-  #tabLeaderboard .tab-hero > :not(.hero-houses) { max-width:36rem; }
+  /* House pillars (Leaderboard) and the 3, 1, 0 numerals (Rules) standing in the open right side of the photo;
+     these 2D versions show only when 3D can't run */
+  :is(#tabLeaderboard,#tabRules) .tab-hero { position:relative; max-width:none; }
+  :is(#tabLeaderboard,#tabRules) .tab-hero > :not(.hero-houses,.hero-points) { max-width:36rem; }
+  .hero-points { position:absolute; right:0; bottom:20px; width:min(44%,520px); display:grid; grid-template-columns:repeat(3,1fr); gap:clamp(12px,2vw,28px); text-align:center; }
+  .hero-points b { display:block; font:400 clamp(110px,13vw,200px)/.9 'Bebas Neue',sans-serif; color:var(--c); text-shadow:0 0 40px color-mix(in srgb, var(--c) 40%, transparent); }
+  .hero-points span { font:600 13px/1 'Outfit',sans-serif; letter-spacing:.1em; text-transform:uppercase; color:#c9d3df; }
+  body.light .hero-points span { color:#0b1530; }
   .hero-houses { position:absolute; right:0; bottom:44px; height:min(46vh,380px); width:min(44%,520px); display:grid; grid-template-columns:repeat(4,1fr); gap:clamp(12px,2vw,28px); align-items:end; }
   .hh { height:100%; display:flex; flex-direction:column; justify-content:flex-end; align-items:center; gap:10px; }
   .hh-pts { font:400 clamp(28px,3vw,44px)/1 'Bebas Neue',sans-serif; color:#eef2ea; font-variant-numeric:tabular-nums; }
@@ -1077,6 +1082,7 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
   @media (prefers-reduced-motion: reduce) { .hh-bar { animation:none; } }
   @media (max-width: 760px) {
     .hero-houses { position:static; width:100%; height:200px; margin-top:28px; }
+    .hero-points { position:static; width:100%; height:200px; margin-top:28px; align-items:end; }
   }
   .tab-hero { min-height:min(62vh,600px); max-width:36rem; display:flex; flex-direction:column; justify-content:flex-end; padding:40px 0 44px; }
   .tab-hero .eyebrow { font:600 13px/1.3 'Outfit',sans-serif; letter-spacing:.14em; text-transform:uppercase; color:#e8b931; margin:0 0 14px; }
@@ -1324,6 +1330,7 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
         <p class="eyebrow">How scoring works</p>
         <h1 class="page-title">Three, one or nothing</h1>
         <p class="lede">Three points for the exact score, one for the right result, nothing for a wrong call. Bonus points come from your team and your top 8 picks.</p>
+        <div class="hero-points" aria-hidden="true"><div style="--c:#e8b931"><b>3</b><span>Exact score</span></div><div style="--c:#3b82f6"><b>1</b><span>Right result</span></div><div style="--c:#94a3b8"><b>0</b><span>Wrong call</span></div></div>
       </div>
       <div class="rules-grid">
         <div class="group-card">
@@ -4678,7 +4685,7 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
     });
   })();
 </script>
-<script type="module" src="concept-3d/scene.js?v=4"></script>
+<script type="module" src="concept-3d/scene.js?v=5"></script>
 <script defer src="concept-3d/vendor/gsap.min.js"></script>
 <script defer src="concept-3d/vendor/ScrollTrigger.min.js"></script>
-<script type="module" src="concept-3d/motion.js?v=5"></script>
+<script type="module" src="concept-3d/motion.js?v=6"></script>

@@ -1,5 +1,7 @@
 import * as THREE from 'three';
 import { RGBELoader } from './vendor/RGBELoader.js';
+import { FontLoader } from './vendor/FontLoader.js';
+import { TextGeometry } from './vendor/TextGeometry.js';
 
 // ── Data ──
 // The main site exposes its live data as window.__leagueData (TEAM_COLORS, TEAM_ABBR,
@@ -359,11 +361,13 @@ function addSpotLight(at, color = '#fff3dc', intensity = 2.2) {
   l.target.position.copy(at);
   scene.add(l, l.target);
 }
+const floors = [];
 function addFloor(at, r = 7) {
   const floor = new THREE.Mesh(new THREE.CircleGeometry(r, 64),
     new THREE.MeshStandardMaterial({ color: '#0b1a33', roughness: 0.75, normalMap: floorNormal, normalScale: new THREE.Vector2(0.6, 0.6), metalness: 0.1, envMapIntensity: 0.25 }));
   floor.rotation.x = -Math.PI / 2; floor.position.copy(at); floor.position.y = 0.01;
   floor.receiveShadow = true;
+  floors.push(floor);
   scene.add(floor);
 }
 
@@ -380,13 +384,17 @@ const pillars = HOUSES.map(([name, color], i) => {
   scene.add(mesh, tag);
   return { name, mesh, tag, height: 2, target: 2 };
 });
+// Labels read dark on the light theme's chalk-washed photos, pale on the night ones
+const isLight = () => document.body.classList.contains('light');
+let housePts = {};
 function setHousePoints(pts) {
+  housePts = pts;
   const max = Math.max(1, ...Object.values(pts));
   for (const p of pillars) {
     const v = pts[p.name] || 0;
     p.target = 1.2 + 5 * v / max;
     p.tag.material.map?.dispose();
-    p.tag.material.map = labelTexture([[p.name, '400 120px "Bebas Neue", sans-serif', 90], [`${v} pts`, '600 52px "Outfit", sans-serif', 190]]);
+    p.tag.material.map = labelTexture([[p.name, '400 120px "Bebas Neue", sans-serif', 90], [`${v} pts`, '600 52px "Outfit", sans-serif', 190]], { color: isLight() ? '#0b1530' : '#eef2ea' });
     p.tag.material.needsUpdate = true;
   }
   needsDraw = true;
@@ -396,19 +404,46 @@ addEventListener('house-points', e => setHousePoints(e.detail || {}));
 addFloor(SPOTS.houses, 8);
 addSpotLight(SPOTS.houses);
 
-// Rules: three standing cards for the scoring system
-[['3', 'Exact score', '#e8b931'], ['1', 'Right result', '#3b82f6'], ['0', 'Wrong', '#64748b']].forEach(([n, label, color], i) => {
-  const card = new THREE.Mesh(new THREE.BoxGeometry(2.6, 3.4, 0.12), [
-    new THREE.MeshStandardMaterial({ color: '#0c1c3a' }), new THREE.MeshStandardMaterial({ color: '#0c1c3a' }),
-    new THREE.MeshStandardMaterial({ color: '#0c1c3a' }), new THREE.MeshStandardMaterial({ color: '#0c1c3a' }),
-    new THREE.MeshStandardMaterial({ map: labelTexture([[n, '400 260px "Bebas Neue", sans-serif', 250], [label, '600 46px "Outfit", sans-serif', 470]], { w: 384, h: 512, bg: '#0c1c3a', color }), roughness: 0.5 }),
-    new THREE.MeshStandardMaterial({ color: '#0c1c3a' }),
-  ]);
-  card.castShadow = true;
-  card.position.set(SPOTS.rules.x + (i - 1) * 3.1, 1.9, SPOTS.rules.z - Math.abs(i - 1) * 0.8);
-  card.rotation.y = (1 - i) * 0.28;
-  scene.add(card);
+// Rules: the scoring system as three solid numerals, 3, 1 and 0, each with its label
+const RULES = [['3', 'Exact score', '#e8b931'], ['1', 'Right result', '#3b82f6'], ['0', 'Wrong call', '#94a3b8']];
+const ruleTags = RULES.map(([, label, color], i) => {
+  const tag = new THREE.Mesh(new THREE.PlaneGeometry(2.6, 0.65), new THREE.MeshBasicMaterial({ transparent: true, depthWrite: false }));
+  tag.position.set(SPOTS.rules.x + (i - 1) * 3.2, 0.45, SPOTS.rules.z + 0.9 - Math.abs(i - 1) * 0.8);
+  tag.rotation.y = (1 - i) * 0.22;
+  tag.userData = { label, color };
+  scene.add(tag);
+  return tag;
 });
+new FontLoader().load(new URL('./vendor/bebas-digits.typeface.json', import.meta.url).href, font => {
+  RULES.forEach(([n, , color], i) => {
+    const geo = new TextGeometry(n, { font, size: 3.4, depth: 0.7, curveSegments: 10, bevelEnabled: true, bevelThickness: 0.08, bevelSize: 0.05, bevelSegments: 3 });
+    geo.computeBoundingBox(); geo.center();
+    const mat = new THREE.MeshPhysicalMaterial({ color, roughness: 0.3, metalness: n === '3' ? 0.55 : 0.15, clearcoat: 0.7, clearcoatRoughness: 0.15, emissive: color, emissiveIntensity: 0.08 });
+    const mesh = new THREE.Mesh(geo, mat);
+    mesh.castShadow = true;
+    mesh.position.set(SPOTS.rules.x + (i - 1) * 3.2, 0.95 + 1.7, SPOTS.rules.z - Math.abs(i - 1) * 0.8);
+    mesh.rotation.y = (1 - i) * 0.22;
+    scene.add(mesh);
+  });
+  needsDraw = true;
+});
+function drawRuleTags() {
+  for (const tag of ruleTags) {
+    const { label, color } = tag.userData;
+    tag.material.map?.dispose();
+    tag.material.map = labelTexture([[label.toUpperCase(), '600 72px "Outfit", sans-serif', 80]], { w: 640, h: 160, color: isLight() ? '#0b1530' : color });
+    tag.material.needsUpdate = true;
+  }
+  needsDraw = true;
+}
+drawRuleTags();
+let wasLight = isLight();
+new MutationObserver(() => {
+  if (isLight() === wasLight) return;
+  wasLight = isLight();
+  setHousePoints(housePts); drawRuleTags();
+}).observe(document.body, { attributes: true, attributeFilter: ['class'] });
+document.fonts?.ready.then(() => { setHousePoints(housePts); drawRuleTags(); });
 addFloor(SPOTS.rules);
 addSpotLight(SPOTS.rules);
 
@@ -556,8 +591,9 @@ function keyframes(side) {
     wide:   { pos: v3(narrow ? 0 : -3, narrow ? 22 : 15, narrow ? 24 : 17), look: v3(narrow ? 0 : -3.5, 0, 0) },
     ball:   { pos: v3(narrow ? 1.2 : 0.6, 1.1, narrow ? 5.6 : 3.9), look: v3(narrow ? 0 : -0.9, narrow ? -0.1 : 0.45, 1.3) },
     cup:    { pos: SPOTS.fifa.clone().add(v3(narrow ? 0 : -2.6, narrow ? 8.5 : 7.4, narrow ? 11 : 7.5)), look: SPOTS.fifa.clone().add(v3(narrow ? 0 : -2.4, narrow ? 2.2 : 2.6, 0)) }, // high enough to see the stadium in the cup
-    houses: { pos: SPOTS.houses.clone().add(v3(-sh, narrow ? 7 : 6, narrow ? 27 : 19)), look: SPOTS.houses.clone().add(v3(-sh, narrow ? 1.5 : 3.2, 0)) },
-    rules:  { pos: SPOTS.rules.clone().add(v3(-1.5 - sh, 3, narrow ? 17 : 14)), look: SPOTS.rules.clone().add(v3(-sh * 0.8, narrow ? 0.8 : 1.9, 0)) },
+    houses: { pos: SPOTS.houses.clone().add(v3(-sh, narrow ? 5 : 6, narrow ? 36 : 19)), look: SPOTS.houses.clone().add(v3(-sh, narrow ? 2.8 : 3.2, 0)) }, // phones: the pillars sit below the copy
+    rules:  narrow ? { pos: SPOTS.rules.clone().add(v3(0, 4, 31)), look: SPOTS.rules.clone().add(v3(0, 3.1, 0)) } // phones: the numerals sit below the copy
+                   : { pos: SPOTS.rules.clone().add(v3(-1.5 - sh * 1.3, 3, 15)), look: SPOTS.rules.clone().add(v3(-sh * 1.1, 1.6, 0)) },
     fifa:   { pos: SPOTS.fifa.clone().add(v3(2.5 - sh, 4, narrow ? 13 : 8.5)), look: SPOTS.fifa.clone().add(v3(-sh * 0.6, narrow ? 1 : 2.2, 0)) },
   };
 }
@@ -747,7 +783,8 @@ function frame(now) {
   }
   const bg = inApp ? null : NIGHT;
   if (MODE === 'auto' && scene.background !== bg) scene.background = bg;
-  ground.visible = !inApp; // signed in, the pillars stand on the tab's photo
+  ground.visible = !inApp; // signed in, the pillars and numerals stand on the tab's photo
+  for (const f of floors) f.visible = !inApp;
   const kf = inApp ? KF_APP : KF;
   // The stands ring the pitch only; the leaderboard, rules and trophy scenes sit outside it.
   if (stands) stands.visible = PITCH_VIEWS.has(t < 0.5 ? from : to);
