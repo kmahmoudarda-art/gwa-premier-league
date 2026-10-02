@@ -8,7 +8,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Champions League Predictions</title>
 <link rel="icon" type="image/png" href="cl-ball.png">
-<link rel="stylesheet" href="style.css?v=11">
+<link rel="stylesheet" href="style.css?v=12">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
 .lb-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:32px;}
@@ -972,7 +972,7 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
 .fav-team-celebration button { background: rgba(255,255,255,0.2); border: none; color: #fff; border-radius: 6px; width: 22px; height: 22px; cursor: pointer; flex-shrink: 0; }
 @keyframes fav-pop { from { opacity:0; transform:translateX(-50%) translateY(20px); } to { opacity:1; transform:translateX(-50%) translateY(0); } }
 </style>
-<link rel="stylesheet" href="ui-review.css?v=2">
+<link rel="stylesheet" href="ui-review.css?v=3">
 <script type="importmap">{ "imports": { "three": "./concept-3d/vendor/three.module.min.js" } }</script>
 <style>
   /* The old sign-in photo (with text baked in) is replaced by #tabPhoto */
@@ -1728,8 +1728,15 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
     // pick readable text color
     const rgb=parseInt(bg.slice(1),16);const r=(rgb>>16)&255,g=(rgb>>8)&255,b=rgb&255;
     const textColor=(0.299*r+0.587*g+0.114*b)>150?'#111':'#fff';
-    return `<span style="display:inline-flex;align-items:center;justify-content:center;width:30px;height:20px;border-radius:4px;background:${bg};color:${textColor};font-size:9px;font-weight:800;letter-spacing:0.3px;flex-shrink:0">${initials}</span>`;
+    return `<span class="team-badge" data-name="${name}" style="--tb:${bg};--tbt:${textColor}">${initials}</span>`;
   }
+
+  // Touch: tap a team badge to open its full name, tap anywhere else to close
+  document.addEventListener('click',e=>{
+    const b=e.target.closest('.team-badge');
+    document.querySelectorAll('.team-badge.open').forEach(o=>{if(o!==b)o.classList.remove('open');});
+    if(b&&!matchMedia('(hover: hover)').matches)b.classList.toggle('open');
+  });
 
   const STATIC_MATCHES = [
     {id:'M1',group:1,date:'Sep 8',time:'8:45pm',home:'AEK Athens',away:'LASK',venue:'OPAP Arena'},

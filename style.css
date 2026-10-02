@@ -335,7 +335,7 @@ body.light .auth-logo h1 { color:#0a0a0a; }
 .standings-table.compact { font-size:12px; }
 .standings-table.compact th, .standings-table.compact td { padding:7px 4px; }
 .standings-table.compact td.team-cell { gap:5px; font-size:12px; }
-.standings-table.compact td.team-cell span[style*="inline-flex"] { width:28px !important; font-size:9px !important; }
+.standings-table.compact td.team-cell .team-badge { width:28px !important; font-size:9px !important; }
 
 /* ── CHAMPIONS LEAGUE TABLE ZONES ── */
 .standings-table tr.zone-ucl td { background:rgba(59,130,246,0.06); }
