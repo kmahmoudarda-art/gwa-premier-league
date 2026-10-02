@@ -978,6 +978,8 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
   /* 3D sign-in scene: the canvas sits under the card; the wrap lets clicks through to it */
   #stage { position:fixed; inset:0; width:100%; height:100%; display:block; z-index:0; }
   #authPage .auth-wrap { pointer-events:none !important; }
+  /* The old photo (with text baked in) only shows if WebGL is unavailable */
+  body:not(.no-webgl) #authBg { background-image:none !important; background-color:#050d1f; }
   #authPage .auth-scrim { background:linear-gradient(90deg, rgba(5,13,31,0) 35%, rgba(5,13,31,.6) 100%) !important; }
   @media (max-width: 760px) {
     #authPage .auth-scrim { background:linear-gradient(180deg, rgba(5,13,31,.1) 0%, rgba(5,13,31,.65) 100%) !important; }
@@ -1010,7 +1012,7 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
     background-image:url('login-bg.webp');
     background-size:cover;
     background-position:center 50%;"></div>
-  <!-- Live 3D pitch and table (concept-3d/scene.js); the photo above shows until it renders -->
+  <!-- Live 3D pitch and table (concept-3d/scene.js); the photo above is only the no-WebGL fallback -->
   <canvas id="stage" data-mode="auto" aria-hidden="true"></canvas>
   <!-- Dark overlay for readability -->
   <div class="auth-scrim" style="position:fixed;top:0;left:0;right:0;bottom:0;z-index:1;background:linear-gradient(to bottom,rgba(0,0,0,0.25),rgba(0,0,0,0.55));pointer-events:none;user-select:none;"></div>
