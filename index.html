@@ -982,6 +982,11 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
   body:not(.no-webgl) #authBg { display:none; }
   body.in-app #stage { opacity:.55; pointer-events:none; }
   body.light.in-app #stage { display:none; }
+  /* Frosted panels so each page's 3D scene reads through */
+  body.in-app:not(.light) :is(.stat-card,.match-card,.group-card,.lb-row,.auth-card,.modal-box) {
+    background:rgba(12,28,58,.68) !important;
+    -webkit-backdrop-filter:blur(10px) saturate(1.2); backdrop-filter:blur(10px) saturate(1.2);
+  }
   #authPage .auth-scrim { background:linear-gradient(90deg, rgba(5,13,31,0) 35%, rgba(5,13,31,.6) 100%) !important; }
   @media (max-width: 760px) {
     #authPage .auth-scrim { background:linear-gradient(180deg, rgba(5,13,31,.1) 0%, rgba(5,13,31,.65) 100%) !important; }
@@ -2991,6 +2996,7 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
       KO_ROUNDS.forEach(round=>{round.matches.forEach(match=>{const result=KO_RESULTS[match.id];if(!result)return;const pred=kp[match.id];if(!pred||pred.home===undefined)return;const wPts=match.winPts||round.winPts;const ePts=match.exactBonus||round.exactBonus;const tA=match.teamA,tB=match.teamB;const realFT=result.home>result.away?'winA':result.away>result.home?'winB':'draw';const predFT=pred.home>pred.away?'winA':pred.away>pred.home?'winB':'draw';const rAdv=realFT==='draw'?(result.homePen>result.awayPen?tA:tB):(realFT==='winA'?tA:tB);const pAdv=predFT==='draw'?(pred.homePen!==undefined?pred.homePen>pred.awayPen?tA:tB:''):( predFT==='winA'?tA:tB);const mpens=result.homePen!==undefined;const exactScore=pred.home===result.home&&pred.away===result.away;const correctFTResult=predFT===realFT;const correctAdv=(predFT!=='winA'&&predFT!=='winB')?true:pAdv===rAdv;const penok=mpens&&predFT==='draw'&&pred.homePen!==undefined&&pAdv===rAdv;const pb=penok?1:0;if(exactScore)housePts[u.house]+=ePts+pb;else if(correctFTResult&&correctAdv)housePts[u.house]+=wPts+pb;});});
     });
     // Ranked list: ties share a rank ("=1"), points and player counts as plain numbers
+    window.dispatchEvent(new CustomEvent('house-points',{detail:housePts})); // 3D house pillars
     const sortedHouses=Object.entries(HOUSES).sort(([a],[b])=>housePts[b]-housePts[a]);
     const ranks=sortedHouses.map(([name])=>1+sortedHouses.filter(([n])=>housePts[n]>housePts[name]).length);
     document.getElementById('houseBars').innerHTML=sortedHouses.map(([name,h],i)=>{
