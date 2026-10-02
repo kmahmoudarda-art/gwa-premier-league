@@ -1,59 +1,72 @@
-// Cinematic motion for the signed-in tabs, in the style of the concept page:
-// each tab's hero rises in when it opens, and scrolling dims the 3D backdrop
-// and eases the camera back so the content takes over.
+// Cinematic motion for the site, in the style of the concept page: each page
+// has a full-bleed night photo that pushes in when it appears and drifts and
+// dims as you scroll, and each tab's hero rises in out of a blur.
 const { gsap, ScrollTrigger } = window;
+const root = document.documentElement;
+const reduce = matchMedia('(prefers-reduced-motion: reduce)');
+const photo = document.getElementById('tabPhoto');
+const appPage = document.getElementById('appPage');
+let tab = 'predictions';
+
+// Signed-in pages get the night palette; signed out shows the sign-in photo.
+function syncPage() {
+  const inApp = !!appPage?.classList.contains('active');
+  document.body.classList.toggle('in-app', inApp);
+  swapPhoto(inApp ? tab : 'signin');
+}
+
+function swapPhoto(view) {
+  if (!photo || photo.dataset.view === view) return;
+  if (!gsap || reduce.matches) { photo.dataset.view = view; return; }
+  gsap.to(photo, { autoAlpha: 0, duration: 0.25, overwrite: 'auto', onComplete() {
+    photo.dataset.view = view;
+    gsap.fromTo(photo, { autoAlpha: 0, scale: 1.08 }, { autoAlpha: 1, scale: 1, duration: 2.4, ease: 'power2.out', overwrite: 'auto' });
+  } });
+}
+
+if (appPage) new MutationObserver(syncPage).observe(appPage, { attributes: true, attributeFilter: ['class'] });
 
 if (gsap && ScrollTrigger) {
   gsap.registerPlugin(ScrollTrigger);
   gsap.ticker.lagSmoothing(0); // on slow frames, finish on time rather than stall half-faded
-  const root = document.documentElement;
-  const reduce = matchMedia('(prefers-reduced-motion: reduce)');
 
-  // Scroll progress over the first 70% of a screen drives the backdrop.
+  // Scroll progress over the first 70% of a screen dims the photo and lets it drift up.
   const proxy = { p: 0 };
   gsap.to(proxy, {
     p: 1,
     ease: 'none',
     scrollTrigger: { trigger: document.body, start: 'top top', end: () => '+=' + innerHeight * 0.7, scrub: reduce.matches ? true : 0.6 },
     onUpdate() {
-      root.style.setProperty('--stage-o', (1 - 0.68 * proxy.p).toFixed(3));
-      dispatchEvent(new CustomEvent('stage-scroll', { detail: proxy.p }));
+      root.style.setProperty('--stage-o', (1 - 0.6 * proxy.p).toFixed(3));
+      if (photo && !reduce.matches) gsap.set(photo, { yPercent: -3 * proxy.p });
     },
   });
 
-  // Crossfade the page's night photo when the tab changes
-  const photo = document.getElementById('tabPhoto');
-  function swapPhoto(tab) {
-    if (!photo || photo.dataset.view === tab) return;
-    if (reduce.matches) { photo.dataset.view = tab; return; }
-    gsap.to(photo, { autoAlpha: 0, duration: 0.25, overwrite: true, onComplete() {
-      photo.dataset.view = tab;
-      gsap.to(photo, { autoAlpha: 0.7, duration: 0.6 });
-    } });
-  }
+  const tabEl = t => document.getElementById('tab' + t[0].toUpperCase() + t.slice(1));
 
-  const tabEl = tab => document.getElementById('tab' + tab[0].toUpperCase() + tab.slice(1));
-
-  function enter(tab) {
+  function enter(t) {
     if (reduce.matches) return;
-    const el = tabEl(tab);
+    const el = tabEl(t);
     if (!el) return;
     const hero = el.querySelectorAll('.tab-hero > *');
     const rest = [...el.querySelectorAll('.main-wrap > :not(.tab-hero)')].slice(0, 4);
-    const show = { y: 0, autoAlpha: 1, overwrite: true, clearProps: 'transform,opacity,visibility' };
-    gsap.timeline({ defaults: { duration: 0.8, ease: 'power3.out' } })
-      .fromTo(hero, { y: 32, autoAlpha: 0 }, { ...show, stagger: 0.09 })
+    const show = { y: 0, autoAlpha: 1, filter: 'blur(0px)', overwrite: true, clearProps: 'transform,opacity,visibility,filter' };
+    gsap.timeline({ defaults: { duration: 0.9, ease: 'power3.out' } })
+      .fromTo(hero, { y: 32, autoAlpha: 0, filter: 'blur(10px)' }, { ...show, stagger: 0.09 })
       .fromTo(rest, { y: 24, autoAlpha: 0 }, { ...show, duration: 0.6, stagger: 0.07 }, '-=0.5');
   }
 
   if (typeof window.showTab === 'function') {
     const showTab = window.showTab;
-    window.showTab = (tab, ...rest) => {
-      const out = showTab(tab, ...rest);
-      swapPhoto(tab);
-      enter(tab);
+    window.showTab = (t, ...rest) => {
+      const out = showTab(t, ...rest);
+      tab = t;
+      syncPage();
+      enter(t);
       ScrollTrigger.refresh();
       return out;
     };
   }
 }
+
+syncPage();

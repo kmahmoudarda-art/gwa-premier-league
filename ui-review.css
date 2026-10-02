@@ -141,3 +141,7 @@ button:active, .filter-btn:active, [role="button"]:active { transform: translate
   /* the poster art has its own headline baked in; soften it behind the card on phones */
   #authBg { filter: blur(4px) brightness(0.7); transform: scale(1.04); }
 }
+
+/* House standings: a meter per house, scaled to the leading house */
+.house-meter { grid-column: 2 / -1; height: 6px; border-radius: 3px; background: rgba(127,140,160,.18); overflow: hidden; margin-top: -4px; }
+.house-meter i { display: block; height: 100%; border-radius: inherit; }
