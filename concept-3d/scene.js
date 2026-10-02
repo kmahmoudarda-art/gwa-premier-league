@@ -391,7 +391,7 @@ function setHousePoints(pts) {
   }
   needsDraw = true;
 }
-setHousePoints({});
+setHousePoints(window.__housePts || {}); // the app may have counted points before this scene loaded
 addEventListener('house-points', e => setHousePoints(e.detail || {}));
 addFloor(SPOTS.houses, 8);
 addSpotLight(SPOTS.houses);
