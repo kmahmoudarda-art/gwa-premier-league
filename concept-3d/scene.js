@@ -295,8 +295,97 @@ async function buildPucks() {
   }
 }
 
-// ── Camera keyframes ──
+let needsDraw = true; // set when the signed-in backdrop must redraw after settling
 const v3 = (x, y, z) => new THREE.Vector3(x, y, z);
+// ── Per-tab scenes for the signed-in pages, each placed away from the pitch so the
+// camera flies between them and fog hides the rest ──
+const SPOTS = { houses: v3(0, 0, -40), rules: v3(40, 0, 0), fifa: v3(-40, 0, 0) };
+
+function labelTexture(lines, { w = 512, h = 256, bg = null, color = '#eef2ea' } = {}) {
+  const cv = document.createElement('canvas'); cv.width = w; cv.height = h;
+  const g = cv.getContext('2d');
+  if (bg) { g.fillStyle = bg; g.fillRect(0, 0, w, h); }
+  g.fillStyle = color; g.textAlign = 'center'; g.textBaseline = 'middle';
+  for (const [text, font, y] of lines) { g.font = font; g.fillText(text, w / 2, y); }
+  const t = new THREE.CanvasTexture(cv);
+  t.colorSpace = THREE.SRGBColorSpace;
+  return t;
+}
+function addSpotLight(at, color = '#fff3dc', intensity = 2.2) {
+  const l = new THREE.SpotLight(color, intensity, 0, 0.55, 0.6, 0);
+  l.position.set(at.x + 4, 14, at.z + 8);
+  l.target.position.copy(at);
+  scene.add(l, l.target);
+}
+function addFloor(at, r = 7) {
+  const floor = new THREE.Mesh(new THREE.CircleGeometry(r, 64),
+    new THREE.MeshStandardMaterial({ color: '#0b1a33', roughness: 0.35, metalness: 0.2 }));
+  floor.rotation.x = -Math.PI / 2; floor.position.copy(at); floor.position.y = 0.01;
+  floor.receiveShadow = true;
+  scene.add(floor);
+}
+
+// Leaderboard: four house pillars, heights follow house points
+const HOUSES = [['Razi', '#1a6fd4'], ['Zhur', '#22c55e'], ['Battuta', '#f59e0b'], ['Sina', '#ef4444']];
+const pillars = HOUSES.map(([name, color], i) => {
+  const mat = new THREE.MeshStandardMaterial({ color, roughness: 0.35, metalness: 0.15, emissive: color, emissiveIntensity: 0.12 });
+  const mesh = new THREE.Mesh(new THREE.BoxGeometry(1.6, 1, 1.6), mat);
+  mesh.castShadow = true;
+  const x = SPOTS.houses.x + (i - 1.5) * 2.4;
+  mesh.position.set(x, 0.5, SPOTS.houses.z);
+  const tag = new THREE.Mesh(new THREE.PlaneGeometry(2.2, 1.1), new THREE.MeshBasicMaterial({ transparent: true }));
+  tag.position.set(x, 0, SPOTS.houses.z + 0.85);
+  scene.add(mesh, tag);
+  return { name, mesh, tag, height: 2, target: 2 };
+});
+function setHousePoints(pts) {
+  const max = Math.max(1, ...Object.values(pts));
+  for (const p of pillars) {
+    const v = pts[p.name] || 0;
+    p.target = 1.2 + 5 * v / max;
+    p.tag.material.map?.dispose();
+    p.tag.material.map = labelTexture([[p.name, '400 120px "Bebas Neue", sans-serif', 90], [`${v} pts`, '600 52px "Outfit", sans-serif', 190]]);
+    p.tag.material.needsUpdate = true;
+  }
+  needsDraw = true;
+}
+setHousePoints({});
+addEventListener('house-points', e => setHousePoints(e.detail || {}));
+addFloor(SPOTS.houses, 8);
+addSpotLight(SPOTS.houses);
+
+// Rules: three standing cards for the scoring system
+[['3', 'Exact score', '#e8b931'], ['1', 'Right result', '#3b82f6'], ['0', 'Wrong', '#64748b']].forEach(([n, label, color], i) => {
+  const card = new THREE.Mesh(new THREE.BoxGeometry(2.6, 3.4, 0.12), [
+    new THREE.MeshStandardMaterial({ color: '#0c1c3a' }), new THREE.MeshStandardMaterial({ color: '#0c1c3a' }),
+    new THREE.MeshStandardMaterial({ color: '#0c1c3a' }), new THREE.MeshStandardMaterial({ color: '#0c1c3a' }),
+    new THREE.MeshStandardMaterial({ map: labelTexture([[n, '400 260px "Bebas Neue", sans-serif', 250], [label, '600 46px "Outfit", sans-serif', 470]], { w: 384, h: 512, bg: '#0c1c3a', color }), roughness: 0.5 }),
+    new THREE.MeshStandardMaterial({ color: '#0c1c3a' }),
+  ]);
+  card.castShadow = true;
+  card.position.set(SPOTS.rules.x + (i - 1) * 3.1, 1.9, SPOTS.rules.z - Math.abs(i - 1) * 0.8);
+  card.rotation.y = (1 - i) * 0.28;
+  scene.add(card);
+});
+addFloor(SPOTS.rules);
+addSpotLight(SPOTS.rules);
+
+// FIFA tournament: a gold trophy on a plinth
+{
+  const prof = [[0, 0], [0.9, 0], [0.9, 0.25], [0.35, 0.4], [0.25, 1.2], [0.5, 1.5], [1.2, 2.2], [1.35, 3.3], [1.25, 3.35], [1.05, 2.4], [0.4, 1.75], [0, 1.7]]
+    .map(([x, y]) => new THREE.Vector2(x, y));
+  const gold = new THREE.MeshStandardMaterial({ color: '#e8b931', metalness: 0.75, roughness: 0.28, emissive: '#3a2a00', emissiveIntensity: 0.4 });
+  const cup = new THREE.Mesh(new THREE.LatheGeometry(prof, 64), gold);
+  cup.castShadow = true;
+  const plinth = new THREE.Mesh(new THREE.CylinderGeometry(1.3, 1.5, 0.9, 48), new THREE.MeshStandardMaterial({ color: '#111827', roughness: 0.4 }));
+  plinth.position.copy(SPOTS.fifa); plinth.position.y = 0.45;
+  cup.position.copy(SPOTS.fifa); cup.position.y = 0.9;
+  scene.add(plinth, cup);
+  addFloor(SPOTS.fifa);
+  addSpotLight(SPOTS.fifa, '#fff1c9', 3);
+}
+
+// ── Camera keyframes ──
 function keyframes(side) {
   const narrow = innerWidth / innerHeight < 0.9;
   const dist = narrow ? 24 : 15.5;
@@ -304,13 +393,17 @@ function keyframes(side) {
   const vw = 2 * dist * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) * camera.aspect;
   const off = narrow ? 0 : side * Math.min(vw * 0.22, 5);
   const lift = narrow && side ? -3.6 : 0; // on phones, keep the grid above the copy
+  const sh = narrow ? 0 : side * 4.5; // per-tab subjects sit right of the hero copy
   return {
     hero:   narrow ? { pos: v3(0, 12, 11.5), look: v3(0, 0, 3.5) } : { pos: v3(-2 * side, 13.5, 15.5), look: v3(-2.8 * side, 0, 0.6) },
     table:  { pos: v3(GRID.x - off, GRID.y + lift + 0.6, GRID.z + dist), look: v3(GRID.x - off, GRID.y + lift, GRID.z) },
     finale: narrow ? { pos: v3(-6, 6.5, 15), look: v3(0, 0, 5) } : { pos: v3(-12, 2.6, 10.5), look: v3(-1, 0.4, -1) },
+    houses: { pos: SPOTS.houses.clone().add(v3(-sh, narrow ? 7 : 6, narrow ? 27 : 19)), look: SPOTS.houses.clone().add(v3(-sh, narrow ? 1.5 : 3.2, 0)) },
+    rules:  { pos: SPOTS.rules.clone().add(v3(-1.5 - sh, 3, narrow ? 17 : 14)), look: SPOTS.rules.clone().add(v3(-sh * 0.8, narrow ? 0.8 : 1.9, 0)) },
+    fifa:   { pos: SPOTS.fifa.clone().add(v3(2.5 - sh, 4, narrow ? 13 : 8.5)), look: SPOTS.fifa.clone().add(v3(-sh * 0.6, narrow ? 1 : 2.2, 0)) },
   };
 }
-// side: 1 = copy on the left (scroll page), -1 = sign-in card on the right, 0 = centred (signed-in pages)
+// side: 1 = copy on the left (scroll page and signed-in tabs), -1 = sign-in card on the right
 let KF, KF_APP;
 
 function resize() {
@@ -319,17 +412,18 @@ function resize() {
   camera.aspect = w / h;
   camera.updateProjectionMatrix();
   KF = keyframes(MODE === 'auto' ? -1 : 1);
-  KF_APP = keyframes(0);
+  KF_APP = keyframes(1);
   needsDraw = true;
 }
-let needsDraw = true;
 addEventListener('resize', resize);
 resize();
 
 // ── Scene state: which two layouts we're between, and how far ──
 const clamp01 = x => Math.min(1, Math.max(0, x));
 const smooth = x => x * x * (3 - 2 * x);
-const STANDING = { hero: 0, table: 1, finale: 0 };
+const STANDING = { hero: 0, table: 1, finale: 0, houses: 0, rules: 0, fifa: 0 };
+// Club pucks rest on the pitch (hero layout) while the camera visits the other scenes
+const puckKey = v => (v === 'table' || v === 'finale') ? v : 'hero';
 const tableEl = document.getElementById('table');
 
 function scrollStage() {
@@ -361,8 +455,12 @@ function autoStage(seconds) {
 
 // Signed-in pages: a dimmed backdrop whose view follows the open tab.
 const appPage = document.getElementById('appPage');
-const TAB_VIEW = { predictions: 'finale', groups: 'table' };
+const TAB_VIEW = { predictions: 'finale', groups: 'table', leaderboard: 'houses', rules: 'rules', fifa: 'fifa' };
 let appView = 'hero', appFrom = 'hero', appChanged = 0, wasInApp = false;
+// Scrolling a tab eases the camera up and back (progress 0..1 comes from motion.js).
+let scrollP = 0;
+const DOLLY = v3(0, 2.5, 6);
+addEventListener('stage-scroll', e => { scrollP = e.detail || 0; needsDraw = true; });
 if (MODE === 'auto' && typeof window.showTab === 'function') {
   const showTab = window.showTab;
   window.showTab = (tab, ...rest) => {
@@ -459,8 +557,15 @@ function frame(now) {
   if (first || reduceMotion) { camPos.copy(tmpPos); camLook.copy(tmpLook); first = false; }
   else { camPos.lerp(tmpPos, ease); camLook.lerp(tmpLook, ease); }
   camera.position.copy(camPos);
+  if (inApp && !reduceMotion) camera.position.addScaledVector(DOLLY, scrollP);
   camera.lookAt(camLook);
 
+  for (const p of pillars) {
+    p.height += (p.target - p.height) * (reduceMotion ? 1 : Math.min(1, ease * 1.5));
+    p.mesh.scale.y = p.height; p.mesh.position.y = p.height / 2;
+    p.tag.position.y = p.height + 0.8;
+    if (Math.abs(p.target - p.height) > 0.01) needsDraw = true; // keep drawing until grown
+  }
   const plateOn = STANDING[from] + (STANDING[to] - STANDING[from]) * et;
   for (const p of zonePlates) p.material.opacity = p.userData.max * smooth(clamp01(plateOn * 1.6 - 0.6));
 
@@ -470,7 +575,7 @@ function frame(now) {
   for (const m of pucks) {
     const u = m.userData;
     const l = smooth(clamp01((t - u.delay) / 0.65));
-    m.position.lerpVectors(u[from], u[to], l);
+    m.position.lerpVectors(u[puckKey(from)], u[puckKey(to)], l);
     m.position.y += Math.sin(l * Math.PI) * 1.4;
     m.rotation.x = (STANDING[from] + (STANDING[to] - STANDING[from]) * l) * Math.PI / 2;
     m.rotation.z = Math.sin(l * Math.PI) * 0.6;

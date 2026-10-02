@@ -980,8 +980,37 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
   #authPage .auth-wrap { pointer-events:none !important; }
   /* The old photo (with text baked in) only shows if WebGL is unavailable */
   body:not(.no-webgl) #authBg { display:none; }
-  body.in-app #stage { opacity:.55; pointer-events:none; }
+  /* Signed-in tabs use the concept page's look: night palette, a full-strength
+     scene behind a big Bebas hero, a left scrim, and quiet hairline panels.
+     motion.js lowers --stage-o as the page scrolls so content takes over. */
+  body.in-app #stage { opacity:var(--stage-o,1); pointer-events:none; }
   body.light.in-app #stage { display:none; }
+  body.in-app:not(.light) { background:#050d1f; }
+  body.in-app:not(.light)::before {
+    content:""; position:fixed; inset:0; z-index:1; pointer-events:none;
+    background:linear-gradient(90deg, rgba(5,13,31,.9) 0%, rgba(5,13,31,.55) 34%, rgba(5,13,31,0) 60%);
+  }
+  #appPage { position:relative; z-index:2; }
+  .tab-hero { min-height:min(62vh,600px); max-width:36rem; display:flex; flex-direction:column; justify-content:flex-end; padding:40px 0 44px; }
+  .tab-hero .eyebrow { font:600 13px/1.3 'Outfit',sans-serif; letter-spacing:.14em; text-transform:uppercase; color:#e8b931; margin:0 0 14px; }
+  .tab-hero .page-title { font-family:'Bebas Neue',sans-serif !important; font-weight:400 !important; font-size:clamp(52px,7vw,104px) !important; line-height:.92 !important; letter-spacing:.01em !important; margin:0 !important; }
+  .tab-hero .lede { margin:18px 0 0; font-size:clamp(16px,1.4vw,19px); line-height:1.55; color:#c9d3df; max-width:38ch; }
+  .tab-hero .lede strong { color:#eef2ea; }
+  .tab-hero .zones { list-style:none; margin:24px 0 0; padding:0; display:grid; gap:10px; font-size:15px; }
+  .tab-hero .zones li { display:grid; grid-template-columns:12px auto 1fr; gap:10px; align-items:baseline; }
+  .tab-hero .zones i { width:12px; height:12px; border-radius:3px; transform:translateY(1px); }
+  .tab-hero .zones span { color:#93a3b8; }
+  body.light .tab-hero .lede { color:inherit; opacity:.8; }
+  body.light .tab-hero .zones span { color:inherit; opacity:.7; }
+  body.in-app:not(.light) :is(.stat-card,.match-card,.group-card,.lb-row,.lb-sum-card,.modal-box,.predictions-notice,.fifa-soon) {
+    background:rgba(5,13,31,.8) !important; border:1px solid rgba(238,242,234,.1) !important; box-shadow:none !important;
+  }
+  body.in-app:not(.light):not(.colorblind) .save-btn:not(.saved) { background:#e8b931; border-color:transparent; color:#050d1f; }
+  body.in-app:not(.light):not(.colorblind) .save-btn:not(.saved):hover { background:#f4cc52; }
+  @media (max-width: 760px) {
+    body.in-app:not(.light)::before { background:linear-gradient(0deg, rgba(5,13,31,.92) 0%, rgba(5,13,31,.5) 45%, rgba(5,13,31,.15) 75%); }
+    .tab-hero { min-height:52vh; padding:24px 0 28px; }
+  }
   #authPage .auth-scrim { background:linear-gradient(90deg, rgba(5,13,31,0) 35%, rgba(5,13,31,.6) 100%) !important; }
   @media (max-width: 760px) {
     #authPage .auth-scrim { background:linear-gradient(180deg, rgba(5,13,31,.1) 0%, rgba(5,13,31,.65) 100%) !important; }
@@ -1089,12 +1118,15 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
   <!-- PREDICTIONS TAB -->
   <div id="tabPredictions" class="tab-content">
     <div class="main-wrap">
-      <div class="page-title">Make Your Predictions</div>
+      <div class="tab-hero">
+        <p class="eyebrow">Matchday <span data-league="next-md">2</span> kicks off <span data-league="next-date"></span></p>
+        <h1 class="page-title">Your call on every match</h1>
+        <p class="lede">An exact score earns <strong>3 points</strong>. The right result earns <strong>1</strong>. A wrong call earns nothing.</p>
+      </div>
       <div class="predictions-notice">
         <svg class="ph" aria-hidden="true"><use href="#ph-alarm"/></svg> Predictions are <strong>automatically locked 15 minutes before each match starts</strong>. Make sure to submit your scores before kickoff!
         <span id="noticeNextMatch"></span>
       </div>
-      <div class="page-sub">Predict the score for each match. Exact score = <strong>3 pts</strong> · Correct result = <strong>1 pt</strong> · Wrong = 0 pts</div>
       <div class="stats-bar">
         <div class="stat-card"><div class="stat-num" id="statPredicted">0</div><div class="stat-label">Matches Predicted</div></div>
         <div class="stat-card"><div class="stat-num yellow" id="statPoints">0</div><div class="stat-label">Points Earned</div></div>
@@ -1150,8 +1182,16 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
   <!-- GROUPS TAB -->
   <div id="tabGroups" class="tab-content" style="display:none">
     <div class="main-wrap">
-      <div class="page-title">Champions League Table</div>
-      <div class="page-sub">Your predicted table side-by-side with the actual table.</div>
+      <div class="tab-hero">
+        <p class="eyebrow">After matchday <span data-league="last-md">1</span></p>
+        <h1 class="page-title">The table</h1>
+        <p class="lede">Your predicted table beside the real one. A tick means you have that club in the right place.</p>
+        <ul class="zones">
+          <li><i style="background:#3b82f6"></i><b>1st to 8th</b> <span>go straight to the round of 16</span></li>
+          <li><i style="background:#f59e0b"></i><b>9th to 24th</b> <span>play off for the remaining places</span></li>
+          <li><i style="background:#ef4444"></i><b>25th to 36th</b> <span>are knocked out</span></li>
+        </ul>
+      </div>
       <div id="groupsGrid" class="groups-grid"></div>
     </div>
   </div>
@@ -1159,7 +1199,11 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
   <!-- RULES TAB -->
   <div id="tabRules" class="tab-content" style="display:none">
     <div class="main-wrap">
-      <div class="page-title">Rules</div>
+      <div class="tab-hero">
+        <p class="eyebrow">How scoring works</p>
+        <h1 class="page-title">Three, one or nothing</h1>
+        <p class="lede">Three points for the exact score, one for the right result, nothing for a wrong call. Bonus points come from your team and your top 8 picks.</p>
+      </div>
       <div class="rules-grid">
         <div class="group-card">
           <div class="group-card-title">Scoring</div>
@@ -1202,8 +1246,11 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
   <!-- FIFA 2026 E-GAMING TOURNAMENT TAB -->
   <div id="tabFifa" class="tab-content" style="display:none">
     <div class="main-wrap">
-      <div class="page-title">GWA FIFA 2026 E-Gaming Tournament</div>
-      <div class="page-sub">Term 1, Room D108, Wednesday lunchtimes. Free entry for every student.</div>
+      <div class="tab-hero">
+        <p class="eyebrow">Term 1 · Room D108 · Wednesday lunchtimes</p>
+        <h1 class="page-title">GWA FIFA 2026</h1>
+        <p class="lede">The e-gaming tournament. 29 players, single elimination by year group, one champion.</p>
+      </div>
 
       <div class="fifa-soon">
         <div class="fifa-soon-text">All <strong>29 players</strong> are in and the play-in round is under way. Winners are marked ✓ in the bracket below. Good luck!</div>
@@ -1264,8 +1311,11 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
   <!-- LEADERBOARD TAB -->
   <div id="tabLeaderboard" class="tab-content" style="display:none">
     <div class="main-wrap">
-      <div class="page-title">Leaderboard</div>
-      <div class="page-sub">Click any player to see their predictions and group standings.</div>
+      <div class="tab-hero">
+        <p class="eyebrow">The house cup</p>
+        <h1 class="page-title">Leaderboard</h1>
+        <p class="lede">Every prediction scores for you and your house. Tap any player to see their picks.</p>
+      </div>
       <div class="lb-summary">
         <div class="lb-sum-card"><div class="lb-sum-num" id="lbTotalPlayers">0</div><div class="lb-sum-label">Total Players</div></div>
         <div class="lb-sum-card"><div class="lb-sum-num" id="lbTotalPredictions">0</div><div class="lb-sum-label">Total Predictions</div></div>
@@ -2991,6 +3041,7 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
       KO_ROUNDS.forEach(round=>{round.matches.forEach(match=>{const result=KO_RESULTS[match.id];if(!result)return;const pred=kp[match.id];if(!pred||pred.home===undefined)return;const wPts=match.winPts||round.winPts;const ePts=match.exactBonus||round.exactBonus;const tA=match.teamA,tB=match.teamB;const realFT=result.home>result.away?'winA':result.away>result.home?'winB':'draw';const predFT=pred.home>pred.away?'winA':pred.away>pred.home?'winB':'draw';const rAdv=realFT==='draw'?(result.homePen>result.awayPen?tA:tB):(realFT==='winA'?tA:tB);const pAdv=predFT==='draw'?(pred.homePen!==undefined?pred.homePen>pred.awayPen?tA:tB:''):( predFT==='winA'?tA:tB);const mpens=result.homePen!==undefined;const exactScore=pred.home===result.home&&pred.away===result.away;const correctFTResult=predFT===realFT;const correctAdv=(predFT!=='winA'&&predFT!=='winB')?true:pAdv===rAdv;const penok=mpens&&predFT==='draw'&&pred.homePen!==undefined&&pAdv===rAdv;const pb=penok?1:0;if(exactScore)housePts[u.house]+=ePts+pb;else if(correctFTResult&&correctAdv)housePts[u.house]+=wPts+pb;});});
     });
     // Ranked list: ties share a rank ("=1"), points and player counts as plain numbers
+    window.dispatchEvent(new CustomEvent('house-points',{detail:housePts})); // 3D house pillars
     const sortedHouses=Object.entries(HOUSES).sort(([a],[b])=>housePts[b]-housePts[a]);
     const ranks=sortedHouses.map(([name])=>1+sortedHouses.filter(([n])=>housePts[n]>housePts[name]).length);
     document.getElementById('houseBars').innerHTML=sortedHouses.map(([name,h],i)=>{
@@ -4495,3 +4546,6 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
   })();
 </script>
 <script type="module" src="concept-3d/scene.js"></script>
+<script defer src="concept-3d/vendor/gsap.min.js"></script>
+<script defer src="concept-3d/vendor/ScrollTrigger.min.js"></script>
+<script type="module" src="concept-3d/motion.js"></script>
