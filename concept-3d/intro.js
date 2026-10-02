@@ -11,9 +11,13 @@ if (gsap && ScrollTrigger && stops.length && !matchMedia('(prefers-reduced-motio
   });
   // Open on the stadium photo, push in, then dissolve to the 3D pitch;
   // the first stop's badges arrive once the pitch is showing.
-  tl.fromTo('#intro .photo', { scale: 1 }, { scale: 1.12, duration: 0.6, ease: 'none' }, 0)
-    .to('#intro .photo', { autoAlpha: 0, duration: 0.3 }, 0.2)
+  tl.fromTo('#intro .photo:not(.trophy)', { scale: 1 }, { scale: 1.12, duration: 0.6, ease: 'none' }, 0)
+    .to('#intro .photo:not(.trophy)', { autoAlpha: 0, duration: 0.3 }, 0.2)
     .fromTo(stops[0].querySelectorAll('.badge'), { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.15 }, 0.4);
+  // On the trophy stop, the 3D cup gives way to the supplied trophy picture
+  tl.fromTo('#intro .photo.trophy', { autoAlpha: 0, scale: 1.08 }, { autoAlpha: 1, scale: 1, duration: 0.35 }, 1.9)
+    .to('#intro .photo.trophy', { autoAlpha: 0, duration: 0.3 }, 2.5)
+    .to(stops[2].querySelectorAll('.badge'), { autoAlpha: 0, duration: 0.2 }, 1.95);
   stops.forEach((stop, i) => {
     const h = stop.querySelector('h2');
     if (i > 0) tl.fromTo(stop, { autoAlpha: 0 }, { autoAlpha: 1 }, i - 0.35)
