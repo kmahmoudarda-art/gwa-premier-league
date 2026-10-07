@@ -2500,7 +2500,7 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
       ['Yousef Addas','Mohammed R'],['Ratmir','Mr. Barry'],['Hamdan Alharmoodi','Jassim Al Baqali'],
       ['Saifuddin Al Qadi','Dara Daoud'],['Abdalla Elfadil','Diyeco Esteki']];
     // Results so far: play-in number → winner. Winners move straight into their Round of 16 slot.
-    const piWinners={5:'Hamza Usman (10F)',8:'Mahdiar',9:'Yousef Addas'};
+    const piWinners={2:'Georgii Shadrin',3:'Shantia Abedian',4:'Taha',5:'Hamza Usman (10F)',8:'Mahdiar',9:'Yousef Addas',10:'Mr. Barry',12:'Dara Daoud'};
     const W=n=>piWinners[n]||`Winner of Play-in ${n}`;
     const r16=[...byes.map((p,i)=>[p,W(i+1)]),[W(4),W(11)],[W(5),W(12)],[W(6),W(13)],[W(7),W(9)],[W(8),W(10)]];
     const winners=new Set(Object.values(piWinners));
