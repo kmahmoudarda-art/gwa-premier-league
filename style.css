@@ -261,7 +261,9 @@ body.light .auth-logo h1 { color:#0a0a0a; }
 .standings-table { width:100%; border-collapse:collapse; font-size:12px; margin-bottom:14px; }
 .standings-table th { color:var(--muted); font-weight:600; text-align:center; padding:4px 3px; border-bottom:1px solid var(--border); font-size:10px; text-transform:uppercase; }
 .standings-table td { text-align:center; padding:6px 3px; border-bottom:1px solid var(--border); color:var(--text); height:36px; box-sizing:border-box; }
-.standings-table td.team-cell { text-align:left; display:flex; align-items:center; gap:4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.standings-table td.team-cell { text-align:left; white-space:nowrap; vertical-align:middle; }
+.standings-table td.team-cell > * { vertical-align:middle; }
+.standings-table td.team-cell .qualify-dot { margin-right:4px; }
 .standings-table th:nth-child(2), .standings-table td.team-cell { width:auto; }
 .standings-table th:first-child:not(.team-cell), .standings-table td:first-child:not(.team-cell) { width:28px; }
 .standings-table td.pts-cell { font-weight:700; color:#1D4ED8; }
