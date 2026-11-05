@@ -2554,29 +2554,38 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
       ['Yousef Addas','Mohammed R'],['Ratmir','Mr. Barry'],['Hamdan Alharmoodi','Jassim Al Baqali'],
       ['Saifuddin Al Qadi','Dara Daoud'],['Abdalla Elfadil','Diyeco Esteki']];
     // Results so far: play-in number → winner. Winners move straight into their Round of 16 slot.
-    const piWinners={2:'Georgii Shadrin',3:'Shantia Abedian',4:'Taha',5:'Hamza Usman (10F)',8:'Mahdiar',9:'Yousef Addas',10:'Mr. Barry',12:'Dara Daoud'};
-    const W=n=>piWinners[n]||`Winner of Play-in ${n}`;
+    const piWinners={1:'Mohammed Allybokys',2:'Georgii Shadrin',3:'Shantia Abedian',4:'Taha',5:'Hamza Usman (10F)',8:'Mahdiar',9:'Yousef Addas',10:'Ratmir',12:'Dara Daoud'};
+    // Disqualified for not showing up — shown crossed out wherever they appear.
+    const out=new Set(['Muhammad Umar Bin Sadiq','Georgii Shadrin','Amir Abbas','Shantia Abedian',
+      'Saifuddin Al Qadi','Dara Daoud','Sudarshan Rao','Sami','Abdalla Elfadil','Diyeco Esteki',
+      'Adham','Roshan Bahirwani','Yousef Addas','Mohammed R']);
+    // Play-ins where both players were no-shows: nobody advances.
+    const piVoid=new Set([6,7,13]);
+    const W=n=>piWinners[n]||(piVoid.has(n)?'No-show':`Winner of Play-in ${n}`);
     const r16=[...byes.map((p,i)=>[p,W(i+1)]),[W(4),W(11)],[W(5),W(12)],[W(6),W(13)],[W(7),W(9)],[W(8),W(10)]];
-    const winners=new Set(Object.values(piWinners));
-    const decided=new Set(Object.keys(piWinners).map(n=>pi[n-1]).flat());
+    // Round of 16 results: match number (1–8) → winner.
+    const r16Winners={1:'Mohammed Allybokys',5:'Hamza Usman (10F)',8:'Mahdiar'};
+    // Quarter-final line-up so far (blank = TBD).
+    const qf=[['Mohammed Allybokys','Taha'],['',''],['Hamza Usman (10F)',''],['','Mahdiar']];
     const slot=(v,done)=>{
       const cls=v===OPEN?' fifa-slot-open':/^Winner of/.test(v)?' fifa-slot-feed':
-        done&&winners.has(v)?' fifa-slot-win':done&&decided.has(v)?' fifa-slot-lose':'';
+        out.has(v)||v==='No-show'?' fifa-slot-lose':
+        done&&v===done?' fifa-slot-win':done?' fifa-slot-lose':'';
       return `<div class="fifa-slot${cls}">${v?esc(v):'&nbsp;'}</div>`;
     };
     let neon=0;
     // Each cell gets a flex weight (= number of bracket rows it spans) so every match lines up
     // with the match it feeds in the next round, even when the play-in column is taller.
-    const match=([a,b],w=1,done=false)=>{
+    const match=([a,b],w=1,done='')=>{
       const hl=(a===OPEN||b===OPEN)?` fifa-neon-${neon++%2}`:'';
       return `<div class="fifa-cell" style="flex:${w}"><div class="fifa-match${hl}">${slot(a,done)}${slot(b,done)}</div></div>`;
     };
-    const piMatch=(n,w=1)=>match(pi[n-1],w,n in piWinners);
+    const piMatch=(n,w=1)=>match(pi[n-1],w,piWinners[n]);
     // A pair draws a bracket line joining its two matches into one match in the next round.
     const wrap=(c1,w1,c2,w2)=>{const t=w1+w2;
       return `<div class="fifa-pair" style="flex:${t};--t:${w1/2/t*100}%;--b:${w2/2/t*100}%">${c1}${c2}</div>`;};
-    const pair=(m1,w1,m2,w2)=>wrap(match(m1,w1),w1,match(m2,w2),w2);
-    const pairs=(ms,ws)=>ms.reduce((h,m,i)=>i%2?h:h+pair(m,ws[i],ms[i+1],ws[i+1]),'');
+    const pair=(m1,w1,m2,w2,d1,d2)=>wrap(match(m1,w1,d1),w1,match(m2,w2,d2),w2);
+    const pairs=(ms,ws,dn=()=>'')=>ms.reduce((h,m,i)=>i%2?h:h+pair(m,ws[i],ms[i+1],ws[i+1],dn(i),dn(i+1)),'');
     const blank=n=>Array.from({length:n},()=>['','']);
     const round=(name,body,cls='')=>`<div class="fifa-round ${cls}"><div class="fifa-round-title">${name}</div><div class="fifa-round-matches">${body}</div></div>`;
     const r16w=[1,1,1,2,2,2,2,2], qfw=[2,3,4,4], sfw=[5,8];
@@ -2584,8 +2593,8 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
       [[4,11],[5,12],[6,13],[7,9],[8,10]].map(([x,y])=>wrap(piMatch(x),1,piMatch(y),1)).join('');
     el.innerHTML=
       round('Play-in Round',piCol,'fifa-straight')+
-      round('Round of 16',pairs(r16,r16w),'fifa-in')+
-      round('Quarter-finals',pairs(blank(4),qfw),'fifa-in')+
+      round('Round of 16',pairs(r16,r16w,i=>r16Winners[i+1]),'fifa-in')+
+      round('Quarter-finals',pairs(qf,qfw),'fifa-in')+
       round('Semi-finals',pairs(blank(2),sfw),'fifa-in')+
       round('Final',match(['','']),'fifa-in fifa-straight')+
       round('Champion',`<div class="fifa-cell"><div class="fifa-champ">🏆<span>TBD</span></div>
