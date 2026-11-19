@@ -2601,9 +2601,9 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
       round('Round of 16',pairs(r16,r16w,i=>r16Winners[i+1]),'fifa-in')+
       round('Quarter-finals',pairs(qf,qfw,i=>qfWin[i]),'fifa-in')+
       round('Semi-finals',pairs(sf,sfw,i=>sfWin[i]),'fifa-in')+
-      round('Final',match(['Mohammed Allybokys','Taha']),'fifa-in fifa-straight')+
-      round('Champion',`<div class="fifa-cell"><div class="fifa-champ">🏆<span>TBD</span></div>
-        <div class="fifa-champ-q">Who will be crowned champion? Do you have what it takes?</div></div>`,'fifa-in fifa-round-champ');
+      round('Final',match(['Mohammed Allybokys','Taha'],1,'Taha'),'fifa-in fifa-straight')+
+      round('Champion',`<div class="fifa-cell"><div class="fifa-champ">🏆<span>Taha</span></div>
+        <div class="fifa-champ-q">Congratulations Taha, FC26 Champion! Runner-up: Mohammed Allybokys. Thank you to every student who took part. <a href="certificates/" style="color:inherit;text-decoration:underline">View certificates</a></div></div>`,'fifa-in fifa-round-champ');
     el.dataset.built='1';
   }
 

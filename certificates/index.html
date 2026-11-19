@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>FC26 E-Sport Tournament – Certificates</title>
+<style>
+  :root{--ink:#14213d;--gold:#9a6f12;--silver:#3a4350}
+  *{box-sizing:border-box}
+  body{margin:0;background:#05080a;color:#fff;font-family:"Segoe UI",Roboto,Helvetica,Arial,sans-serif;padding:20px 16px 60px}
+  h1{font-size:20px;letter-spacing:.5px;text-align:center;margin:8px 0 4px}
+  .hint{text-align:center;color:#94a3b8;font-size:13px;margin:0 0 22px}
+  .hint button{background:#00ff85;color:#000;border:0;border-radius:6px;padding:6px 14px;font-weight:700;cursor:pointer;margin-left:8px}
+  .sheet{max-width:1536px;margin:0 auto 28px}
+  .cert{position:relative;aspect-ratio:1536/1024;container-type:inline-size;background-size:100% 100%;overflow:hidden;border-radius:6px;box-shadow:0 10px 40px #000a}
+  .gold{background-image:url(gold-bg.jpg);--c:var(--gold)}
+  .silver{background-image:url(silver-bg.jpg);--c:var(--silver)}
+  .thanks{background-image:url(thanks-bg.jpg);--c:var(--gold)}
+  .panel{position:absolute;left:38%;width:52%;top:58.8%;height:36.6%;display:flex;flex-direction:column;align-items:center;justify-content:space-evenly;text-align:center;color:var(--ink);font-size:1.4cqw;line-height:1.3}
+  .thanks .panel{top:23%;height:72%}
+  .presented{font-size:1.15cqw;letter-spacing:.25em;text-transform:uppercase;color:#5b6577}
+  .name{font-family:Georgia,"Times New Roman",serif;font-style:italic;font-weight:700;font-size:4.4cqw;line-height:1.05;color:var(--c);white-space:nowrap}
+  .rule{width:70%;height:2px;background:var(--c);opacity:.55}
+  .body b{color:var(--c)}
+  .date{font-weight:700;font-size:1.6cqw;color:var(--c)}
+  .sigs{font-size:1.35cqw;border-top:1.5px solid var(--ink);padding-top:.6cqw;min-width:44%}
+  .t-title{font-family:Georgia,serif;font-weight:700;font-size:7.4cqw;line-height:1;color:var(--c);letter-spacing:.02em}
+  .t-sub{font-size:1.9cqw;letter-spacing:.3em;text-transform:uppercase;color:#5b6577}
+  .t-body{font-size:1.75cqw;line-height:1.5;max-width:92%}
+  .t-body b{color:var(--c)}
+  .winners{display:flex;gap:2.4cqw;justify-content:center;font-size:1.5cqw}
+  .winners div{padding:.5cqw 1.6cqw;border:1.5px solid var(--c);border-radius:99px;color:var(--ink)}
+  .winners b{color:var(--c)}
+  @media print{
+    @page{size:297mm 198mm;margin:0}
+    body{background:#fff;padding:0}
+    h1,.hint{display:none}
+    .sheet{margin:0;max-width:none;page-break-after:always}
+    .cert{border-radius:0;box-shadow:none;print-color-adjust:exact;-webkit-print-color-adjust:exact}
+  }
+</style>
+</head>
+<body>
+<h1>FC26 E-Sport Tournament 2026 – Certificates</h1>
+<p class="hint">Landscape A4 · print or “Save as PDF” <button onclick="print()">Print</button></p>
+
+<div class="sheet"><div class="cert gold" id="first">
+  <div class="panel">
+    <div class="presented">This certificate is proudly presented to</div>
+    <div class="name">Taha</div>
+    <div class="body">For achieving <b>FIRST PLACE</b> in the FC26 E-Sport Tournament 2026<br>at GEMS World Academy Dubai. Congratulations, Champion!</div>
+    <div class="date">18 / Nov 2026</div>
+    <div class="sigs">Khalid Mahmoud &nbsp;|&nbsp; Paula Young</div>
+  </div>
+</div></div>
+
+<div class="sheet"><div class="cert silver" id="second">
+  <div class="panel">
+    <div class="presented">This certificate is proudly presented to</div>
+    <div class="name">Mohammed Allybokys</div>
+    <div class="body">For achieving <b>SECOND PLACE</b> in the FC26 E-Sport Tournament 2026<br>at GEMS World Academy Dubai. Congratulations, Runner-up!</div>
+    <div class="date">18 / Nov 2026</div>
+    <div class="sigs">Khalid Mahmoud &nbsp;|&nbsp; Paula Young</div>
+  </div>
+</div></div>
+
+<div class="sheet"><div class="cert thanks" id="thanks">
+  <div class="panel">
+    <div class="t-sub">FC26 E-Sport Tournament 2026</div>
+    <div class="t-title">THANK YOU</div>
+    <div class="rule"></div>
+    <div class="t-body">To <b>every student who took part</b> – thank you for your skill, sportsmanship and passion.<br>Win or lose, you made this tournament a success and showed what <b>Play · Compete · Belong</b> really means.</div>
+    <div class="winners"><div><b>1st</b> &nbsp;Taha</div><div><b>2nd</b> &nbsp;Mohammed Allybokys</div></div>
+    <div class="date">See you at the next tournament!</div>
+    <div class="sigs">Khalid Mahmoud &nbsp;|&nbsp; Paula Young</div>
+  </div>
+</div></div>
+</body>
+</html>
