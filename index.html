@@ -1384,12 +1384,30 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
       <div class="tab-hero">
         <p class="eyebrow">Term 1 · Room D108 · Wednesday lunchtimes</p>
         <h1 class="page-title">FIFA 2026</h1>
-        <p class="lede">The e-gaming tournament. 29 players, single elimination by year group, one champion.</p>
+        <p class="lede">The e-gaming tournament is complete. 29 players, single elimination, one champion.</p>
       </div>
 
-      <div class="fifa-soon">
-        <div class="fifa-soon-text">All <strong>29 players</strong> are in and the play-in round is under way. Winners are marked ✓ in the bracket below. Good luck!</div>
-      </div>
+      <section class="fifa-celebrate" aria-label="FC26 tournament result">
+        <div class="fc-confetti" id="fcConfetti" aria-hidden="true"></div>
+        <p class="fc-eyebrow">FC26 E-Sport Tournament 2026 · Final result</p>
+        <h2 class="fc-title">Congratulations, <span>Champions!</span></h2>
+        <div class="fc-podium">
+          <div class="fc-place fc-second">
+            <div class="fc-medal">🥈</div>
+            <div class="fc-name">Mohammed Allybokys</div>
+            <div class="fc-role">Runner-up</div>
+            <div class="fc-block">2</div>
+          </div>
+          <div class="fc-place fc-first">
+            <div class="fc-crown">👑</div>
+            <div class="fc-medal">🏆</div>
+            <div class="fc-name">Taha</div>
+            <div class="fc-role">FC26 Champion</div>
+            <div class="fc-block">1</div>
+          </div>
+        </div>
+        <p class="fc-thanks">A huge <strong>thank you</strong> to every student who took part. Your skill, sportsmanship and passion made this tournament. <em>Play · Compete · Belong.</em></p>
+      </section>
 
       <div class="fifa-info-grid">
         <div class="group-card">
@@ -2544,11 +2562,18 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
     if(t==='predictions'){document.getElementById('tabPredictions').style.display='block';renderMatches();updateStats();updatePlayerCount();renderCalendar();renderSeasonPicks();}
     else if(t==='groups'){document.getElementById('tabGroups').style.display='block';renderGroups();}
     else if(t==='rules'){document.getElementById('tabRules').style.display='block';}
-    else if(t==='fifa'){document.getElementById('tabFifa').style.display='block';renderFifaBracket();}
+    else if(t==='fifa'){document.getElementById('tabFifa').style.display='block';renderFifaBracket();buildConfetti();}
     else{document.getElementById('tabLeaderboard').style.display='block';renderLeaderboard();renderHouseChart();updatePlayerCount();}
   };
 
   // ── FIFA 2026 E-GAMING TAB ─────────────────────────────────────────
+  function buildConfetti(){
+    const el=document.getElementById('fcConfetti');
+    if(!el||el.dataset.built) return;
+    const cols=['#fbbf24','#f59e0b','#e2e8f0','#22d3ee','#00ff85','#d946ef'];
+    el.innerHTML=Array.from({length:36},(_,i)=>`<i style="left:${(i*97%100)}%;background:${cols[i%cols.length]};animation-delay:${(i%12)*0.45}s;animation-duration:${5+(i%5)}s;transform:rotate(${i*37%360}deg)"></i>`).join('');
+    el.dataset.built='1';
+  }
   function renderFifaBracket(){
     const el=document.getElementById('fifaBracket');
     if(el.dataset.built) return;
@@ -2610,9 +2635,9 @@ body.colorblind.light .acc-bar       { background:#0077bb !important; }
       round('Round of 16',pairs(r16,r16w,i=>r16Winners[i+1]),'fifa-in')+
       round('Quarter-finals',pairs(qf,qfw,i=>qfWin[i]),'fifa-in')+
       round('Semi-finals',pairs(sf,sfw,i=>sfWin[i]),'fifa-in')+
-      round('Final',match(['Mohammed Allybokys','Taha']),'fifa-in fifa-straight')+
-      round('Champion',`<div class="fifa-cell"><div class="fifa-champ">🏆<span>TBD</span></div>
-        <div class="fifa-champ-q">Who will be crowned champion? Do you have what it takes?</div></div>`,'fifa-in fifa-round-champ');
+      round('Final',match(['Mohammed Allybokys','Taha'],1,'Taha'),'fifa-in fifa-straight')+
+      round('Champion',`<div class="fifa-cell"><div class="fifa-champ">🏆<span>Taha</span></div>
+        <div class="fifa-champ-q">FC26 Champion!</div></div>`,'fifa-in fifa-round-champ');
     el.dataset.built='1';
   }
 
